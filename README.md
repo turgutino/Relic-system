@@ -1,6 +1,6 @@
 # 🌏 Overseas Relic Knowledge Service System
 
-A modern web-based platform for exploring overseas cultural relics through a knodwledge graph.
+A modern web-based platform for exploring overseas cultural relics through a knowledge graph.
 The system provides advanced browsing, intelligent querying, interactive visualization, and personalized user services.
 
 ---
