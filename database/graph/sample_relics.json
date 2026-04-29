@@ -1,0 +1,66 @@
+[
+  {
+    "id": "r001",
+    "name": "Ritual Bronze Ding",
+    "dynasty": "Western Zhou",
+    "museum": "British Museum, London",
+    "description": "Ceremonial tripod vessel with taotie mask design.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r002",
+    "name": "Celadon Longquan Vase",
+    "dynasty": "Southern Song",
+    "museum": "Musée Guimet, Paris",
+    "description": "Jade-green glazed ceramic from Longquan kilns.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r003",
+    "name": "Gilt-Bronze Buddha",
+    "dynasty": "Northern Wei",
+    "museum": "Metropolitan Museum of Art, New York",
+    "description": "Small votive figure with flame aureole.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r004",
+    "name": "Famille Rose Plate",
+    "dynasty": "Qing (Qianlong)",
+    "museum": "Victoria and Albert Museum, London",
+    "description": "Porcelain plate with floral famille rose enamels.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r005",
+    "name": "Oracle Bone Fragment",
+    "dynasty": "Shang",
+    "museum": "Royal Ontario Museum, Toronto",
+    "description": "Inscribed tortoise plastron with early Chinese script.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r006",
+    "name": "Landscape Handscroll",
+    "dynasty": "Yuan",
+    "museum": "Cleveland Museum of Art, Ohio",
+    "description": "Ink and color on silk; mountain and river motif.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r007",
+    "name": "White Jade Bi Disc",
+    "dynasty": "Han",
+    "museum": "Freer Gallery of Art, Washington D.C.",
+    "description": "Perforated ritual disc with grain pattern.",
+    "image": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r008",
+    "name": "Dragon Robe Panel",
+    "dynasty": "Ming",
+    "museum": "Asian Art Museum, San Francisco",
+    "description": "Embroidered silk with five-clawed dragon roundels.",
+    "image": "/placeholder-relic.svg"
+  }
+]

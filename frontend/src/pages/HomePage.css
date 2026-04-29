@@ -1,0 +1,72 @@
+.home {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.home__header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #c9c4bc;
+  padding-bottom: 1rem;
+}
+
+.home__header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.home__tagline {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.home__main {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .home__main {
+    grid-template-columns: 220px 1fr;
+    align-items: start;
+  }
+}
+
+.home__aside {
+  position: sticky;
+  top: 1rem;
+}
+
+.home__status {
+  color: #555;
+  margin: 0 0 1rem;
+}
+
+.home__error {
+  background: #fde8e8;
+  border: 1px solid #e8a0a0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.home__error button {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #a33;
+  background: #fff;
+  cursor: pointer;
+}
+
+.relic-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
