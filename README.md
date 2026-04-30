@@ -1,132 +1,214 @@
-# 🌏 Overseas Relic Knowledge Service System
+# 🌏 Overseas Relic Knowledge Platform
 
-A modern web-based platform for exploring overseas cultural relics through a knowledge graph.
-The system provides advanced browsing, intelligent querying, interactive visualization, and personalized user services.
+A full-stack web application for exploring overseas cultural relics using a **knowledge graph (Neo4j)**.
 
----
-
-## 🚀 Project Overview
-
-This project aims to build an intelligent cultural heritage platform that enables users to explore, analyze, and understand overseas relics using structured knowledge graph data.
-
-Inspired by world-class museum platforms such as the Cleveland Museum of Art and the British Museum, this system focuses on usability, rich data interaction, and modern UI/UX design.
+The system allows users to browse, search, filter, and explore relationships between historical artifacts in an interactive way.
 
 ---
 
-## ✨ Key Features
+## 🚀 Features
 
-### 🔍 Data Browsing
+### 📦 Data Browsing
 
-* List view and card view for flexible browsing
-* Multi-dimensional filtering (type, period, museum, material)
-* Sorting by name, period, and update time
-* Detailed relic pages with:
-
-  * High-resolution images
-  * Full descriptions
-  * Knowledge graph attributes
+* Grid (card) view of relics
+* Pagination (10 items per page)
+* Detail panel for each relic
 * Related relic recommendations
-* Relic comparison (2–3 items side-by-side)
+
+### 🔍 Data Querying
+
+* Search by name or museum
+* Filter by dynasty
+* Combined filtering + pagination
+
+### 🧠 Knowledge Graph Integration
+
+* Neo4j-powered data source
+* Dynamic fallback to JSON if Neo4j is unavailable
+* Related relics based on shared attributes (dynasty / museum)
 
 ---
 
-### 🔎 Data Querying
+## 🛠 Tech Stack
 
-* Simple full-text search
-* Advanced multi-condition filtering
-* Knowledge graph queries (natural language & structured)
-* Export results (CSV / JSON)
+### Backend
 
----
+* FastAPI
+* Neo4j (graph database)
+* Python
 
-### 📊 Data Visualization
+### Frontend
 
-* Interactive knowledge graph (force-directed graph)
-* Historical timeline of relics
-* Geographic distribution map (global museums)
-* Statistical dashboard:
+* React (Vite)
+* CSS
 
-  * Relic count
-  * Type distribution
-  * Dynastic distribution
-  * Museum holdings
+### Dev Tools
+
+* Docker (for Neo4j)
+* Git / GitHub
 
 ---
 
-### 👤 User System
+## ⚙️ Project Structure
 
-* User registration and authentication
-* Profile management (username, avatar)
-
-**Optional Features:**
-
-* Browsing history
-* Favorites system
-* Comments and interactions
-* Personalized recommendations
-
----
-
-## 🏗️ System Architecture
-
-This system is designed using a modular architecture:
-
-* **Frontend:** Modern UI with interactive components
-* **Backend:** API-driven architecture for data processing
-* **Database:** Structured storage for relic data
-* **Knowledge Graph:** Relationship-based data modeling and querying
-
----
-
-## ⚙️ Tech Stack (Planned)
-
-* Frontend: React / Vue (TBD)
-* Backend: .NET / Node.js (TBD)
-* Database: PostgreSQL / MongoDB
-* Visualization: D3.js / ECharts
-* Knowledge Graph: Neo4j (or similar)
+```
+Relic-system/
+│
+├── backend/
+│   ├── app/
+│   │   ├── core/        # database connection (Neo4j)
+│   │   ├── services/    # business logic (relics)
+│   │   └── main.py      # API routes
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── models/
+│   └── package.json
+│
+└── database/
+    └── graph/
+        └── sample_relics.json
+```
 
 ---
 
-## 👥 Team
+## ⚡ Getting Started
 
-This project is developed by a collaborative team.
+### 1️⃣ Clone the repository
 
-* Team members will work using feature-based branches
-* All changes are merged via Pull Requests
-* Code review is required before merging into `main`
-
----
-
-## 📌 Development Workflow
-
-* `main` → stable production code
-* `feature/*` → individual development branches
-* Pull Request → required for merging
-* Code review → mandatory
+```bash
+git clone https://github.com/your-username/relic-system.git
+cd relic-system
+```
 
 ---
 
-## 🎯 Project Goals
+### 2️⃣ Setup Backend
 
-* Provide an intuitive and powerful cultural relic exploration platform
-* Enable advanced knowledge graph-based analysis
-* Deliver a modern, user-friendly web experience
-* Support research and educational use cases
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate   # Windows
+pip install -r requirements.txt
+```
+
+---
+
+### 3️⃣ Setup Environment Variables
+
+Create `.env` file in `backend/`:
+
+```env
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your_password
+```
+
+---
+
+### 4️⃣ Run Neo4j (Docker)
+
+```bash
+docker run --name neo4j-test \
+-p 7474:7474 -p 7687:7687 \
+-e NEO4J_AUTH=neo4j/your_password \
+-d neo4j:5.11
+```
+
+Open:
+
+```
+http://localhost:7474
+```
+
+---
+
+### 5️⃣ Run Backend
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Backend runs at:
+
+```
+http://localhost:8000
+```
+
+---
+
+### 6️⃣ Run Frontend
+
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+
+Frontend runs at:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 📡 API Endpoints
+
+### Get relics (with pagination)
+
+```
+GET /relics?page=1&limit=10
+```
+
+### With filters
+
+```
+GET /relics?search=bronze&dynasty=Han&page=1
+```
+
+### Get related relics
+
+```
+GET /relics/{id}/related
+```
+
+---
+
+## 🧪 Sample Cypher (Insert Data)
+
+```cypher
+CREATE (:Relic {
+  id: "r001",
+  name: "Ritual Bronze Ding",
+  dynasty: "Western Zhou",
+  museum: "British Museum",
+  description: "Ancient ritual bronze vessel",
+  image: ""
+});
+```
+
+---
+
+## 🔮 Future Improvements
+
+* Advanced search (multi-field filtering)
+* Knowledge graph visualization (force graph)
+* User accounts & favorites
+* Image support (real artifact images)
+* Recommendation scoring system
+
+---
+
+## 👨‍💻 Author
+
+**Turgut Sofuyev**
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
----
-
-## 💡 Future Improvements
-
-* AI-based recommendation system
-* Image similarity detection
-* Multi-language support
-* Mobile application version
-
----
+MIT License

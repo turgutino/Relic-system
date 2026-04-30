@@ -10,7 +10,7 @@ export default function RelicDetail({ relic, onClose }) {
   if (!relic) {
     return (
       <div className="relic-detail relic-detail--empty">
-        <p>Select a relic to see details (placeholder panel — ready for graph-backed fields).</p>
+        <p>Select a relic from the grid to view its full details.</p>
       </div>
     );
   }
@@ -25,15 +25,22 @@ export default function RelicDetail({ relic, onClose }) {
           ×
         </button>
       </div>
-      <p className="relic-detail__meta">
-        {[relic.dynasty, relic.museum].filter(Boolean).join(' — ') || 'Dynasty / museum from graph or API'}
-      </p>
+      <dl className="relic-detail__dl relic-detail__dl--core">
+        <div className="relic-detail__row">
+          <dt>Dynasty</dt>
+          <dd>{relic.dynasty || '—'}</dd>
+        </div>
+        <div className="relic-detail__row">
+          <dt>Museum</dt>
+          <dd>{relic.museum || '—'}</dd>
+        </div>
+      </dl>
       <div className="relic-detail__image-wrap">
         <img src={relic.image || '/placeholder-relic.svg'} alt="" />
       </div>
+      <h3 className="relic-detail__section-title">Description</h3>
       <p className="relic-detail__description">
-        {relic.description ||
-          'Description placeholder — connect richer text / relations from Neo4j when available.'}
+        {relic.description?.trim() ? relic.description : 'No description provided.'}
       </p>
 
       {/* Neo4j extension: render additional RETURN aliases / nested graph payloads */}

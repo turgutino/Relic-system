@@ -8,7 +8,7 @@ Neo4j integration flow:
 import json
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.services import relics as relics_service
@@ -44,15 +44,75 @@ def _load_sample_relics() -> list[dict]:
         return json.load(f)
 
 
+def _filter_sample_relics(
+    rows: list[dict],
+    dynasty: str | None,
+    search: str | None,
+) -> list[dict]:
+    if dynasty:
+        rows = [r for r in rows if (r.get("dynasty") or "") == dynasty]
+    if search:
+        needle = search.lower()
+        rows = [
+            r
+            for r in rows
+            if needle in (r.get("name") or "").lower()
+            or needle in (r.get("museum") or "").lower()
+        ]
+    return rows
+
+
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
 
 
 @app.get("/relics")
-def list_relics() -> list[dict]:
-    """List relics: Neo4j when available (5–10 rows), else ``database/graph/sample_relics.json``."""
-    from_graph = relics_service.fetch_relics_from_neo4j()
-    if from_graph is not None:
-        return from_graph
-    return _load_sample_relics()
+def list_relics(
+    dynasty: str | None = Query(None, description="Exact match on Relic.dynasty when set."),
+    search: str | None = Query(
+        None,
+        description="Case-insensitive substring match on name or museum.",
+    ),
+    page: int = Query(1, ge=1, description="1-based page index."),
+    limit: int = Query(10, ge=1, le=100, description="Page size."),
+) -> dict:
+    """Paginated relics: Neo4j when available, else JSON sample (filters apply before SKIP/LIMIT)."""
+    d = (dynasty or "").strip() or None
+    s = (search or "").strip() or None
+
+    neo = relics_service.fetch_relics_page_from_neo4j(
+        dynasty=d,
+        search=s,
+        page=page,
+        limit=limit,
+    )
+    if neo is not None:
+        return neo
+
+    raw = _load_sample_relics()
+    rows_full = _filter_sample_relics(raw, d, s)
+    total = len(rows_full)
+    skip = (page - 1) * limit
+    items = rows_full[skip : skip + limit]
+
+    dynasties: list[str] = []
+    if d is None:
+        facet_rows = _filter_sample_relics(raw, None, s)
+        dynasties = sorted(
+            {str(r.get("dynasty")) for r in facet_rows if r.get("dynasty")},
+        )
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "dynasties": dynasties,
+    }
+
+
+@app.get("/relics/{relic_id}/related")
+def related_relics(relic_id: str) -> list[dict]:
+    """Same item shape as ``/relics`` entries; ``[]`` when Neo4j is not used or has no matches."""
+    return relics_service.fetch_related_relics_from_neo4j(relic_id)

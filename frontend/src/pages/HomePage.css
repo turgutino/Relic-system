@@ -23,6 +23,38 @@
   font-size: 0.95rem;
 }
 
+.home__search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  margin-top: 1rem;
+}
+
+.home__search-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.home__search-input {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #c9c4bc;
+  background: #faf9f7;
+  font-size: 0.9rem;
+}
+
+.home__search-submit {
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #c9c4bc;
+  background: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
 .home__main {
   display: grid;
   gap: 1.5rem;
@@ -62,6 +94,44 @@
   cursor: pointer;
 }
 
+.home__pagination {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.home__pagination-info {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.home__pagination-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.home__pagination-btn {
+  min-width: 2rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #c9c4bc;
+  background: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.home__pagination-btn:hover {
+  background: #faf9f7;
+}
+
+.home__pagination-btn--active {
+  background: #eae6e0;
+  font-weight: 600;
+}
+
 .relic-grid {
   list-style: none;
   margin: 0;
@@ -69,4 +139,60 @@
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.home__related {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0dcd4;
+}
+
+.home__related-title {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.home__related-status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.home__related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.home__related-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.65rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #d8d3cb;
+  background: #faf9f7;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.home__related-item:hover {
+  background: #fff;
+}
+
+.home__related-name {
+  font-weight: 500;
+  color: #111;
+}
+
+.home__related-dynasty {
+  font-size: 0.85rem;
+  color: #555;
 }
