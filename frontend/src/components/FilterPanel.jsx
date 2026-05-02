@@ -1,30 +1,43 @@
 import './FilterPanel.css';
 
 /**
- * Placeholder filters — dynasty wired; `filterDraft` reserved for Neo4j facet fields later.
+ * Sidebar filters wired to `/relics` query params.
  *
  * @param {object} props
  * @param {string[]} props.dynasties
+ * @param {string[]} props.materials
+ * @param {string[]} props.museums
  * @param {string} props.selectedDynasty
+ * @param {string} props.selectedMaterial
+ * @param {string} props.selectedMuseum
  * @param {(v: string) => void} props.onDynastyChange
- * @param {{ material?: string, provenance?: string }} [props.filterDraft]
- * @param {(updater: (prev: object) => object) => void} [props.onFilterDraftChange]  // setState-style
+ * @param {(v: string) => void} props.onMaterialChange
+ * @param {(v: string) => void} props.onMuseumChange
  */
 export default function FilterPanel({
-  dynasties,
+  dynasties = [],
+  materials = [],
+  museums = [],
   selectedDynasty,
+  selectedMaterial,
+  selectedMuseum,
   onDynastyChange,
-  filterDraft = { material: '', provenance: '' },
-  onFilterDraftChange,
+  onMaterialChange,
+  onMuseumChange,
 }) {
-  const draft = filterDraft || { material: '', provenance: '' };
+  const materialOptions =
+    selectedMaterial && !materials.includes(selectedMaterial)
+      ? [selectedMaterial, ...materials]
+      : materials;
+  const museumOptions =
+    selectedMuseum && !museums.includes(selectedMuseum) ? [selectedMuseum, ...museums] : museums;
+  const dynastyOpts =
+    selectedDynasty && !dynasties.includes(selectedDynasty) ? [selectedDynasty, ...dynasties] : dynasties;
 
   return (
     <div className="filter-panel">
       <h3 className="filter-panel__title">Filters</h3>
-      <p className="filter-panel__hint">
-        Placeholder: extend with museum, material, or Cypher-driven facets when the graph grows.
-      </p>
+      <p className="filter-panel__hint">Refine results by dynasty, material, museum, or search.</p>
 
       <label className="filter-panel__label" htmlFor="dynasty-filter">
         Dynasty
@@ -36,50 +49,46 @@ export default function FilterPanel({
         onChange={(e) => onDynastyChange(e.target.value)}
       >
         <option value="">All periods</option>
-        {dynasties.map((d) => (
+        {dynastyOpts.map((d) => (
           <option key={d} value={d}>
             {d}
           </option>
         ))}
       </select>
 
-      {/* Neo4j extension: bind these to graph-backed facets or full-text search */}
-      <label className="filter-panel__label filter-panel__label--spaced" htmlFor="filter-material">
-        Material (placeholder)
+      <label className="filter-panel__label filter-panel__label--spaced" htmlFor="material-filter">
+        Material
       </label>
-      <input
-        id="filter-material"
-        className="filter-panel__input"
-        type="text"
-        placeholder="e.g. bronze, jade"
-        value={draft.material ?? ''}
-        onChange={(e) =>
-          onFilterDraftChange?.((prev) => ({
-            ...prev,
-            material: e.target.value,
-          }))
-        }
-        readOnly={!onFilterDraftChange}
-        title={onFilterDraftChange ? 'Draft state for future filtering' : undefined}
-      />
+      <select
+        id="material-filter"
+        className="filter-panel__select"
+        value={selectedMaterial}
+        onChange={(e) => onMaterialChange(e.target.value)}
+      >
+        <option value="">All materials</option>
+        {materialOptions.map((m) => (
+          <option key={m} value={m}>
+            {m}
+          </option>
+        ))}
+      </select>
 
-      <label className="filter-panel__label filter-panel__label--spaced" htmlFor="filter-provenance">
-        Provenance note (placeholder)
+      <label className="filter-panel__label filter-panel__label--spaced" htmlFor="museum-filter">
+        Museum
       </label>
-      <input
-        id="filter-provenance"
-        className="filter-panel__input"
-        type="text"
-        placeholder="Future graph attribute"
-        value={draft.provenance ?? ''}
-        onChange={(e) =>
-          onFilterDraftChange?.((prev) => ({
-            ...prev,
-            provenance: e.target.value,
-          }))
-        }
-        readOnly={!onFilterDraftChange}
-      />
+      <select
+        id="museum-filter"
+        className="filter-panel__select"
+        value={selectedMuseum}
+        onChange={(e) => onMuseumChange(e.target.value)}
+      >
+        <option value="">All museums</option>
+        {museumOptions.map((mu) => (
+          <option key={mu} value={mu}>
+            {mu}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

@@ -15,11 +15,20 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
+  margin: 0.75rem 0 0.25rem;
 }
 
-.relic-detail__header h2 {
+.relic-detail__title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.relic-detail__loading {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
 }
 
 .relic-detail__close {
@@ -37,26 +46,32 @@
 }
 
 .relic-detail__dl--core {
-  margin: 0.35rem 0 1rem;
+  margin: 0 0 1rem;
 }
 
 .relic-detail__section-title {
-  margin: 0 0 0.5rem;
+  margin: 1rem 0 0.5rem;
   font-size: 0.95rem;
   font-weight: 600;
 }
 
-.relic-detail__image-wrap {
-  max-width: 280px;
-  margin-bottom: 1rem;
-  background: #eae6e0;
-  border-radius: 8px;
-  padding: 0.5rem;
+.relic-detail__section-title:first-of-type {
+  margin-top: 0.25rem;
 }
 
-.relic-detail__image-wrap img {
+.relic-detail__hero {
   width: 100%;
+  margin: 0 0 0.5rem;
+  background: #eae6e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.relic-detail__hero-img {
+  width: 100%;
+  max-height: min(420px, 52vh);
   display: block;
+  object-fit: contain;
 }
 
 .relic-detail__description {

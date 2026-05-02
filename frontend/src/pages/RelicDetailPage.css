@@ -1,0 +1,43 @@
+.relic-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.relic-detail-page__toolbar {
+  margin-bottom: 1rem;
+}
+
+.relic-detail-page__back {
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #c9c4bc;
+  background: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.relic-detail-page__back:hover {
+  background: #faf9f7;
+}
+
+.relic-detail-page__status {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.relic-detail-page__error {
+  background: #fde8e8;
+  border: 1px solid #e8a0a0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.relic-detail-page__error p {
+  margin: 0 0 1rem;
+}
+
+.relic-detail-page__body .relic-detail {
+  margin-top: 0;
+}

@@ -27,8 +27,8 @@ export default function RelicCard({ relic, selected, onSelect }) {
     >
       <div className="relic-card__image-wrap">
         <img
-          src={relic.image || '/placeholder-relic.svg'}
-          alt=""
+          src={relic.image_url || '/placeholder-relic.svg'}
+          alt={title}
           className="relic-card__image"
           loading="lazy"
         />

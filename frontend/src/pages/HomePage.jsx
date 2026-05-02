@@ -1,8 +1,5 @@
-import { useEffect, useState } from 'react';
 import RelicCard from '../components/RelicCard.jsx';
-import RelicDetail from '../components/RelicDetail.jsx';
 import FilterPanel from '../components/FilterPanel.jsx';
-import { normalizeRelic } from '../models/relic.js';
 import './HomePage.css';
 
 /**
@@ -10,9 +7,7 @@ import './HomePage.css';
  */
 
 /**
- * Home: card grid + filter + detail. `relics` are normalized in `App.jsx`.
- *
- * Neo4j extension: pass more slice props from here (e.g. `graphMeta`) when API exposes source hints.
+ * Home: card grid + filters. Opens `/relics/:id` from the catalog via `onOpenRelic`.
  */
 export default function HomePage({
   relics,
@@ -23,53 +18,25 @@ export default function HomePage({
   dynasties = [],
   dynastyFilter = '',
   onDynastyChange = () => {},
+  materials = [],
+  materialFilter = '',
+  onMaterialChange = () => {},
+  museums = [],
+  museumFilter = '',
+  onMuseumChange = () => {},
   search = '',
   onSearchChange = () => {},
   onSearchSubmit = () => {},
   loading,
   error,
   onRetry,
+  onClearFacetFilters = () => {},
+  onClearSearch = () => {},
+  onClearSearchAndFilters = () => {},
+  onOpenRelic = () => {},
 }) {
-  const [selectedRelic, setSelectedRelic] = useState(/** @type {Relic|null} */ (null));
-  const [relatedRelics, setRelatedRelics] = useState(/** @type {Relic[]} */ ([]));
-  const [relatedLoading, setRelatedLoading] = useState(false);
-  /** Placeholder aggregate state for future filters (material, museum multi-select, etc.) */
-  const [filterDraft, setFilterDraft] = useState(() => ({ material: '', provenance: '' }));
-
-  useEffect(() => {
-    setSelectedRelic((prev) => {
-      if (!prev) return prev;
-      const match = relics.find((r) => r.id === prev.id);
-      return match ?? null;
-    });
-  }, [relics]);
-
-  useEffect(() => {
-    const id = selectedRelic?.id;
-    if (!id) {
-      setRelatedRelics([]);
-      setRelatedLoading(false);
-      return;
-    }
-    const ac = new AbortController();
-    setRelatedLoading(true);
-    fetch(`/relics/${encodeURIComponent(id)}/related`, { signal: ac.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error('related');
-        return res.json();
-      })
-      .then((data) => {
-        const list = Array.isArray(data) ? data : [];
-        setRelatedRelics(list.map(normalizeRelic).filter(Boolean));
-      })
-      .catch(() => {
-        if (!ac.signal.aborted) setRelatedRelics([]);
-      })
-      .finally(() => {
-        if (!ac.signal.aborted) setRelatedLoading(false);
-      });
-    return () => ac.abort();
-  }, [selectedRelic?.id]);
+  const hasFacetFilters = Boolean(dynastyFilter || materialFilter || museumFilter);
+  const searchActive = Boolean(search.trim());
 
   return (
     <div className="home">
@@ -102,6 +69,52 @@ export default function HomePage({
             Search
           </button>
         </form>
+
+        {(hasFacetFilters || searchActive) && (
+          <div className="home__active-filters" aria-label="Active filters">
+            <span className="home__active-filters-intro">Applied:</span>
+            {dynastyFilter ? (
+              <span className="home__filter-chip">
+                Dynasty: {dynastyFilter}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onDynastyChange('')}>
+                  Clear
+                </button>
+              </span>
+            ) : null}
+            {materialFilter ? (
+              <span className="home__filter-chip">
+                Material: {materialFilter}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onMaterialChange('')}>
+                  Clear
+                </button>
+              </span>
+            ) : null}
+            {museumFilter ? (
+              <span className="home__filter-chip">
+                Museum: {museumFilter}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onMuseumChange('')}>
+                  Clear
+                </button>
+              </span>
+            ) : null}
+            {searchActive ? (
+              <span className="home__filter-chip">
+                Search: {search.trim()}
+                <button type="button" className="home__filter-chip-clear" onClick={onClearSearch}>
+                  Clear
+                </button>
+              </span>
+            ) : null}
+            <button type="button" className="home__filters-clear-all" onClick={onClearSearchAndFilters}>
+              Clear all
+            </button>
+            {hasFacetFilters ? (
+              <button type="button" className="home__filters-clear-facets-only" onClick={onClearFacetFilters}>
+                Clear filters only
+              </button>
+            ) : null}
+          </div>
+        )}
       </header>
 
       <main className="home__main">
@@ -110,8 +123,12 @@ export default function HomePage({
             dynasties={dynasties}
             selectedDynasty={dynastyFilter}
             onDynastyChange={onDynastyChange}
-            filterDraft={filterDraft}
-            onFilterDraftChange={setFilterDraft}
+            materials={materials}
+            selectedMaterial={materialFilter}
+            onMaterialChange={onMaterialChange}
+            museums={museums}
+            selectedMuseum={museumFilter}
+            onMuseumChange={onMuseumChange}
           />
         </aside>
 
@@ -131,11 +148,7 @@ export default function HomePage({
           <ul className="relic-grid">
             {relics.map((relic) => (
               <li key={relic.id}>
-                <RelicCard
-                  relic={relic}
-                  selected={relic.id === selectedRelic?.id}
-                  onSelect={() => setSelectedRelic(relic)}
-                />
+                <RelicCard relic={relic} onSelect={() => onOpenRelic(relic.id)} />
               </li>
             ))}
           </ul>
@@ -159,36 +172,6 @@ export default function HomePage({
                 ))}
               </div>
             </nav>
-          )}
-
-          <RelicDetail relic={selectedRelic} onClose={() => setSelectedRelic(null)} />
-
-          {selectedRelic && (
-            <div className="home__related">
-              <h3 className="home__related-title">Related relics</h3>
-              {relatedLoading ? (
-                <p className="home__related-status">Loading related relics…</p>
-              ) : relatedRelics.length === 0 ? (
-                <p className="home__related-status">No related relics.</p>
-              ) : (
-                <ul className="home__related-list">
-                  {relatedRelics.map((r) => (
-                    <li key={r.id}>
-                      <button
-                        type="button"
-                        className="home__related-item"
-                        onClick={() => setSelectedRelic(r)}
-                      >
-                        <span className="home__related-name">{r.name}</span>
-                        {r.dynasty ? (
-                          <span className="home__related-dynasty">{r.dynasty}</span>
-                        ) : null}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
           )}
         </section>
       </main>
