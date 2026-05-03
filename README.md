@@ -198,7 +198,7 @@ See issues or project board for what is actively planned.
 
 ## Author
 
-**Turgut Sofuyev**
+**Phase 1 fully implemented by Turgut Sofuyev**
 
 ---
 
