@@ -3,7 +3,6 @@
 Neo4j extension points:
 - Change RELICS_CYPHER to match your schema (labels, relationship traversals)
 - Map node properties in ``_records_to_relics`` when you add fields
-- Trigger re-index / cache invalidation here after bulk imports
 """
 
 from __future__ import annotations
@@ -25,16 +24,7 @@ WHERE ($dynasty IS NULL OR r.dynasty = $dynasty)
   )
 """
 
-RELICS_COUNT_CYPHER = (
-    _RELICS_MATCH_FILTERED
-    + """
-RETURN count(r) AS total
-"""
-)
-
-RELICS_PAGE_CYPHER = (
-    _RELICS_MATCH_FILTERED
-    + """
+RELICS_PAGE_RETURN = """
 RETURN r.id AS id,
        r.name AS name,
        r.dynasty AS dynasty,
@@ -42,9 +32,26 @@ RETURN r.id AS id,
        r.material AS material,
        r.description AS description,
        coalesce(r.image_url, r.image, '') AS image_url
-ORDER BY coalesce(r.name, '')
-SKIP $skip
-LIMIT $limit
+"""
+
+# Whitelisted ORDER BY expressions (never interpolate user strings here).
+_SORT_ORDER_FIELDS: dict[str, str] = {
+    "name": "coalesce(r.name, '')",
+    "dynasty": "coalesce(r.dynasty, '')",
+    "period": "coalesce(r.dynasty, '')",
+}
+
+
+def _neo_order_clause(sort_key: str, ascending: bool) -> str:
+    expr = _SORT_ORDER_FIELDS.get(sort_key, _SORT_ORDER_FIELDS["name"])
+    direction = "ASC" if ascending else "DESC"
+    return f"ORDER BY {expr} {direction}"
+
+
+RELICS_COUNT_CYPHER = (
+    _RELICS_MATCH_FILTERED
+    + """
+RETURN count(r) AS total
 """
 )
 
@@ -116,7 +123,7 @@ LIMIT 1
 
 
 def _records_to_relics(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Normalize driver rows to API relic dicts; extend when Neo4j returns new properties."""
+    """Normalize driver rows to API relic dicts."""
     out: list[dict[str, Any]] = []
     for row in records:
         rid = row.get("id")
@@ -132,7 +139,6 @@ def _records_to_relics(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "description": row.get("description") or "",
             "image_url": str(raw_url).strip() if raw_url is not None else "",
         }
-        # Pass through additional RETURN aliases for forward-compatible clients
         for k, v in row.items():
             if k not in item and k != "image":
                 item[k] = v
@@ -147,16 +153,29 @@ def fetch_relics_page_from_neo4j(
     museum: str | None,
     page: int,
     limit: int,
+    sort: str | None,
+    ascending: bool,
 ) -> dict[str, Any] | None:
-    """Paginated relics from Neo4j, or None to signal \"use JSON fallback\".
-
-    None when not configured, connection/query failure, or legacy empty graph with no filters
-    (caller falls back to JSON sample).
-    """
+    """Paginated relics from Neo4j, or None to signal \"use JSON fallback\"."""
     if not database.is_neo4j_configured():
         return None
     if not database.verify_connection():
         return None
+    sort_key = (sort or "name").strip().lower()
+    if sort_key not in _SORT_ORDER_FIELDS:
+        sort_key = "name"
+
+    page_cypher = (
+        _RELICS_MATCH_FILTERED
+        + RELICS_PAGE_RETURN
+        + "\n"
+        + _neo_order_clause(sort_key, ascending)
+        + """
+SKIP $skip
+LIMIT $limit
+"""
+    )
+
     params_filter: dict[str, Any] = {
         "dynasty": dynasty,
         "search": search,
@@ -176,7 +195,7 @@ def fetch_relics_page_from_neo4j(
         return None
 
     try:
-        records = database.run_read_query(RELICS_PAGE_CYPHER, params_page)
+        records = database.run_read_query(page_cypher, params_page)
     except Exception:
         return None
 
@@ -245,7 +264,7 @@ def fetch_relic_by_id_from_neo4j(relic_id: str) -> dict[str, Any] | None:
 
 
 def fetch_related_relics_from_neo4j(relic_id: str) -> list[dict[str, Any]]:
-    """Related relics by shared dynasty or museum. Empty list when Neo4j unavailable or on error."""
+    """Related relics by shared dynasty or museum."""
     rid = (relic_id or "").strip()
     if not rid:
         return []

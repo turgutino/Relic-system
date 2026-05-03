@@ -70,5 +70,14 @@
     "material": "Silk embroidered with gold couching",
     "description": "Robe fragment with five-clawed dragon chasing a flaming pearl among clouds.",
     "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r009",
+    "name": "Zhou Ritual Gui Vessel",
+    "dynasty": "Western Zhou",
+    "museum": "Freer Gallery of Art, Washington D.C.",
+    "material": "Bronze",
+    "description": "Late Western Zhou inscribed gui paired typologically with tripod ding forms.",
+    "image_url": "/placeholder-relic.svg"
   }
 ]
