@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-label="Placeholder">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8e4dd"/>
+      <stop offset="100%" style="stop-color:#cfc8bd"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="240" fill="url(#g)"/>
+  <rect x="40" y="40" width="240" height="160" rx="8" fill="none" stroke="#8a8178" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="160" y="118" text-anchor="middle" fill="#5c554c" font-family="Segoe UI, system-ui, sans-serif" font-size="14">Relic image</text>
+  <text x="160" y="138" text-anchor="middle" fill="#7a7268" font-family="Segoe UI, system-ui, sans-serif" font-size="11">placeholder</text>
+</svg>

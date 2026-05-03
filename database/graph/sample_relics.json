@@ -1,0 +1,83 @@
+[
+  {
+    "id": "r001",
+    "name": "Ritual Bronze Ding",
+    "dynasty": "Western Zhou",
+    "museum": "British Museum, London",
+    "material": "Bronze",
+    "description": "Ceremonial tripod vessel with taotie mask motif; used for meat offerings at ancestral rites.",
+    "image_url": "https://placehold.co/960x720/3d3630/c9b896?text=Bronze+Ding"
+  },
+  {
+    "id": "r002",
+    "name": "Celadon Longquan Vase",
+    "dynasty": "Southern Song",
+    "museum": "Musée Guimet, Paris",
+    "material": "Stoneware with celadon glaze",
+    "description": "Longquan kiln vase with pooled jade-green glaze and subtle carved lotus scrolling.",
+    "image_url": "https://placehold.co/960x720/2a3d35/a8c9b0?text=Celadon+Vase"
+  },
+  {
+    "id": "r003",
+    "name": "Gilt-Bronze Buddha",
+    "dynasty": "Northern Wei",
+    "museum": "Metropolitan Museum of Art, New York",
+    "material": "Gilt bronze",
+    "description": "Small votive figure with flame-shaped aureole and traces of mercury gilding on the robes.",
+    "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r004",
+    "name": "Famille Rose Plate",
+    "dynasty": "Qing (Qianlong)",
+    "museum": "Victoria and Albert Museum, London",
+    "material": "Porcelain with overglaze enamels",
+    "description": "Export-style plate with famille rose enamels depicting peony sprays and gilt rim.",
+    "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r005",
+    "name": "Oracle Bone Fragment",
+    "dynasty": "Shang",
+    "museum": "Royal Ontario Museum, Toronto",
+    "material": "Tortoise plastron",
+    "description": "Inscribed oracle bone registering a divination on rainfall and barley harvest.",
+    "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r006",
+    "name": "Landscape Handscroll",
+    "dynasty": "Yuan",
+    "museum": "Cleveland Museum of Art, Ohio",
+    "material": "Ink and color on silk",
+    "description": "Mountain-and-water motif with dispersed temples; album leaves originally from a court set.",
+    "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r007",
+    "name": "White Jade Bi Disc",
+    "dynasty": "Han",
+    "museum": "Freer Gallery of Art, Washington D.C.",
+    "material": "Nephrite jade",
+    "description": "Perforated ritual disc carved with swirling grain-pattern relief on both faces.",
+    "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r008",
+    "name": "Dragon Robe Panel",
+    "dynasty": "Ming",
+    "museum": "Asian Art Museum, San Francisco",
+    "material": "Silk embroidered with gold couching",
+    "description": "Robe fragment with five-clawed dragon chasing a flaming pearl among clouds.",
+    "image_url": "/placeholder-relic.svg"
+  },
+  {
+    "id": "r009",
+    "name": "Zhou Ritual Gui Vessel",
+    "dynasty": "Western Zhou",
+    "museum": "Freer Gallery of Art, Washington D.C.",
+    "material": "Bronze",
+    "description": "Late Western Zhou inscribed gui paired typologically with tripod ding forms.",
+    "image_url": "/placeholder-relic.svg"
+  }
+]
