@@ -1,4 +1,5 @@
 import RelicCard from '../components/RelicCard.jsx';
+import RelicListRow from '../components/RelicListRow.jsx';
 import FilterPanel from '../components/FilterPanel.jsx';
 import './HomePage.css';
 
@@ -6,15 +7,18 @@ import './HomePage.css';
  * @typedef {import('../models/relic.js').Relic} Relic
  */
 
-/**
- * Home: card grid + filters. Opens `/relics/:id` from the catalog via `onOpenRelic`.
- */
 export default function HomePage({
   relics,
   total = 0,
   page = 1,
   totalPages = 1,
   onPageChange = () => {},
+  viewIsList = false,
+  onViewChange = () => {},
+  sortField = 'name',
+  sortOrder = 'asc',
+  onSortFieldChange = () => {},
+  onSortOrderChange = () => {},
   dynasties = [],
   dynastyFilter = '',
   onDynastyChange = () => {},
@@ -45,6 +49,58 @@ export default function HomePage({
         <p className="home__tagline">
           Catalog from API — Neo4j when configured, else sample JSON
         </p>
+
+        <div className="home__catalog-tools" aria-label="View and sorting">
+          <div className="home__catalog-tools-row">
+            <span className="home__catalog-tools-label">View</span>
+            <div className="home__view-switch" role="group" aria-label="Catalog layout">
+              <button
+                type="button"
+                className={`home__segment ${!viewIsList ? 'home__segment--active' : ''}`}
+                aria-pressed={!viewIsList}
+                onClick={() => onViewChange(false)}
+              >
+                Cards
+              </button>
+              <button
+                type="button"
+                className={`home__segment ${viewIsList ? 'home__segment--active' : ''}`}
+                aria-pressed={viewIsList}
+                onClick={() => onViewChange(true)}
+              >
+                List
+              </button>
+            </div>
+          </div>
+          <div className="home__catalog-tools-row home__catalog-tools-row--grow">
+            <label className="home__catalog-sort-label" htmlFor="catalog-sort-field">
+              Sort by
+            </label>
+            <select
+              id="catalog-sort-field"
+              className="home__catalog-sort-select"
+              value={sortField}
+              onChange={(e) => onSortFieldChange(e.target.value)}
+            >
+              <option value="name">Name</option>
+              <option value="dynasty">Dynasty</option>
+              <option value="period">Period</option>
+            </select>
+            <label className="home__catalog-sort-label home__catalog-sort-label--inline" htmlFor="catalog-sort-order">
+              Order
+            </label>
+            <select
+              id="catalog-sort-order"
+              className="home__catalog-sort-select home__catalog-sort-select--narrow"
+              value={sortOrder}
+              onChange={(e) => onSortOrderChange(e.target.value)}
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+        </div>
+
         <form
           className="home__search"
           role="search"
@@ -145,12 +201,21 @@ export default function HomePage({
           {!loading && !error && relics.length === 0 && (
             <p className="home__status">No relics match this filter.</p>
           )}
-          <ul className="relic-grid">
-            {relics.map((relic) => (
-              <li key={relic.id}>
-                <RelicCard relic={relic} onSelect={() => onOpenRelic(relic.id)} />
-              </li>
-            ))}
+          <ul className={`relic-grid ${viewIsList ? 'relic-grid--hidden' : ''}`}>
+            {!viewIsList &&
+              relics.map((relic) => (
+                <li key={relic.id}>
+                  <RelicCard relic={relic} onSelect={() => onOpenRelic(relic.id)} />
+                </li>
+              ))}
+          </ul>
+          <ul className={`relic-list ${!viewIsList ? 'relic-grid--hidden' : ''}`}>
+            {viewIsList &&
+              relics.map((relic) => (
+                <li key={relic.id}>
+                  <RelicListRow relic={relic} onOpen={() => onOpenRelic(relic.id)} />
+                </li>
+              ))}
           </ul>
 
           {!loading && !error && totalPages > 1 && (

@@ -12,11 +12,16 @@ import RelicDetailPage from './pages/RelicDetailPage.jsx';
 import { normalizeRelic } from './models/relic.js';
 import './App.css';
 
-/**
- * Fetches paginated `/relics` from the FastAPI backend (Vite dev proxy → :8000).
- * Catalog filters + page live in URL query (?search=&dynasty=&material=&museum=&page=).
- */
+/** @typedef {'name' | 'dynasty' | 'period'} SortField */
+
 const PAGE_SIZE = 10;
+
+const SORT_FIELDS = /** @type {const} */ (['name', 'dynasty', 'period']);
+
+function parseSort(raw) {
+  const v = (raw || 'name').toLowerCase();
+  return SORT_FIELDS.includes(v) ? v : 'name';
+}
 
 function CatalogView() {
   const navigate = useNavigate();
@@ -28,6 +33,9 @@ function CatalogView() {
   const museumFilter = searchParams.get('museum') ?? '';
   const committedSearch = searchParams.get('search') ?? '';
   const page = useMemo(() => Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1), [searchParams]);
+  const viewIsList = searchParams.get('view') === 'list';
+  const sortField = parseSort(searchParams.get('sort'));
+  const sortOrder = searchParams.get('order') === 'desc' ? 'desc' : 'asc';
 
   const [searchInput, setSearchInput] = useState(committedSearch);
 
@@ -55,7 +63,6 @@ function CatalogView() {
     [setSearchParams],
   );
 
-  /** Debounced URL update for search (matches prior API behavior). */
   useEffect(() => {
     const tid = window.setTimeout(() => {
       const next = searchInput.trim();
@@ -106,9 +113,13 @@ function CatalogView() {
   }, [mergeParams]);
 
   const clearSearchAndFilters = useCallback(() => {
-    setSearchParams(new URLSearchParams(), { replace: true });
+    const keep = new URLSearchParams();
+    if (searchParams.get('view')) keep.set('view', searchParams.get('view') || '');
+    if (searchParams.get('sort')) keep.set('sort', searchParams.get('sort') || '');
+    if (searchParams.get('order')) keep.set('order', searchParams.get('order') || '');
+    setSearchParams(keep, { replace: true });
     setSearchInput('');
-  }, [setSearchParams]);
+  }, [searchParams, setSearchParams]);
 
   const fetchRelics = useCallback(async () => {
     setLoading(true);
@@ -121,6 +132,8 @@ function CatalogView() {
       if (materialFilter) params.set('material', materialFilter);
       if (museumFilter) params.set('museum', museumFilter);
       if (committedSearch) params.set('search', committedSearch);
+      params.set('sort', sortField);
+      params.set('order', sortOrder);
       const res = await fetch(`/relics?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -144,7 +157,7 @@ function CatalogView() {
     } finally {
       setLoading(false);
     }
-  }, [dynastyFilter, materialFilter, museumFilter, committedSearch, page]);
+  }, [dynastyFilter, materialFilter, museumFilter, committedSearch, page, sortField, sortOrder]);
 
   useEffect(() => {
     fetchRelics();
@@ -165,6 +178,37 @@ function CatalogView() {
     });
   }, [mergeParams]);
 
+  const setViewList = useCallback(
+    (list) => {
+      mergeParams((n) => {
+        if (list) n.set('view', 'list');
+        else n.delete('view');
+      });
+    },
+    [mergeParams],
+  );
+
+  const setSortField = useCallback(
+    (field) => {
+      const f = parseSort(field);
+      mergeParams((n) => {
+        n.set('sort', f);
+        n.set('page', '1');
+      });
+    },
+    [mergeParams],
+  );
+
+  const setSortOrder = useCallback(
+    (ord) => {
+      mergeParams((n) => {
+        n.set('order', ord === 'desc' ? 'desc' : 'asc');
+        n.set('page', '1');
+      });
+    },
+    [mergeParams],
+  );
+
   return (
     <HomePage
       relics={relics}
@@ -172,6 +216,12 @@ function CatalogView() {
       page={page}
       totalPages={totalPages}
       onPageChange={setCatalogPage}
+      viewIsList={viewIsList}
+      onViewChange={setViewList}
+      sortField={sortField}
+      sortOrder={sortOrder}
+      onSortFieldChange={setSortField}
+      onSortOrderChange={setSortOrder}
       dynasties={dynastyOptions}
       dynastyFilter={dynastyFilter}
       onDynastyChange={(v) => {

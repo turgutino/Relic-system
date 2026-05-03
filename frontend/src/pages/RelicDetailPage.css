@@ -41,3 +41,58 @@
 .relic-detail-page__body .relic-detail {
   margin-top: 0;
 }
+
+.relic-detail-page__related {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e0dcd4;
+}
+
+.relic-detail-page__related-title {
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.relic-detail-page__related-status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.relic-detail-page__related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.relic-detail-page__related-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #d8d3cb;
+  background: #faf9f7;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.relic-detail-page__related-link:hover {
+  background: #fff;
+}
+
+.relic-detail-page__related-name {
+  font-weight: 500;
+}
+
+.relic-detail-page__related-meta {
+  font-size: 0.85rem;
+  color: #555;
+}
