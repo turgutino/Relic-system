@@ -1,0 +1,112 @@
+{
+  "app": {
+    "documentTitle": "海外文物知识"
+  },
+  "language": {
+    "switchLabel": "语言",
+    "en": "English",
+    "az": "Azərbaycan",
+    "zh": "简体中文"
+  },
+  "home": {
+    "title": "海外文物知识",
+    "tagline": "目录来自 API — 已配置 Neo4j 时使用图数据库，否则使用示例 JSON",
+    "catalogToolsAria": "视图与排序",
+    "viewLabel": "视图",
+    "viewCards": "卡片",
+    "viewList": "列表",
+    "sortBy": "排序",
+    "sortFieldName": "名称",
+    "sortFieldDynasty": "朝代",
+    "sortFieldDate": "日期",
+    "sortFieldPeriod": "时期",
+    "sortOrderLabel": "顺序",
+    "sortAscending": "升序",
+    "sortDescending": "降序",
+    "searchLabel": "搜索",
+    "searchPlaceholder": "名称或博物馆…",
+    "searchSubmit": "搜索",
+    "activeFiltersAria": "已应用筛选",
+    "applied": "已应用：",
+    "chipDynasty": "朝代：{{value}}",
+    "chipMaterial": "材质：{{value}}",
+    "chipMuseum": "博物馆：{{value}}",
+    "chipSearch": "搜索：{{value}}",
+    "clearChip": "清除",
+    "clearAll": "清除全部",
+    "clearFacetsOnly": "仅清除筛选",
+    "loading": "正在加载文物…",
+    "empty": "没有符合筛选条件的文物。",
+    "retry": "重试",
+    "paginationAria": "分页",
+    "paginationInfo": "第 {{page}} / {{totalPages}} 页（共 {{total}} 件）"
+  },
+  "filters": {
+    "title": "筛选",
+    "hint": "可按朝代、材质、博物馆或搜索缩小结果范围。",
+    "dynasty": "朝代",
+    "material": "材质",
+    "museum": "博物馆",
+    "allPeriods": "全部时期",
+    "allMaterials": "全部材质",
+    "allMuseums": "全部博物馆"
+  },
+  "relicList": {
+    "colTitle": "名称",
+    "colDynasty": "朝代 / 时期",
+    "colMuseum": "博物馆",
+    "colMaterial": "材质"
+  },
+  "detailPage": {
+    "backToCatalog": "← 返回目录",
+    "loading": "正在加载文物…",
+    "relatedTitle": "相关文物",
+    "relatedLoading": "正在加载相关文物…",
+    "relatedEmpty": "未找到相关文物。"
+  },
+  "relicDetail": {
+    "emptyPrompt": "请从列表中选择一件文物以查看完整详情。",
+    "untitled": "未命名文物",
+    "imageAlt": "{{title}} — 图示",
+    "closeAria": "关闭详情",
+    "loadingFull": "正在加载完整详情…",
+    "aboutTitle": "说明",
+    "noDescription": "暂无描述。",
+    "keyAttributes": "文物信息",
+    "attrDynasty": "朝代 / 时期",
+    "attrMuseum": "博物馆",
+    "attrMaterial": "材质",
+    "attrArtist": "作者 / 制作者",
+    "attrDate": "年代",
+    "attrCulture": "文化",
+    "attrPeriod": "历史分期",
+    "attrClassification": "分类",
+    "attrDimensions": "尺寸",
+    "attrAccession": "馆藏编号",
+    "attrCreditLine": "来源说明",
+    "attrPlace": "产地",
+    "missingValue": "—",
+    "extrasTitle": "其他信息",
+    "viewAtMuseum": "在博物馆查看 →",
+    "zoomHint": "点击图像放大",
+    "zoomOpen": "放大图像",
+    "zoomClose": "关闭放大视图",
+    "zoomDialog": "放大后的文物图像"
+  },
+  "relicCard": {
+    "periodLocationTbd": "时期 / 地点待定",
+    "ariaLabel": "{{title}}。{{subtitle}}"
+  },
+  "errors": {
+    "catalog": {
+      "http": "目录加载失败（HTTP {{status}}）。",
+      "network": "目录加载失败，请检查网络连接。"
+    },
+    "detail": {
+      "invalidId": "无效的文物 ID。",
+      "notFound": "未找到该文物。",
+      "http": "文物加载失败（HTTP {{status}}）。",
+      "network": "文物加载失败，请检查网络连接。"
+    }
+  }
+}

@@ -64,6 +64,19 @@ def _normalize_relic_payload(row: dict) -> dict:
     r["name"] = nm if nm else "Untitled relic"
     if r.get("id") is not None:
         r["id"] = str(r["id"])
+    for key in (
+        "artist",
+        "date",
+        "culture",
+        "period",
+        "classification",
+        "accession_number",
+        "dimensions",
+        "credit_line",
+        "object_url",
+        "place",
+    ):
+        r[key] = str(r.get(key) or "").strip()
     return r
 
 
@@ -126,7 +139,9 @@ def _get_sample_relic_by_id(relic_id: str) -> dict | None:
 
 def _normalize_list_sort(sort: str | None) -> str:
     s = (sort or "name").strip().lower()
-    if s in ("dynasty", "period"):
+    if s == "period":
+        s = "dynasty"
+    if s in ("dynasty", "date"):
         return s
     return "name"
 
@@ -136,8 +151,10 @@ def _sort_order_asc(order: str | None) -> bool:
 
 
 def _sort_sortable_key(row: dict, sort_field: str) -> str:
-    if sort_field in ("dynasty", "period"):
+    if sort_field == "dynasty":
         return (row.get("dynasty") or "").lower()
+    if sort_field == "date":
+        return (row.get("date") or "").lower()
     return (row.get("name") or "").lower()
 
 
@@ -194,7 +211,7 @@ def list_relics(
     museum: str | None = Query(None, description="Exact match on Relic.museum when set."),
     sort: str | None = Query(
         None,
-        description='Sort field: "name", "dynasty", or "period" (period uses dynasty).',
+        description='Sort field: "name", "dynasty", or "date". Legacy "period" maps to dynasty.',
     ),
     order: str | None = Query("asc", description='Sort direction: "asc" or "desc".'),
     page: int = Query(1, ge=1, description="1-based page index."),

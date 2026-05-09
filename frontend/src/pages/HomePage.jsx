@@ -1,10 +1,13 @@
+import { useTranslation } from 'react-i18next';
+import FilterPanel from '../components/FilterPanel.jsx';
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 import RelicCard from '../components/RelicCard.jsx';
 import RelicListRow from '../components/RelicListRow.jsx';
-import FilterPanel from '../components/FilterPanel.jsx';
 import './HomePage.css';
 
 /**
  * @typedef {import('../models/relic.js').Relic} Relic
+ * @typedef {{ type: 'http', status: number } | { type: 'network' }} CatalogFetchError
  */
 
 export default function HomePage({
@@ -32,6 +35,7 @@ export default function HomePage({
   onSearchChange = () => {},
   onSearchSubmit = () => {},
   loading,
+  /** @type {CatalogFetchError|null} */
   error,
   onRetry,
   onClearFacetFilters = () => {},
@@ -39,28 +43,38 @@ export default function HomePage({
   onClearSearchAndFilters = () => {},
   onOpenRelic = () => {},
 }) {
+  const { t } = useTranslation();
   const hasFacetFilters = Boolean(dynastyFilter || materialFilter || museumFilter);
   const searchActive = Boolean(search.trim());
+
+  const catalogErrorMessage =
+    error &&
+    (error.type === 'http'
+      ? t('errors.catalog.http', { status: error.status })
+      : t('errors.catalog.network'));
 
   return (
     <div className="home">
       <header className="home__header">
-        <h1>Overseas Relic Knowledge</h1>
-        <p className="home__tagline">
-          Catalog from API — Neo4j when configured, else sample JSON
-        </p>
+        <div className="home__header-top">
+          <div className="home__header-brand">
+            <h1>{t('home.title')}</h1>
+            <p className="home__tagline">{t('home.tagline')}</p>
+          </div>
+          <LanguageSwitcher />
+        </div>
 
-        <div className="home__catalog-tools" aria-label="View and sorting">
+        <div className="home__catalog-tools" aria-label={t('home.catalogToolsAria')}>
           <div className="home__catalog-tools-row">
-            <span className="home__catalog-tools-label">View</span>
-            <div className="home__view-switch" role="group" aria-label="Catalog layout">
+            <span className="home__catalog-tools-label">{t('home.viewLabel')}</span>
+            <div className="home__view-switch" role="group" aria-label={t('home.viewLabel')}>
               <button
                 type="button"
                 className={`home__segment ${!viewIsList ? 'home__segment--active' : ''}`}
                 aria-pressed={!viewIsList}
                 onClick={() => onViewChange(false)}
               >
-                Cards
+                {t('home.viewCards')}
               </button>
               <button
                 type="button"
@@ -68,13 +82,13 @@ export default function HomePage({
                 aria-pressed={viewIsList}
                 onClick={() => onViewChange(true)}
               >
-                List
+                {t('home.viewList')}
               </button>
             </div>
           </div>
           <div className="home__catalog-tools-row home__catalog-tools-row--grow">
             <label className="home__catalog-sort-label" htmlFor="catalog-sort-field">
-              Sort by
+              {t('home.sortBy')}
             </label>
             <select
               id="catalog-sort-field"
@@ -82,12 +96,12 @@ export default function HomePage({
               value={sortField}
               onChange={(e) => onSortFieldChange(e.target.value)}
             >
-              <option value="name">Name</option>
-              <option value="dynasty">Dynasty</option>
-              <option value="period">Period</option>
+              <option value="name">{t('home.sortFieldName')}</option>
+              <option value="dynasty">{t('home.sortFieldDynasty')}</option>
+              <option value="date">{t('home.sortFieldDate')}</option>
             </select>
             <label className="home__catalog-sort-label home__catalog-sort-label--inline" htmlFor="catalog-sort-order">
-              Order
+              {t('home.sortOrderLabel')}
             </label>
             <select
               id="catalog-sort-order"
@@ -95,8 +109,8 @@ export default function HomePage({
               value={sortOrder}
               onChange={(e) => onSortOrderChange(e.target.value)}
             >
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
+              <option value="asc">{t('home.sortAscending')}</option>
+              <option value="desc">{t('home.sortDescending')}</option>
             </select>
           </div>
         </div>
@@ -110,63 +124,63 @@ export default function HomePage({
           }}
         >
           <label className="home__search-label" htmlFor="relic-search">
-            Search
+            {t('home.searchLabel')}
           </label>
           <input
             id="relic-search"
             className="home__search-input"
             type="search"
-            placeholder="Name or museum…"
+            placeholder={t('home.searchPlaceholder')}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             autoComplete="off"
           />
           <button type="submit" className="home__search-submit">
-            Search
+            {t('home.searchSubmit')}
           </button>
         </form>
 
         {(hasFacetFilters || searchActive) && (
-          <div className="home__active-filters" aria-label="Active filters">
-            <span className="home__active-filters-intro">Applied:</span>
+          <div className="home__active-filters" aria-label={t('home.activeFiltersAria')}>
+            <span className="home__active-filters-intro">{t('home.applied')}</span>
             {dynastyFilter ? (
               <span className="home__filter-chip">
-                Dynasty: {dynastyFilter}
+                {t('home.chipDynasty', { value: dynastyFilter })}
                 <button type="button" className="home__filter-chip-clear" onClick={() => onDynastyChange('')}>
-                  Clear
+                  {t('home.clearChip')}
                 </button>
               </span>
             ) : null}
             {materialFilter ? (
               <span className="home__filter-chip">
-                Material: {materialFilter}
+                {t('home.chipMaterial', { value: materialFilter })}
                 <button type="button" className="home__filter-chip-clear" onClick={() => onMaterialChange('')}>
-                  Clear
+                  {t('home.clearChip')}
                 </button>
               </span>
             ) : null}
             {museumFilter ? (
               <span className="home__filter-chip">
-                Museum: {museumFilter}
+                {t('home.chipMuseum', { value: museumFilter })}
                 <button type="button" className="home__filter-chip-clear" onClick={() => onMuseumChange('')}>
-                  Clear
+                  {t('home.clearChip')}
                 </button>
               </span>
             ) : null}
             {searchActive ? (
               <span className="home__filter-chip">
-                Search: {search.trim()}
+                {t('home.chipSearch', { value: search.trim() })}
                 <button type="button" className="home__filter-chip-clear" onClick={onClearSearch}>
-                  Clear
+                  {t('home.clearChip')}
                 </button>
               </span>
             ) : null}
             <button type="button" className="home__filters-clear-all" onClick={onClearSearchAndFilters}>
-              Clear all
+              {t('home.clearAll')}
             </button>
             {hasFacetFilters ? (
               <button type="button" className="home__filters-clear-facets-only" onClick={onClearFacetFilters}>
-                Clear filters only
+                {t('home.clearFacetsOnly')}
               </button>
             ) : null}
           </div>
@@ -189,18 +203,27 @@ export default function HomePage({
         </aside>
 
         <section className="home__content">
-          {loading && <p className="home__status">Loading relics…</p>}
+          {loading && <p className="home__status">{t('home.loading')}</p>}
           {error && (
             <div className="home__error" role="alert">
-              <p>{error}</p>
+              <p>{catalogErrorMessage}</p>
               <button type="button" onClick={onRetry}>
-                Retry
+                {t('home.retry')}
               </button>
             </div>
           )}
           {!loading && !error && relics.length === 0 && (
-            <p className="home__status">No relics match this filter.</p>
+            <p className="home__status">{t('home.empty')}</p>
           )}
+          {!loading && !error && viewIsList && relics.length > 0 ? (
+            <div className="relic-list__toolbar">
+              <span className="relic-list__toolbar-cell relic-list__toolbar-cell--thumb" />
+              <span className="relic-list__toolbar-cell">{t('relicList.colTitle')}</span>
+              <span className="relic-list__toolbar-cell">{t('relicList.colDynasty')}</span>
+              <span className="relic-list__toolbar-cell">{t('relicList.colMuseum')}</span>
+              <span className="relic-list__toolbar-cell">{t('relicList.colMaterial')}</span>
+            </div>
+          ) : null}
           <ul className={`relic-grid ${viewIsList ? 'relic-grid--hidden' : ''}`}>
             {!viewIsList &&
               relics.map((relic) => (
@@ -219,9 +242,9 @@ export default function HomePage({
           </ul>
 
           {!loading && !error && totalPages > 1 && (
-            <nav className="home__pagination" aria-label="Pagination">
+            <nav className="home__pagination" aria-label={t('home.paginationAria')}>
               <span className="home__pagination-info">
-                Page {page} of {totalPages} ({total} relics)
+                {t('home.paginationInfo', { page, totalPages, total })}
               </span>
               <div className="home__pagination-pages">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (

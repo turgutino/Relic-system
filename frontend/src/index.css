@@ -2,8 +2,14 @@
   color-scheme: light;
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.5;
-  color: #1a1a1e;
-  background: #f4f2ee;
+  color: var(--museum-ink, #1c1917);
+  background: var(--museum-bg, #f4f2ee);
+  --museum-bg: #f4f2ee;
+  --museum-surface: #ffffff;
+  --museum-ink: #1c1917;
+  --museum-muted: #57534e;
+  --museum-border: #d6d3cd;
+  --museum-accent: #78350f;
 }
 
 * {

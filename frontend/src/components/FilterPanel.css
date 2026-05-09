@@ -1,8 +1,9 @@
 .filter-panel {
-  background: #fff;
-  border: 1px solid #d8d3cb;
-  border-radius: 10px;
-  padding: 1rem;
+  background: var(--museum-surface, #fff);
+  border: 1px solid var(--museum-border, #e7e5e1);
+  border-radius: 12px;
+  padding: 1.1rem;
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04);
 }
 
 .filter-panel__title {

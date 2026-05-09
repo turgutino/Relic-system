@@ -1,14 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import './RelicListRow.css';
 
 /**
- * Compact list row — same navigate action as cards.
+ * Table-style row — name, dynasty, museum, material.
  *
  * @param {{ relic: import('../models/relic.js').Relic, onOpen: () => void }} props
  */
 export default function RelicListRow({ relic, onOpen }) {
+  const { t } = useTranslation();
   if (!relic) return null;
 
-  const title = relic.name || 'Untitled relic';
+  const title = relic.name || t('relicDetail.untitled');
 
   return (
     <article
@@ -17,17 +19,18 @@ export default function RelicListRow({ relic, onOpen }) {
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={rowKeyDown(onOpen)}
+      aria-label={t('relicCard.ariaLabel', {
+        title,
+        subtitle: [relic.dynasty, relic.museum, relic.material].filter(Boolean).join(' · ') || t('relicDetail.missingValue'),
+      })}
     >
-      <div className="relic-row__thumb">
+      <div className="relic-row__thumb" aria-hidden>
         <img src={relic.image_url || '/placeholder-relic.svg'} alt="" className="relic-row__img" loading="lazy" />
       </div>
-      <div className="relic-row__body">
-        <h3 className="relic-row__title">{title}</h3>
-        <p className="relic-row__meta">
-          {[relic.dynasty, relic.museum].filter(Boolean).join(' · ') || '—'}
-        </p>
-        {relic.material ? <p className="relic-row__material">{relic.material}</p> : null}
-      </div>
+      <div className="relic-row__cell relic-row__cell--title">{title}</div>
+      <div className="relic-row__cell relic-row__cell--dynasty">{relic.dynasty || t('relicDetail.missingValue')}</div>
+      <div className="relic-row__cell relic-row__cell--museum">{relic.museum || t('relicDetail.missingValue')}</div>
+      <div className="relic-row__cell relic-row__cell--material">{relic.material || t('relicDetail.missingValue')}</div>
     </article>
   );
 }
