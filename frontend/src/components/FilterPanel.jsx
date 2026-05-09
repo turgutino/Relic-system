@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import './FilterPanel.css';
 
 /**
@@ -25,6 +26,7 @@ export default function FilterPanel({
   onMaterialChange,
   onMuseumChange,
 }) {
+  const { t } = useTranslation();
   const materialOptions =
     selectedMaterial && !materials.includes(selectedMaterial)
       ? [selectedMaterial, ...materials]
@@ -36,11 +38,11 @@ export default function FilterPanel({
 
   return (
     <div className="filter-panel">
-      <h3 className="filter-panel__title">Filters</h3>
-      <p className="filter-panel__hint">Refine results by dynasty, material, museum, or search.</p>
+      <h3 className="filter-panel__title">{t('filters.title')}</h3>
+      <p className="filter-panel__hint">{t('filters.hint')}</p>
 
       <label className="filter-panel__label" htmlFor="dynasty-filter">
-        Dynasty
+        {t('filters.dynasty')}
       </label>
       <select
         id="dynasty-filter"
@@ -48,7 +50,7 @@ export default function FilterPanel({
         value={selectedDynasty}
         onChange={(e) => onDynastyChange(e.target.value)}
       >
-        <option value="">All periods</option>
+        <option value="">{t('filters.allPeriods')}</option>
         {dynastyOpts.map((d) => (
           <option key={d} value={d}>
             {d}
@@ -57,7 +59,7 @@ export default function FilterPanel({
       </select>
 
       <label className="filter-panel__label filter-panel__label--spaced" htmlFor="material-filter">
-        Material
+        {t('filters.material')}
       </label>
       <select
         id="material-filter"
@@ -65,7 +67,7 @@ export default function FilterPanel({
         value={selectedMaterial}
         onChange={(e) => onMaterialChange(e.target.value)}
       >
-        <option value="">All materials</option>
+        <option value="">{t('filters.allMaterials')}</option>
         {materialOptions.map((m) => (
           <option key={m} value={m}>
             {m}
@@ -74,7 +76,7 @@ export default function FilterPanel({
       </select>
 
       <label className="filter-panel__label filter-panel__label--spaced" htmlFor="museum-filter">
-        Museum
+        {t('filters.museum')}
       </label>
       <select
         id="museum-filter"
@@ -82,7 +84,7 @@ export default function FilterPanel({
         value={selectedMuseum}
         onChange={(e) => onMuseumChange(e.target.value)}
       >
-        <option value="">All museums</option>
+        <option value="">{t('filters.allMuseums')}</option>
         {museumOptions.map((mu) => (
           <option key={mu} value={mu}>
             {mu}

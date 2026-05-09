@@ -1,23 +1,29 @@
 /**
- * Normalized relic shape from `/relics` and `/relics/{id}` (JSON file or Neo4j-backed API).
- * Add new display fields in one place; backend can send extra keys anytime.
- *
- * Neo4j extension: map new node properties in backend `services/relics._records_to_relics`,
- * then read them here via spread (`...raw`) or explicit defaults below.
+ * Normalized relic shape from `/relics` (Neo4j / JSON sample).
  *
  * @typedef {Object} Relic
  * @property {string} id
  * @property {string} name
- * @property {string} [dynasty]
- * @property {string} [museum]
- * @property {string} [material]
- * @property {string} [description]
- * @property {string} [image_url]
+ * @property {string} dynasty
+ * @property {string} museum
+ * @property {string} material
+ * @property {string} description
+ * @property {string} image_url
+ * @property {string} artist
+ * @property {string} date
+ * @property {string} culture
+ * @property {string} period
+ * @property {string} classification
+ * @property {string} accession_number
+ * @property {string} dimensions
+ * @property {string} credit_line
+ * @property {string} object_url
+ * @property {string} [place]
  */
 
-export const RELIC_CARD_FIELDS = ['name', 'dynasty', 'museum'];
+export const RELIC_CARD_FIELDS = ['name', 'dynasty', 'museum', 'material'];
 
-/** Keys we render in cards / primary detail — everything else can show in "Graph / extra fields". */
+/** Keys handled explicitly in detail UI or reserved — remainder may appear as “additional”. */
 export const KNOWN_RELIC_KEYS = new Set([
   'id',
   'name',
@@ -27,7 +33,40 @@ export const KNOWN_RELIC_KEYS = new Set([
   'description',
   'image_url',
   'image',
+  'artist',
+  'date',
+  'culture',
+  'period',
+  'classification',
+  'accession_number',
+  'dimensions',
+  'credit_line',
+  'object_url',
+  'place',
 ]);
+
+const OPTIONAL_STRING_KEYS = [
+  'artist',
+  'date',
+  'culture',
+  'period',
+  'classification',
+  'accession_number',
+  'dimensions',
+  'credit_line',
+  'object_url',
+  'place',
+];
+
+/**
+ * @param {unknown} v
+ * @returns {string}
+ */
+function strField(v) {
+  if (v == null) return '';
+  if (typeof v === 'string') return v.trim();
+  return String(v).trim();
+}
 
 /**
  * @param {Record<string, unknown>|null|undefined} raw
@@ -42,16 +81,25 @@ export function normalizeRelic(raw) {
   const image_url =
     typeof rawImg === 'string' && rawImg.trim() ? rawImg.trim() : '/placeholder-relic.svg';
 
-  return {
-    ...raw,
+  /** @type {Record<string, unknown>} */
+  const rest = { ...raw };
+
+  const relic = {
+    ...rest,
     id,
-    name: typeof raw.name === 'string' && raw.name ? raw.name : 'Untitled relic',
-    dynasty: typeof raw.dynasty === 'string' ? raw.dynasty : '',
-    museum: typeof raw.museum === 'string' ? raw.museum : '',
-    material: typeof raw.material === 'string' ? raw.material : '',
-    description: typeof raw.description === 'string' ? raw.description : '',
+    name: strField(raw.name),
+    dynasty: strField(raw.dynasty),
+    museum: strField(raw.museum),
+    material: strField(raw.material),
+    description: strField(raw.description),
     image_url,
   };
+
+  for (const key of OPTIONAL_STRING_KEYS) {
+    relic[key] = strField(raw[key]);
+  }
+
+  return /** @type {Relic} */ (relic);
 }
 
 /**

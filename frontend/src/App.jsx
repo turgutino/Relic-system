@@ -7,19 +7,21 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
+import DocumentLang from './components/DocumentLang.jsx';
 import HomePage from './pages/HomePage.jsx';
 import RelicDetailPage from './pages/RelicDetailPage.jsx';
 import { normalizeRelic } from './models/relic.js';
 import './App.css';
 
-/** @typedef {'name' | 'dynasty' | 'period'} SortField */
+/** @typedef {'name' | 'dynasty' | 'date'} SortField */
 
 const PAGE_SIZE = 10;
 
-const SORT_FIELDS = /** @type {const} */ (['name', 'dynasty', 'period']);
+const SORT_FIELDS = /** @type {const} */ (['name', 'dynasty', 'date']);
 
 function parseSort(raw) {
   const v = (raw || 'name').toLowerCase();
+  if (v === 'period') return 'dynasty';
   return SORT_FIELDS.includes(v) ? v : 'name';
 }
 
@@ -135,7 +137,15 @@ function CatalogView() {
       params.set('sort', sortField);
       params.set('order', sortOrder);
       const res = await fetch(`/relics?${params.toString()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        setRelics([]);
+        setTotal(0);
+        setDynastyOptions([]);
+        setMaterialOptions([]);
+        setMuseumOptions([]);
+        setError({ type: 'http', status: res.status });
+        return;
+      }
       const data = await res.json();
       const list = Array.isArray(data.items) ? data.items : [];
       const normalized = list.map(normalizeRelic).filter(Boolean);
@@ -150,8 +160,8 @@ function CatalogView() {
       if (Array.isArray(data.museums)) {
         setMuseumOptions(data.museums.filter(Boolean));
       }
-    } catch (e) {
-      setError(e.message || 'Failed to load relics');
+    } catch {
+      setError({ type: 'network' });
       setRelics([]);
       setTotal(0);
     } finally {
@@ -265,10 +275,13 @@ function CatalogView() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<CatalogView />} />
-      <Route path="/relics/:id" element={<RelicDetailPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <DocumentLang />
+      <Routes>
+        <Route path="/" element={<CatalogView />} />
+        <Route path="/relics/:id" element={<RelicDetailPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }

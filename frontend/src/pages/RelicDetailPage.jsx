@@ -1,19 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 import RelicDetail from '../components/RelicDetail.jsx';
 import { normalizeRelic } from '../models/relic.js';
 import './RelicDetailPage.css';
 
 /** @typedef {import('../models/relic.js').Relic} Relic */
 
+/** @typedef {{ type: 'invalidId' } | { type: 'notFound' } | { type: 'http', status: number } | { type: 'network' }} DetailFetchError */
+
 export default function RelicDetailPage() {
+  const { t } = useTranslation();
   const { id: rawId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [relic, setRelic] = useState(/** @type {Relic|null} */ (null));
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(/** @type {string|null} */ (null));
+  const [error, setError] = useState(/** @type {DetailFetchError|null} */ (null));
   const [relatedRelics, setRelatedRelics] = useState(/** @type {Relic[]} */ ([]));
   const [relatedLoading, setRelatedLoading] = useState(false);
 
@@ -29,7 +34,7 @@ export default function RelicDetailPage() {
     if (!id.trim()) {
       setLoading(false);
       setRelic(null);
-      setError('Invalid relic id.');
+      setError({ type: 'invalidId' });
       return undefined;
     }
 
@@ -41,20 +46,29 @@ export default function RelicDetailPage() {
       .then((res) => {
         if (res.status === 404) {
           setRelic(null);
-          setError('Relic not found.');
+          setError({ type: 'notFound' });
           return null;
         }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          setRelic(null);
+          setError({ type: 'http', status: res.status });
+          return null;
+        }
         return res.json();
       })
       .then((data) => {
         if (data == null || ac.signal.aborted) return;
         const n = normalizeRelic(data);
+        if (!n) {
+          setRelic(null);
+          setError({ type: 'notFound' });
+          return;
+        }
         setRelic(n);
       })
       .catch((e) => {
         if (e?.name === 'AbortError') return;
-        setError(e.message || 'Failed to load relic');
+        setError({ type: 'network' });
         setRelic(null);
       })
       .finally(() => {
@@ -99,21 +113,32 @@ export default function RelicDetailPage() {
     navigate({ pathname: '/', search: goCatalogSearch ? `?${goCatalogSearch}` : '' });
   };
 
+  const detailErrorMessage =
+    error &&
+    (error.type === 'http'
+      ? t('errors.detail.http', { status: error.status })
+      : error.type === 'network'
+        ? t('errors.detail.network')
+        : error.type === 'invalidId'
+          ? t('errors.detail.invalidId')
+          : t('errors.detail.notFound'));
+
   return (
     <div className="relic-detail-page">
       <div className="relic-detail-page__toolbar">
         <button type="button" className="relic-detail-page__back" onClick={goCatalog}>
-          ← Back to catalog
+          {t('detailPage.backToCatalog')}
         </button>
+        <LanguageSwitcher />
       </div>
 
-      {loading ? <p className="relic-detail-page__status">Loading relic…</p> : null}
+      {loading ? <p className="relic-detail-page__status">{t('detailPage.loading')}</p> : null}
 
       {!loading && error ? (
         <div className="relic-detail-page__error" role="alert">
-          <p>{error}</p>
+          <p>{detailErrorMessage}</p>
           <button type="button" className="relic-detail-page__back" onClick={goCatalog}>
-            Back to catalog
+            {t('detailPage.backToCatalog')}
           </button>
         </div>
       ) : null}
@@ -126,18 +151,18 @@ export default function RelicDetailPage() {
 
           <section className="relic-detail-page__related" aria-labelledby="related-heading">
             <h2 id="related-heading" className="relic-detail-page__related-title">
-              Related relics
+              {t('detailPage.relatedTitle')}
             </h2>
             {relatedLoading ? (
-              <p className="relic-detail-page__related-status">Loading related relics…</p>
+              <p className="relic-detail-page__related-status">{t('detailPage.relatedLoading')}</p>
             ) : relatedRelics.length === 0 ? (
-              <p className="relic-detail-page__related-status">No related relics found.</p>
+              <p className="relic-detail-page__related-status">{t('detailPage.relatedEmpty')}</p>
             ) : (
               <ul className="relic-detail-page__related-list">
                 {relatedRelics.map((r) => (
                   <li key={r.id}>
                     <button type="button" className="relic-detail-page__related-link" onClick={() => openRelated(r.id)}>
-                      <span className="relic-detail-page__related-name">{r.name}</span>
+                      <span className="relic-detail-page__related-name">{r.name || t('relicDetail.untitled')}</span>
                       {r.dynasty ? (
                         <span className="relic-detail-page__related-meta">{r.dynasty}</span>
                       ) : null}

@@ -1,0 +1,112 @@
+{
+  "app": {
+    "documentTitle": "Xaricdəki əşya bilikləri"
+  },
+  "language": {
+    "switchLabel": "Dil",
+    "en": "English",
+    "az": "Azərbaycan",
+    "zh": "简体中文"
+  },
+  "home": {
+    "title": "Xaricdəki əşya bilikləri",
+    "tagline": "API kataloqu — Neo4j qurulanda qraf verilənlər bazası, əks halda nümunə JSON",
+    "catalogToolsAria": "Görünüş və çeşidləmə",
+    "viewLabel": "Görünüş",
+    "viewCards": "Kartlar",
+    "viewList": "Siyahı",
+    "sortBy": "Çeşidlə",
+    "sortFieldName": "Ad",
+    "sortFieldDynasty": "Sülalə",
+    "sortFieldDate": "Tarix",
+    "sortFieldPeriod": "Dövr",
+    "sortOrderLabel": "Sıra",
+    "sortAscending": "Artan",
+    "sortDescending": "Azalan",
+    "searchLabel": "Axtarış",
+    "searchPlaceholder": "Ad və ya muzey…",
+    "searchSubmit": "Axtar",
+    "activeFiltersAria": "Aktiv filtrlər",
+    "applied": "Tətbiq olunub:",
+    "chipDynasty": "Sülalə: {{value}}",
+    "chipMaterial": "Material: {{value}}",
+    "chipMuseum": "Muzey: {{value}}",
+    "chipSearch": "Axtarış: {{value}}",
+    "clearChip": "Təmizlə",
+    "clearAll": "Hamısını təmizlə",
+    "clearFacetsOnly": "Yalnız filtrləri təmizlə",
+    "loading": "Əşyalar yüklənir…",
+    "empty": "Bu filtrə uyğun əşya tapılmadı.",
+    "retry": "Yenidən cəhd et",
+    "paginationAria": "Səhifələmə",
+    "paginationInfo": "Səhifə {{page}} / {{totalPages}} ({{total}} əşya)"
+  },
+  "filters": {
+    "title": "Filtrlər",
+    "hint": "Nəticələri sülalə, material, muzey və ya axtarış ilə dəqiqləşdirin.",
+    "dynasty": "Sülalə",
+    "material": "Material",
+    "museum": "Muzey",
+    "allPeriods": "Bütün dövrlər",
+    "allMaterials": "Bütün materiallar",
+    "allMuseums": "Bütün muzeylər"
+  },
+  "relicList": {
+    "colTitle": "Başlıq",
+    "colDynasty": "Sülalə / dövr",
+    "colMuseum": "Muzey",
+    "colMaterial": "Material"
+  },
+  "detailPage": {
+    "backToCatalog": "← Kataloqa qayıt",
+    "loading": "Əşya yüklənir…",
+    "relatedTitle": "Əlaqəli əşyalar",
+    "relatedLoading": "Əlaqəli əşyalar yüklənir…",
+    "relatedEmpty": "Əlaqəli əşya tapılmadı."
+  },
+  "relicDetail": {
+    "emptyPrompt": "Tam təfərrüatları görmək üçün şəbəkədən əşya seçin.",
+    "untitled": "Adsız əşya",
+    "imageAlt": "{{title}} — təsvir",
+    "closeAria": "Təfərrüatı bağla",
+    "loadingFull": "Tam təfərrüatlar yüklənir…",
+    "aboutTitle": "Təsvir",
+    "noDescription": "Təsvir təqdim olunmayıb.",
+    "keyAttributes": "Əşya təfərrüatları",
+    "attrDynasty": "Sülalə / dövr",
+    "attrMuseum": "Muzey",
+    "attrMaterial": "Material",
+    "attrArtist": "Rəssam / yaradıcı",
+    "attrDate": "Tarix",
+    "attrCulture": "Mədəniyyət",
+    "attrPeriod": "Tarixi dövr",
+    "attrClassification": "Təsnifat",
+    "attrDimensions": "Ölçülər",
+    "attrAccession": "İnventar nömrəsi",
+    "attrCreditLine": "Kredit sətri",
+    "attrPlace": "Mənşə yeri",
+    "missingValue": "—",
+    "extrasTitle": "Əlavə məlumat",
+    "viewAtMuseum": "Muzeydə bax →",
+    "zoomHint": "Böyütmək üçün şəkilə klikləyin",
+    "zoomOpen": "Şəkli böyüt",
+    "zoomClose": "Böyüdülmüş şəkli bağla",
+    "zoomDialog": "Böyüdülmüş əşya şəkli"
+  },
+  "relicCard": {
+    "periodLocationTbd": "Dövr / yer müəyyən deyil",
+    "ariaLabel": "{{title}}. {{subtitle}}"
+  },
+  "errors": {
+    "catalog": {
+      "http": "Kataloq yüklənmədi (HTTP {{status}}).",
+      "network": "Kataloq yüklənmədi. Bağlantınızı yoxlayın."
+    },
+    "detail": {
+      "invalidId": "Etibarsız əşya identifikatoru.",
+      "notFound": "Əşya tapılmadı.",
+      "http": "Əşya yüklənmədi (HTTP {{status}}).",
+      "network": "Əşya yüklənmədi. Bağlantınızı yoxlayın."
+    }
+  }
+}

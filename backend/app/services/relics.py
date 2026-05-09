@@ -31,7 +31,17 @@ RETURN r.id AS id,
        r.museum AS museum,
        r.material AS material,
        r.description AS description,
-       coalesce(r.image_url, r.image, '') AS image_url
+       coalesce(r.image_url, r.image, '') AS image_url,
+       coalesce(r.artist, '') AS artist,
+       coalesce(r.date, '') AS date,
+       coalesce(r.culture, '') AS culture,
+       coalesce(r.period, '') AS period,
+       coalesce(r.classification, '') AS classification,
+       coalesce(r.accession_number, '') AS accession_number,
+       coalesce(r.dimensions, '') AS dimensions,
+       coalesce(r.credit_line, '') AS credit_line,
+       coalesce(r.object_url, '') AS object_url,
+       coalesce(r.place, '') AS place
 """
 
 # Whitelisted ORDER BY expressions (never interpolate user strings here).
@@ -39,6 +49,7 @@ _SORT_ORDER_FIELDS: dict[str, str] = {
     "name": "coalesce(r.name, '')",
     "dynasty": "coalesce(r.dynasty, '')",
     "period": "coalesce(r.dynasty, '')",
+    "date": "coalesce(r.date, '')",
 }
 
 
@@ -105,7 +116,17 @@ RETURN other.id AS id,
        other.museum AS museum,
        other.material AS material,
        other.description AS description,
-       coalesce(other.image_url, other.image, '') AS image_url
+       coalesce(other.image_url, other.image, '') AS image_url,
+       coalesce(other.artist, '') AS artist,
+       coalesce(other.date, '') AS date,
+       coalesce(other.culture, '') AS culture,
+       coalesce(other.period, '') AS period,
+       coalesce(other.classification, '') AS classification,
+       coalesce(other.accession_number, '') AS accession_number,
+       coalesce(other.dimensions, '') AS dimensions,
+       coalesce(other.credit_line, '') AS credit_line,
+       coalesce(other.object_url, '') AS object_url,
+       coalesce(other.place, '') AS place
 LIMIT 5
 """
 
@@ -117,7 +138,17 @@ RETURN r.id AS id,
        r.museum AS museum,
        r.material AS material,
        r.description AS description,
-       coalesce(r.image_url, r.image, '') AS image_url
+       coalesce(r.image_url, r.image, '') AS image_url,
+       coalesce(r.artist, '') AS artist,
+       coalesce(r.date, '') AS date,
+       coalesce(r.culture, '') AS culture,
+       coalesce(r.period, '') AS period,
+       coalesce(r.classification, '') AS classification,
+       coalesce(r.accession_number, '') AS accession_number,
+       coalesce(r.dimensions, '') AS dimensions,
+       coalesce(r.credit_line, '') AS credit_line,
+       coalesce(r.object_url, '') AS object_url,
+       coalesce(r.place, '') AS place
 LIMIT 1
 """
 
@@ -138,10 +169,20 @@ def _records_to_relics(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "material": row.get("material") or "",
             "description": row.get("description") or "",
             "image_url": str(raw_url).strip() if raw_url is not None else "",
+            "artist": row.get("artist") or "",
+            "date": row.get("date") or "",
+            "culture": row.get("culture") or "",
+            "period": row.get("period") or "",
+            "classification": row.get("classification") or "",
+            "accession_number": row.get("accession_number") or "",
+            "dimensions": row.get("dimensions") or "",
+            "credit_line": row.get("credit_line") or "",
+            "object_url": row.get("object_url") or "",
+            "place": row.get("place") or "",
         }
         for k, v in row.items():
             if k not in item and k != "image":
-                item[k] = v
+                item[k] = "" if v is None else str(v).strip()
         out.append(item)
     return out
 
@@ -162,6 +203,8 @@ def fetch_relics_page_from_neo4j(
     if not database.verify_connection():
         return None
     sort_key = (sort or "name").strip().lower()
+    if sort_key == "period":
+        sort_key = "dynasty"
     if sort_key not in _SORT_ORDER_FIELDS:
         sort_key = "name"
 

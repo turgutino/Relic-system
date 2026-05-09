@@ -1,36 +1,48 @@
 .relic-detail-page {
-  max-width: 1200px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem 3rem;
+  min-height: 100vh;
 }
 
 .relic-detail-page__toolbar {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--museum-border, #d6d3cd);
 }
 
 .relic-detail-page__back {
-  padding: 0.45rem 0.85rem;
-  border-radius: 8px;
-  border: 1px solid #c9c4bc;
-  background: #fff;
-  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--museum-border, #d6d3cd);
+  background: var(--museum-surface, #fff);
+  font-size: 0.88rem;
+  font-weight: 500;
   cursor: pointer;
+  color: var(--museum-ink, #1c1917);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .relic-detail-page__back:hover {
-  background: #faf9f7;
+  background: #fafaf9;
+  border-color: #c4bfb6;
 }
 
 .relic-detail-page__status {
   margin: 0;
-  color: #555;
+  color: var(--museum-muted, #57534e);
   font-size: 0.95rem;
 }
 
 .relic-detail-page__error {
-  background: #fde8e8;
-  border: 1px solid #e8a0a0;
-  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
   padding: 1rem 1.25rem;
 }
 
@@ -38,26 +50,28 @@
   margin: 0 0 1rem;
 }
 
-.relic-detail-page__body .relic-detail {
-  margin-top: 0;
+.relic-detail-page__body {
+  margin-top: 0.5rem;
 }
 
 .relic-detail-page__related {
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #e0dcd4;
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--museum-border, #e7e5e1);
 }
 
 .relic-detail-page__related-title {
-  margin: 0 0 0.85rem;
-  font-size: 1.05rem;
+  margin: 0 0 1rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
   font-weight: 600;
+  color: var(--museum-ink, #1c1917);
 }
 
 .relic-detail-page__related-status {
   margin: 0;
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.92rem;
+  color: var(--museum-muted, #57534e);
 }
 
 .relic-detail-page__related-list {
@@ -66,7 +80,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
 .relic-detail-page__related-link {
@@ -76,23 +90,26 @@
   gap: 0.35rem 0.75rem;
   width: 100%;
   text-align: left;
-  padding: 0.55rem 0.65rem;
-  border-radius: 8px;
-  border: 1px solid #d8d3cb;
-  background: #faf9f7;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--museum-border, #e7e5e1);
+  background: var(--museum-surface, #fff);
   font-size: 0.92rem;
   cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .relic-detail-page__related-link:hover {
-  background: #fff;
+  border-color: #cfcac2;
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.06);
 }
 
 .relic-detail-page__related-name {
-  font-weight: 500;
+  font-weight: 600;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .relic-detail-page__related-meta {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--museum-muted, #57534e);
 }

@@ -1,0 +1,112 @@
+{
+  "app": {
+    "documentTitle": "Overseas Relic Knowledge"
+  },
+  "language": {
+    "switchLabel": "Language",
+    "en": "English",
+    "az": "Azərbaycan",
+    "zh": "简体中文"
+  },
+  "home": {
+    "title": "Overseas Relic Knowledge",
+    "tagline": "Catalog from API — Neo4j when configured, else sample JSON",
+    "catalogToolsAria": "View and sorting",
+    "viewLabel": "View",
+    "viewCards": "Cards",
+    "viewList": "List",
+    "sortBy": "Sort by",
+    "sortFieldName": "Name",
+    "sortFieldDynasty": "Dynasty",
+    "sortFieldDate": "Date",
+    "sortFieldPeriod": "Period",
+    "sortOrderLabel": "Order",
+    "sortAscending": "Ascending",
+    "sortDescending": "Descending",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Name or museum…",
+    "searchSubmit": "Search",
+    "activeFiltersAria": "Active filters",
+    "applied": "Applied:",
+    "chipDynasty": "Dynasty: {{value}}",
+    "chipMaterial": "Material: {{value}}",
+    "chipMuseum": "Museum: {{value}}",
+    "chipSearch": "Search: {{value}}",
+    "clearChip": "Clear",
+    "clearAll": "Clear all",
+    "clearFacetsOnly": "Clear filters only",
+    "loading": "Loading relics…",
+    "empty": "No relics match this filter.",
+    "retry": "Retry",
+    "paginationAria": "Pagination",
+    "paginationInfo": "Page {{page}} of {{totalPages}} ({{total}} relics)"
+  },
+  "filters": {
+    "title": "Filters",
+    "hint": "Refine results by dynasty, material, museum, or search.",
+    "dynasty": "Dynasty",
+    "material": "Material",
+    "museum": "Museum",
+    "allPeriods": "All periods",
+    "allMaterials": "All materials",
+    "allMuseums": "All museums"
+  },
+  "relicList": {
+    "colTitle": "Title",
+    "colDynasty": "Dynasty / period",
+    "colMuseum": "Museum",
+    "colMaterial": "Material"
+  },
+  "detailPage": {
+    "backToCatalog": "← Back to catalog",
+    "loading": "Loading relic…",
+    "relatedTitle": "Related relics",
+    "relatedLoading": "Loading related relics…",
+    "relatedEmpty": "No related relics found."
+  },
+  "relicDetail": {
+    "emptyPrompt": "Select a relic from the grid to view its full details.",
+    "untitled": "Untitled relic",
+    "imageAlt": "{{title}} — illustration",
+    "closeAria": "Close detail",
+    "loadingFull": "Loading full details…",
+    "aboutTitle": "Description",
+    "noDescription": "No description provided.",
+    "keyAttributes": "Object details",
+    "attrDynasty": "Dynasty / period",
+    "attrMuseum": "Museum",
+    "attrMaterial": "Material",
+    "attrArtist": "Artist / maker",
+    "attrDate": "Date",
+    "attrCulture": "Culture",
+    "attrPeriod": "Historical period",
+    "attrClassification": "Classification",
+    "attrDimensions": "Dimensions",
+    "attrAccession": "Accession no.",
+    "attrCreditLine": "Credit line",
+    "attrPlace": "Place of origin",
+    "missingValue": "—",
+    "extrasTitle": "Additional information",
+    "viewAtMuseum": "View at museum →",
+    "zoomHint": "Click image to enlarge",
+    "zoomOpen": "Enlarge image",
+    "zoomClose": "Close enlarged image",
+    "zoomDialog": "Enlarged object image"
+  },
+  "relicCard": {
+    "periodLocationTbd": "Period / location TBD",
+    "ariaLabel": "{{title}}. {{subtitle}}"
+  },
+  "errors": {
+    "catalog": {
+      "http": "Could not load catalog (HTTP {{status}}).",
+      "network": "Could not load catalog. Please check your connection."
+    },
+    "detail": {
+      "invalidId": "Invalid relic id.",
+      "notFound": "Relic not found.",
+      "http": "Could not load relic (HTTP {{status}}).",
+      "network": "Could not load relic. Please check your connection."
+    }
+  }
+}
