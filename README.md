@@ -1,4 +1,4 @@
-# Overseas Relic Knowledge Service
+# Overseas Relic Knowledge Platform
 
 Full-stack catalog for **Chinese heritage relics held in overseas museums**. The **FastAPI** backend serves relic metadata from **Neo4j** when `NEO4J_URI` is set and reachable; otherwise it falls back to **`database/graph/sample_relics.json`**. The **React** frontend lists and filters relics, opens detail pages with optional image zoom, and supports **English, Azerbaijani, and Chinese** UI strings via **i18next**.
 
