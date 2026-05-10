@@ -97,6 +97,7 @@ Create `backend/.env` (loaded via `python-dotenv`):
 NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=your_password
+OPENAI_API_KEY=your_key_here
 ```
 
 Leave `NEO4J_URI` empty or omit it to use **JSON fallback only** (as in automated tests).
