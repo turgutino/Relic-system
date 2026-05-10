@@ -2,6 +2,11 @@
   "app": {
     "documentTitle": "Xaricdəki əşya bilikləri"
   },
+  "nav": {
+    "ariaLabel": "Əsas naviqasiya",
+    "catalog": "Kataloq",
+    "stats": "Statistika"
+  },
   "language": {
     "switchLabel": "Dil",
     "en": "English",
@@ -41,6 +46,31 @@
     "paginationAria": "Səhifələmə",
     "paginationInfo": "Səhifə {{page}} / {{totalPages}} ({{total}} əşya)"
   },
+  "export": {
+    "button": "CSV ixracı",
+    "csv": "Uyğun əşyaları CSV kimi yükləyin (10 000 sıraya qədər)",
+    "buttonExcel": "Excel ixracı",
+    "excel": "Uyğun əşyaları Excel (.xlsx) kimi yükləyin (10 000 sıraya qədər)"
+  },
+  "advancedSearch": {
+    "toggle": "Geniş axtarış",
+    "artist": "Rəssam / yaradıcı",
+    "classification": "Təsnifat",
+    "dateFrom": "İl (minimum)",
+    "dateTo": "İl (maksimum)"
+  },
+  "timeline": {
+    "title": "Əsrlərə görə xətti qrafik",
+    "empty": "Bu diapazon üçün tarixli əşya yoxdur."
+  },
+  "geo": {
+    "title": "Muzey yerləri",
+    "city": "Şəhər",
+    "country": "Ölkə",
+    "coordinates": "Koordinatlar",
+    "relics": "Əşya sayı",
+    "empty": "Muzey məlumatı yüklənmədi."
+  },
   "filters": {
     "title": "Filtrlər",
     "hint": "Nəticələri sülalə, material, muzey və ya axtarış ilə dəqiqləşdirin.",
@@ -63,6 +93,20 @@
     "relatedTitle": "Əlaqəli əşyalar",
     "relatedLoading": "Əlaqəli əşyalar yüklənir…",
     "relatedEmpty": "Əlaqəli əşya tapılmadı."
+  },
+  "stats": {
+    "title": "Kolleksiya statistikası",
+    "subtitle": "Canlı məlumat dəsti üzrə aqreqatlar — Neo4j qurulanda qraf, əks halda nümunə JSON.",
+    "loading": "Statistika yüklənir…",
+    "retry": "Yenidən cəhd et",
+    "cardsAria": "Ümumi göstəricilər",
+    "totalRelics": "Ümumi əşya sayı",
+    "totalMuseums": "Təqdim olunan muzeylər",
+    "totalDynasties": "Fərqli sülalələr",
+    "totalMaterials": "Fərqli materiallar",
+    "chartMuseumTitle": "Muzeyə görə əşyalar",
+    "chartDynastyTitle": "Əşya sayına görə ən çox sülalələr",
+    "chartMaterialTitle": "Əsas materiallar (kolleksiyanın payı)"
   },
   "relicDetail": {
     "emptyPrompt": "Tam təfərrüatları görmək üçün şəbəkədən əşya seçin.",
@@ -107,6 +151,18 @@
       "notFound": "Əşya tapılmadı.",
       "http": "Əşya yüklənmədi (HTTP {{status}}).",
       "network": "Əşya yüklənmədi. Bağlantınızı yoxlayın."
+    },
+    "stats": {
+      "http": "Statistika yüklənmədi (HTTP {{status}}).",
+      "network": "Statistika yüklənmədi. Bağlantınızı yoxlayın."
+    },
+    "timeline": {
+      "http": "Zaman xətti yüklənmədi (HTTP {{status}}).",
+      "network": "Zaman xətti yüklənmədi. Bağlantınızı yoxlayın."
+    },
+    "geo": {
+      "http": "Muzey yerləri yüklənmədi (HTTP {{status}}).",
+      "network": "Muzey yerləri yüklənmədi. Bağlantınızı yoxlayın."
     }
   }
 }

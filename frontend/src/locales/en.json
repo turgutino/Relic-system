@@ -2,6 +2,11 @@
   "app": {
     "documentTitle": "Overseas Relic Knowledge"
   },
+  "nav": {
+    "ariaLabel": "Primary navigation",
+    "catalog": "Catalog",
+    "stats": "Statistics"
+  },
   "language": {
     "switchLabel": "Language",
     "en": "English",
@@ -41,6 +46,31 @@
     "paginationAria": "Pagination",
     "paginationInfo": "Page {{page}} of {{totalPages}} ({{total}} relics)"
   },
+  "export": {
+    "button": "Export CSV",
+    "csv": "Download matching relics as CSV (up to 10,000 rows)",
+    "buttonExcel": "Export Excel",
+    "excel": "Download matching relics as Excel (.xlsx, up to 10,000 rows)"
+  },
+  "advancedSearch": {
+    "toggle": "Advanced search",
+    "artist": "Artist",
+    "classification": "Classification",
+    "dateFrom": "Year from",
+    "dateTo": "Year to"
+  },
+  "timeline": {
+    "title": "Collection timeline by century",
+    "empty": "No dated relics in this range."
+  },
+  "geo": {
+    "title": "Museum locations",
+    "city": "City",
+    "country": "Country",
+    "coordinates": "Coordinates",
+    "relics": "Relics",
+    "empty": "No museum locations loaded."
+  },
   "filters": {
     "title": "Filters",
     "hint": "Refine results by dynasty, material, museum, or search.",
@@ -63,6 +93,20 @@
     "relatedTitle": "Related relics",
     "relatedLoading": "Loading related relics…",
     "relatedEmpty": "No related relics found."
+  },
+  "stats": {
+    "title": "Collection statistics",
+    "subtitle": "Aggregates from the live dataset — Neo4j when configured, else sample JSON.",
+    "loading": "Loading statistics…",
+    "retry": "Retry",
+    "cardsAria": "Summary totals",
+    "totalRelics": "Total relics",
+    "totalMuseums": "Museums represented",
+    "totalDynasties": "Distinct dynasties",
+    "totalMaterials": "Distinct materials",
+    "chartMuseumTitle": "Relics by museum",
+    "chartDynastyTitle": "Top dynasties by relic count",
+    "chartMaterialTitle": "Top materials (share of collection)"
   },
   "relicDetail": {
     "emptyPrompt": "Select a relic from the grid to view its full details.",
@@ -107,6 +151,18 @@
       "notFound": "Relic not found.",
       "http": "Could not load relic (HTTP {{status}}).",
       "network": "Could not load relic. Please check your connection."
+    },
+    "stats": {
+      "http": "Could not load statistics (HTTP {{status}}).",
+      "network": "Could not load statistics. Please check your connection."
+    },
+    "timeline": {
+      "http": "Could not load timeline (HTTP {{status}}).",
+      "network": "Could not load timeline. Please check your connection."
+    },
+    "geo": {
+      "http": "Could not load museum locations (HTTP {{status}}).",
+      "network": "Could not load museum locations. Please check your connection."
     }
   }
 }
