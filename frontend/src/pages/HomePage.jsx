@@ -42,10 +42,27 @@ export default function HomePage({
   onClearSearch = () => {},
   onClearSearchAndFilters = () => {},
   onOpenRelic = () => {},
+  advancedPanelOpen = false,
+  onAdvancedPanelToggle = () => {},
+  artistFilter = '',
+  classificationFilter = '',
+  dateFromFilter = '',
+  dateToFilter = '',
+  onArtistChange = () => {},
+  onClassificationChange = () => {},
+  onDateFromChange = () => {},
+  onDateToChange = () => {},
+  onExportCsv = () => {},
+  onExportXlsx = () => {},
 }) {
   const { t } = useTranslation();
   const hasFacetFilters = Boolean(dynastyFilter || materialFilter || museumFilter);
   const searchActive = Boolean(search.trim());
+  const advArtist = Boolean(artistFilter.trim());
+  const advClass = Boolean(classificationFilter.trim());
+  const advFrom = Boolean(dateFromFilter.trim());
+  const advTo = Boolean(dateToFilter.trim());
+  const hasAdvancedFilters = advArtist || advClass || advFrom || advTo;
 
   const catalogErrorMessage =
     error &&
@@ -61,7 +78,27 @@ export default function HomePage({
             <h1>{t('home.title')}</h1>
             <p className="home__tagline">{t('home.tagline')}</p>
           </div>
-          <LanguageSwitcher />
+          <div className="home__header-actions">
+            <div className="home__export-actions">
+              <button
+                type="button"
+                className="home__export-btn"
+                onClick={onExportCsv}
+                title={t('export.csv')}
+              >
+                {t('export.button')}
+              </button>
+              <button
+                type="button"
+                className="home__export-btn"
+                onClick={onExportXlsx}
+                title={t('export.excel')}
+              >
+                {t('export.buttonExcel')}
+              </button>
+            </div>
+            <LanguageSwitcher />
+          </div>
         </div>
 
         <div className="home__catalog-tools" aria-label={t('home.catalogToolsAria')}>
@@ -115,32 +152,87 @@ export default function HomePage({
           </div>
         </div>
 
-        <form
-          className="home__search"
-          role="search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSearchSubmit();
-          }}
-        >
-          <label className="home__search-label" htmlFor="relic-search">
-            {t('home.searchLabel')}
-          </label>
-          <input
-            id="relic-search"
-            className="home__search-input"
-            type="search"
-            placeholder={t('home.searchPlaceholder')}
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            autoComplete="off"
-          />
-          <button type="submit" className="home__search-submit">
-            {t('home.searchSubmit')}
+        <div className="home__search-block">
+          <form
+            className="home__search"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSearchSubmit();
+            }}
+          >
+            <label className="home__search-label" htmlFor="relic-search">
+              {t('home.searchLabel')}
+            </label>
+            <input
+              id="relic-search"
+              className="home__search-input"
+              type="search"
+              placeholder={t('home.searchPlaceholder')}
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              autoComplete="off"
+            />
+            <button type="submit" className="home__search-submit">
+              {t('home.searchSubmit')}
+            </button>
+          </form>
+          <button
+            type="button"
+            className={`home__advanced-toggle ${advancedPanelOpen ? 'home__advanced-toggle--active' : ''}`}
+            aria-expanded={advancedPanelOpen}
+            onClick={onAdvancedPanelToggle}
+          >
+            {t('advancedSearch.toggle')}
           </button>
-        </form>
+        </div>
 
-        {(hasFacetFilters || searchActive) && (
+        {advancedPanelOpen ? (
+          <div className="home__advanced-fields" aria-label={t('advancedSearch.toggle')}>
+            <label className="home__advanced-field">
+              <span className="home__advanced-label">{t('advancedSearch.artist')}</span>
+              <input
+                type="text"
+                className="home__advanced-input"
+                value={artistFilter}
+                onChange={(e) => onArtistChange(e.target.value)}
+                autoComplete="off"
+              />
+            </label>
+            <label className="home__advanced-field">
+              <span className="home__advanced-label">{t('advancedSearch.classification')}</span>
+              <input
+                type="text"
+                className="home__advanced-input"
+                value={classificationFilter}
+                onChange={(e) => onClassificationChange(e.target.value)}
+                autoComplete="off"
+              />
+            </label>
+            <label className="home__advanced-field home__advanced-field--narrow">
+              <span className="home__advanced-label">{t('advancedSearch.dateFrom')}</span>
+              <input
+                type="number"
+                className="home__advanced-input"
+                inputMode="numeric"
+                value={dateFromFilter}
+                onChange={(e) => onDateFromChange(e.target.value)}
+              />
+            </label>
+            <label className="home__advanced-field home__advanced-field--narrow">
+              <span className="home__advanced-label">{t('advancedSearch.dateTo')}</span>
+              <input
+                type="number"
+                className="home__advanced-input"
+                inputMode="numeric"
+                value={dateToFilter}
+                onChange={(e) => onDateToChange(e.target.value)}
+              />
+            </label>
+          </div>
+        ) : null}
+
+        {(hasFacetFilters || searchActive || hasAdvancedFilters) && (
           <div className="home__active-filters" aria-label={t('home.activeFiltersAria')}>
             <span className="home__active-filters-intro">{t('home.applied')}</span>
             {dynastyFilter ? (
@@ -171,6 +263,38 @@ export default function HomePage({
               <span className="home__filter-chip">
                 {t('home.chipSearch', { value: search.trim() })}
                 <button type="button" className="home__filter-chip-clear" onClick={onClearSearch}>
+                  {t('home.clearChip')}
+                </button>
+              </span>
+            ) : null}
+            {advArtist ? (
+              <span className="home__filter-chip">
+                {t('advancedSearch.artist')}: {artistFilter.trim()}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onArtistChange('')}>
+                  {t('home.clearChip')}
+                </button>
+              </span>
+            ) : null}
+            {advClass ? (
+              <span className="home__filter-chip">
+                {t('advancedSearch.classification')}: {classificationFilter.trim()}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onClassificationChange('')}>
+                  {t('home.clearChip')}
+                </button>
+              </span>
+            ) : null}
+            {advFrom ? (
+              <span className="home__filter-chip">
+                {t('advancedSearch.dateFrom')}: {dateFromFilter.trim()}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onDateFromChange('')}>
+                  {t('home.clearChip')}
+                </button>
+              </span>
+            ) : null}
+            {advTo ? (
+              <span className="home__filter-chip">
+                {t('advancedSearch.dateTo')}: {dateToFilter.trim()}
+                <button type="button" className="home__filter-chip-clear" onClick={() => onDateToChange('')}>
                   {t('home.clearChip')}
                 </button>
               </span>

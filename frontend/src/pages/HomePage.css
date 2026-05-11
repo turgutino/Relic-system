@@ -194,6 +194,110 @@
   color: #555;
 }
 
+.home__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+}
+
+.home__export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.home__export-btn {
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--museum-border, #c9c4bc);
+  background: var(--museum-surface, #fff);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--museum-ink, #1c1917);
+}
+
+.home__export-btn:hover {
+  border-color: var(--museum-accent, #78350f);
+  color: var(--museum-accent, #78350f);
+}
+
+.home__search-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 0.65rem;
+  margin-top: 1rem;
+}
+
+.home__search-block .home__search {
+  flex: 1 1 280px;
+  margin-top: 0;
+  min-width: 0;
+}
+
+.home__advanced-toggle {
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #c9c4bc;
+  background: #faf9f7;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.home__advanced-toggle:hover {
+  border-color: var(--museum-accent, #78350f);
+  color: var(--museum-accent, #78350f);
+}
+
+.home__advanced-toggle--active {
+  background: #eae6e0;
+  font-weight: 600;
+  border-color: #78350f88;
+}
+
+.home__advanced-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.65rem 1rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--museum-border, #e7e5e1);
+  background: var(--museum-surface, #fff);
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.03);
+}
+
+.home__advanced-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.home__advanced-field--narrow {
+  max-width: 160px;
+}
+
+.home__advanced-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--museum-muted, #57534e);
+}
+
+.home__advanced-input {
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #c9c4bc;
+  background: #faf9f7;
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+
 .home__search {
   display: flex;
   flex-wrap: wrap;
