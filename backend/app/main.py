@@ -25,6 +25,12 @@ from openpyxl.utils import get_column_letter
 from pydantic import BaseModel, Field
 
 from app.services import dynasty_parser, material_parser, relics as relics_service
+from app.db.database import Base, engine
+from app.routers import auth as auth_router
+from app.routers import favorites as favorites_router
+from app.routers import history as history_router
+from app.routers import comments as comments_router
+from app.routers import admin as admin_router
 
 # Repo root: backend/app/main.py -> parents[2] == Relic-system
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -107,6 +113,13 @@ app = FastAPI(
     version="0.1.0",
     description="API for relic metadata: optional Neo4j + sample JSON fallback.",
 )
+
+Base.metadata.create_all(bind=engine)
+app.include_router(auth_router.router)
+app.include_router(favorites_router.router)
+app.include_router(history_router.router)
+app.include_router(comments_router.router)
+app.include_router(admin_router.router)
 
 app.add_middleware(
     CORSMiddleware,
