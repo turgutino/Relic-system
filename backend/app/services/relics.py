@@ -14,19 +14,46 @@ from typing import Any
 from openai import OpenAI
 
 from app.core import database
+from app.services import dynasty_parser, material_parser
 
-# Example schema: ``(:Relic {id, name, dynasty, museum, material, description, image_url})``
+# Example schema: ``(:Relic {id, name, dynasty, museum, material, description, image_url, artist …})``
+
+# Shared catalog text query: case-insensitive substring on primary relic text fields.
+_CATALOG_SEARCH_TEXT_PREDICATE = """
+    $search IS NULL OR trim(coalesce($search, '')) = ''
+    OR toLower(coalesce(r.name, '')) CONTAINS toLower(trim($search))
+    OR toLower(coalesce(r.museum, '')) CONTAINS toLower(trim($search))
+    OR toLower(coalesce(r.dynasty, '')) CONTAINS toLower(trim($search))
+    OR toLower(coalesce(r.material, '')) CONTAINS toLower(trim($search))
+    OR toLower(coalesce(r.artist, r.author, '')) CONTAINS toLower(trim($search))
+    OR toLower(coalesce(r.classification, '')) CONTAINS toLower(trim($search))
+    OR toLower(coalesce(r.description, '')) CONTAINS toLower(trim($search))
+"""
+
+SEARCH_ORDER_RANK_CASE = """CASE
+      WHEN $search IS NULL OR trim(coalesce($search, '')) = '' THEN 0
+      WHEN trim(toLower(coalesce(r.name,''))) = trim(toLower(trim($search))) THEN 100
+      WHEN toLower(trim(coalesce(r.name,''))) STARTS WITH toLower(trim($search)) THEN 80
+      WHEN toLower(coalesce(r.name,'')) CONTAINS toLower(trim($search)) THEN 70
+      WHEN toLower(coalesce(r.artist, r.author, '')) CONTAINS toLower(trim($search)) THEN 62
+      WHEN toLower(coalesce(r.classification,'')) CONTAINS toLower(trim($search)) THEN 60
+      WHEN toLower(coalesce(r.museum,'')) CONTAINS toLower(trim($search)) THEN 55
+      WHEN toLower(coalesce(r.dynasty,'')) CONTAINS toLower(trim($search)) THEN 52
+      WHEN toLower(coalesce(r.material,'')) CONTAINS toLower(trim($search)) THEN 51
+      WHEN toLower(coalesce(r.description,'')) CONTAINS toLower(trim($search)) THEN 48
+      ELSE 0
+    END"""
+
 _RELICS_MATCH_FILTERED = """
 MATCH (r:Relic)
-WHERE ($dynasty IS NULL OR r.dynasty = $dynasty)
-  AND ($material IS NULL OR r.material = $material)
+WHERE CASE WHEN $dynasty IS NULL THEN true ELSE coalesce(r.dynasty, '') =~ $dynasty_regex END
+  AND CASE WHEN $material_regex IS NULL THEN true ELSE coalesce(r.material, '') =~ $material_regex END
   AND ($museum IS NULL OR r.museum = $museum)
   AND (
-    $search IS NULL
-    OR toLower(coalesce(r.name, '')) CONTAINS toLower($search)
-    OR toLower(coalesce(r.museum, '')) CONTAINS toLower($search)
+""" + _CATALOG_SEARCH_TEXT_PREDICATE + """
   )
 """
+
 
 RELICS_PAGE_RETURN = """
 RETURN r.id AS id,
@@ -63,6 +90,15 @@ def _neo_order_clause(sort_key: str, ascending: bool) -> str:
     return f"ORDER BY {expr} {direction}"
 
 
+def _neo_catalog_order_clause(search: str | None, sort_key: str, ascending: bool) -> str:
+    """When ``search`` is set, relevance (exact/then partial name …) takes precedence."""
+    expr = _SORT_ORDER_FIELDS.get(sort_key, _SORT_ORDER_FIELDS["name"])
+    dir2 = "ASC" if ascending else "DESC"
+    if search is None or not str(search).strip():
+        return _neo_order_clause(sort_key, ascending)
+    return f"ORDER BY {SEARCH_ORDER_RANK_CASE} DESC, {expr} {dir2}"
+
+
 RELICS_COUNT_CYPHER = (
     _RELICS_MATCH_FILTERED
     + """
@@ -72,12 +108,10 @@ RETURN count(r) AS total
 
 RELICS_DYNASTIES_FACET_CYPHER = """
 MATCH (r:Relic)
-WHERE ($material IS NULL OR r.material = $material)
+WHERE CASE WHEN $material_regex IS NULL THEN true ELSE coalesce(r.material, '') =~ $material_regex END
   AND ($museum IS NULL OR r.museum = $museum)
   AND (
-    $search IS NULL
-    OR toLower(coalesce(r.name, '')) CONTAINS toLower($search)
-    OR toLower(coalesce(r.museum, '')) CONTAINS toLower($search)
+""" + _CATALOG_SEARCH_TEXT_PREDICATE + """
   )
 RETURN DISTINCT r.dynasty AS dynasty
 ORDER BY dynasty
@@ -85,12 +119,10 @@ ORDER BY dynasty
 
 RELICS_MATERIALS_FACET_CYPHER = """
 MATCH (r:Relic)
-WHERE ($dynasty IS NULL OR r.dynasty = $dynasty)
+WHERE CASE WHEN $dynasty IS NULL THEN true ELSE coalesce(r.dynasty, '') =~ $dynasty_regex END
   AND ($museum IS NULL OR r.museum = $museum)
   AND (
-    $search IS NULL
-    OR toLower(coalesce(r.name, '')) CONTAINS toLower($search)
-    OR toLower(coalesce(r.museum, '')) CONTAINS toLower($search)
+""" + _CATALOG_SEARCH_TEXT_PREDICATE + """
   )
 RETURN DISTINCT r.material AS material
 ORDER BY material
@@ -98,12 +130,10 @@ ORDER BY material
 
 RELICS_MUSEUMS_FACET_CYPHER = """
 MATCH (r:Relic)
-WHERE ($dynasty IS NULL OR r.dynasty = $dynasty)
-  AND ($material IS NULL OR r.material = $material)
+WHERE CASE WHEN $dynasty IS NULL THEN true ELSE coalesce(r.dynasty, '') =~ $dynasty_regex END
+  AND CASE WHEN $material_regex IS NULL THEN true ELSE coalesce(r.material, '') =~ $material_regex END
   AND (
-    $search IS NULL
-    OR toLower(coalesce(r.name, '')) CONTAINS toLower($search)
-    OR toLower(coalesce(r.museum, '')) CONTAINS toLower($search)
+""" + _CATALOG_SEARCH_TEXT_PREDICATE + """
   )
 RETURN DISTINCT r.museum AS museum
 ORDER BY museum
@@ -113,7 +143,13 @@ RELATED_RELICS_CYPHER = """
 MATCH (r:Relic {id: $id})
 MATCH (other:Relic)
 WHERE other.id <> $id
-  AND (other.dynasty = r.dynasty OR other.museum = r.museum)
+  AND (
+    other.museum = r.museum
+    OR (
+      coalesce(r.dynasty, '') <> ''
+      AND coalesce(other.dynasty, '') <> ''
+    )
+  )
 RETURN other.id AS id,
        other.name AS name,
        other.dynasty AS dynasty,
@@ -131,14 +167,14 @@ RETURN other.id AS id,
        coalesce(other.credit_line, '') AS credit_line,
        coalesce(other.object_url, '') AS object_url,
        coalesce(other.place, '') AS place
-LIMIT 5
+LIMIT 40
 """
 
 ADVANCED_SEARCH_MATCH = """
 MATCH (r:Relic)
 WHERE ($name IS NULL OR toLower(r.name) CONTAINS toLower($name))
   AND ($museum IS NULL OR toLower(r.museum) CONTAINS toLower($museum))
-  AND ($dynasty IS NULL OR r.dynasty = $dynasty)
+  AND CASE WHEN $dynasty IS NULL THEN true ELSE coalesce(r.dynasty, '') =~ $dynasty_regex END
   AND ($material IS NULL OR toLower(r.material) CONTAINS toLower($material))
   AND ($artist IS NULL OR toLower(coalesce(r.artist,'')) CONTAINS toLower($artist))
   AND ($classification IS NULL OR toLower(coalesce(r.classification,'')) CONTAINS toLower($classification))
@@ -186,30 +222,16 @@ RETURN r.museum AS museum, count(r) AS count
 ORDER BY count DESC
 """
 
-STATS_BY_DYNASTY_CYPHER = """
-MATCH (r:Relic)
-RETURN r.dynasty AS dynasty, count(r) AS count
-ORDER BY count DESC
-LIMIT 15
-"""
-
-STATS_BY_MATERIAL_CYPHER = """
-MATCH (r:Relic)
-RETURN r.material AS material, count(r) AS count
-ORDER BY count DESC
-LIMIT 15
-"""
-
-STATS_DISTINCT_DYNASTIES_CYPHER = """
+STATS_BY_DYNASTY_RAW_CYPHER = """
 MATCH (r:Relic)
 WHERE coalesce(r.dynasty, '') <> ''
-RETURN count(DISTINCT r.dynasty) AS total
+RETURN r.dynasty AS dynasty, count(*) AS count
 """
 
-STATS_DISTINCT_MATERIALS_CYPHER = """
+STATS_BY_MATERIAL_RAW_CYPHER = """
 MATCH (r:Relic)
 WHERE coalesce(r.material, '') <> ''
-RETURN count(DISTINCT r.material) AS total
+RETURN r.material AS material, count(r) AS count
 """
 
 RELIC_BY_ID_CYPHER = """
@@ -235,6 +257,22 @@ LIMIT 1
 """
 
 
+def _dynasty_match_params(dynasty: str | None) -> dict[str, Any]:
+    """Neo4j parameters for canonical dynasty filtering on raw ``r.dynasty`` strings."""
+    if not dynasty or not str(dynasty).strip():
+        return {"dynasty": None, "dynasty_regex": None}
+    dv = str(dynasty).strip()
+    return {"dynasty": dv, "dynasty_regex": dynasty_parser.neo4j_regex_for_filter(dv)}
+
+
+def _material_match_params(material: str | None) -> dict[str, Any]:
+    """Neo4j parameters for facet / list filter on raw ``r.medium`` via keyword regex."""
+    if not material or not str(material).strip():
+        return {"material_regex": None}
+    mv = str(material).strip()
+    return {"material_regex": material_parser.neo4j_regex_for_filter(mv)}
+
+
 def _records_to_relics(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Normalize driver rows to API relic dicts."""
     out: list[dict[str, Any]] = []
@@ -246,9 +284,9 @@ def _records_to_relics(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         item = {
             "id": str(rid),
             "name": row.get("name") or "",
-            "dynasty": row.get("dynasty") or "",
+            "dynasty": dynasty_parser.dynasty_for_api(row.get("dynasty")),
             "museum": row.get("museum") or "",
-            "material": row.get("material") or "",
+            "material": material_parser.material_for_api(row.get("material")),
             "description": row.get("description") or "",
             "image_url": str(raw_url).strip() if raw_url is not None else "",
             "artist": row.get("artist") or "",
@@ -294,7 +332,7 @@ def fetch_relics_page_from_neo4j(
         _RELICS_MATCH_FILTERED
         + RELICS_PAGE_RETURN
         + "\n"
-        + _neo_order_clause(sort_key, ascending)
+        + _neo_catalog_order_clause(search, sort_key, ascending)
         + """
 SKIP $skip
 LIMIT $limit
@@ -302,9 +340,9 @@ LIMIT $limit
     )
 
     params_filter: dict[str, Any] = {
-        "dynasty": dynasty,
+        **_dynasty_match_params(dynasty),
+        **_material_match_params(material),
         "search": search,
-        "material": material,
         "museum": museum,
     }
     skip = (page - 1) * limit
@@ -326,19 +364,25 @@ LIMIT $limit
 
     items = _records_to_relics(records)
 
-    params_dynasty_facet = {"material": material, "museum": museum, "search": search}
-    params_material_facet = {"dynasty": dynasty, "museum": museum, "search": search}
-    params_museum_facet = {"dynasty": dynasty, "material": material, "search": search}
+    params_dynasty_facet = {
+        **_material_match_params(material),
+        "museum": museum,
+        "search": search,
+    }
+    params_material_facet = {**_dynasty_match_params(dynasty), "museum": museum, "search": search}
+    params_museum_facet = {
+        **_dynasty_match_params(dynasty),
+        **_material_match_params(material),
+        "search": search,
+    }
 
-    dynasties = _facet_strings(
+    dynasties = _facet_dynasties_canonical(
         RELICS_DYNASTIES_FACET_CYPHER,
         params_dynasty_facet,
-        "dynasty",
     )
-    materials = _facet_strings(
+    materials = _facet_materials_canonical(
         RELICS_MATERIALS_FACET_CYPHER,
         params_material_facet,
-        "material",
     )
     museums = _facet_strings(
         RELICS_MUSEUMS_FACET_CYPHER,
@@ -379,16 +423,16 @@ def fetch_relics_export_neo4j(
         sort_key = "name"
 
     params_filter: dict[str, Any] = {
-        "dynasty": dynasty,
+        **_dynasty_match_params(dynasty),
+        **_material_match_params(material),
         "search": search,
-        "material": material,
         "museum": museum,
     }
     export_cypher = (
         _RELICS_MATCH_FILTERED
         + RELICS_PAGE_RETURN
         + "\n"
-        + _neo_order_clause(sort_key, ascending)
+        + _neo_catalog_order_clause(search, sort_key, ascending)
         + """
 SKIP 0
 LIMIT $limit
@@ -511,6 +555,13 @@ def normalize_nl_parsed_filters(data: Any) -> dict[str, Any | None]:
             continue
         s = str(v).strip()
         out[k] = s or None
+    dyn = out.get("dynasty")
+    if dyn:
+        out["dynasty"] = dynasty_parser.extract_clean_dynasty(str(dyn).strip())
+    mat_nl = out.get("material")
+    if mat_nl:
+        mq = material_parser.canonicalize_material_query(str(mat_nl).strip())
+        out["material"] = mq if mq else None
     return out
 
 
@@ -536,6 +587,28 @@ def extract_nl_filters_with_openai(user_query: str) -> dict[str, Any | None]:
     except json.JSONDecodeError as e:
         raise ValueError("Model response was not valid JSON") from e
     return normalize_nl_parsed_filters(data)
+
+
+def _facet_dynasties_canonical(cypher: str, params: dict[str, Any]) -> list[str]:
+    """Distinct dynasty facet values normalized to canonical parser labels."""
+    try:
+        facet_rows = database.run_read_query(cypher, params)
+    except Exception:
+        return []
+    raws = [row.get("dynasty") for row in facet_rows if row.get("dynasty") not in (None, "")]
+    return dynasty_parser.distinct_canonical_dynasties_from_raw(raws)
+
+
+def _facet_materials_canonical(cypher: str, params: dict[str, Any]) -> list[str]:
+    """Distinct material facet labels derived from canonical parsing of stored medium strings."""
+    try:
+        facet_rows = database.run_read_query(cypher, params)
+    except Exception:
+        return []
+    raws = [
+        row.get("material") for row in facet_rows if row.get("material") not in (None, "")
+    ]
+    return material_parser.distinct_canonical_materials_from_raw(raws)
 
 
 def _facet_strings(cypher: str, params: dict[str, Any], key: str) -> list[str]:
@@ -599,10 +672,8 @@ def fetch_stats_from_neo4j() -> dict[str, Any] | None:
 
     try:
         museum_rows = database.run_read_query(STATS_BY_MUSEUM_CYPHER, {})
-        dynasty_rows = database.run_read_query(STATS_BY_DYNASTY_CYPHER, {})
-        material_rows = database.run_read_query(STATS_BY_MATERIAL_CYPHER, {})
-        d_tot_rows = database.run_read_query(STATS_DISTINCT_DYNASTIES_CYPHER, {})
-        m_tot_rows = database.run_read_query(STATS_DISTINCT_MATERIALS_CYPHER, {})
+        dynasty_rows = database.run_read_query(STATS_BY_DYNASTY_RAW_CYPHER, {})
+        material_rows = database.run_read_query(STATS_BY_MATERIAL_RAW_CYPHER, {})
     except Exception:
         return None
 
@@ -613,23 +684,21 @@ def fetch_stats_from_neo4j() -> dict[str, Any] | None:
             continue
         by_museum.append({"museum": label, "count": _neo_count_int(row.get("count"))})
 
-    by_dynasty: list[dict[str, Any]] = []
-    for row in dynasty_rows:
-        label = _neo_bucket_label(row.get("dynasty"))
-        if not label:
-            continue
-        by_dynasty.append({"dynasty": label, "count": _neo_count_int(row.get("count"))})
+    by_dynasty = dynasty_parser.merge_dynasty_counts(dynasty_rows)[:15]
 
-    by_material: list[dict[str, Any]] = []
-    for row in material_rows:
-        label = _neo_bucket_label(row.get("material"))
-        if not label:
-            continue
-        by_material.append({"material": label, "count": _neo_count_int(row.get("count"))})
+    canon_dynasties: set[str] = set()
+    for row in dynasty_rows:
+        raw_d = row.get("dynasty")
+        c = dynasty_parser.extract_clean_dynasty(str(raw_d).strip() if raw_d is not None else "")
+        if c:
+            canon_dynasties.add(c)
+
+    merged_materials = material_parser.merge_material_counts(material_rows)
+    by_material = merged_materials[:15]
 
     total_museums = len(by_museum)
-    total_dynasties = _neo_count_int(d_tot_rows[0]["total"]) if d_tot_rows else 0
-    total_materials = _neo_count_int(m_tot_rows[0]["total"]) if m_tot_rows else 0
+    total_dynasties = len(canon_dynasties)
+    total_materials = len(merged_materials)
 
     return {
         "total_relics": total_relics,
@@ -672,7 +741,7 @@ def fetch_advanced_search_from_neo4j(
     filter_params: dict[str, Any] = {
         "name": name,
         "museum": museum,
-        "dynasty": dynasty,
+        **_dynasty_match_params(dynasty),
         "material": material,
         "artist": artist,
         "classification": classification,
@@ -716,7 +785,7 @@ SKIP $skip LIMIT $limit
 
 
 def fetch_related_relics_from_neo4j(relic_id: str) -> list[dict[str, Any]]:
-    """Related relics by shared dynasty or museum."""
+    """Related relics by shared canonical dynasty or museum."""
     rid = (relic_id or "").strip()
     if not rid:
         return []
@@ -724,8 +793,33 @@ def fetch_related_relics_from_neo4j(relic_id: str) -> list[dict[str, Any]]:
         return []
     if not database.verify_connection():
         return []
+
+    anchor = fetch_relic_by_id_from_neo4j(rid)
+    if anchor is None:
+        return []
+
     try:
         records = database.run_read_query(RELATED_RELICS_CYPHER, {"id": rid})
     except Exception:
         return []
-    return _records_to_relics(records)
+
+    items = _records_to_relics(records)
+    am = (anchor.get("museum") or "").strip()
+    ac = (anchor.get("dynasty") or "").strip()
+
+    ranked: list[tuple[int, dict[str, Any]]] = []
+    for o in items:
+        oid = str(o.get("id") or "").strip()
+        if not oid or oid == rid:
+            continue
+        om = (o.get("museum") or "").strip()
+        od = (o.get("dynasty") or "").strip()
+        same_m = bool(am and om == am)
+        same_d = bool(ac and od == ac)
+        if not same_m and not same_d:
+            continue
+        score = 2 if same_m and same_d else 1
+        ranked.append((score, o))
+
+    ranked.sort(key=lambda x: (-x[0], (x[1].get("name") or "").lower()))
+    return [row for _, row in ranked[:5]]

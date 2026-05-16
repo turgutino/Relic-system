@@ -1,0 +1,330 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: light;
+  --font-size: 16px;
+
+  --relic-page: #f5f2ea;
+  --relic-page-rgb: 245, 242, 234;
+  --relic-text: #1c1917;
+  --relic-text-muted: #57534e;
+  --relic-text-subtle: #78716c;
+  --relic-text-hover: #44403c;
+  --relic-accent: #b8893c;
+  --relic-accent-bright: #c49a4c;
+  --relic-accent-deep: #5c4635;
+  --relic-gold-mid: #c9a227;
+  --relic-border: rgba(92, 70, 53, 0.14);
+  --relic-border-accent: rgba(184, 137, 60, 0.35);
+  --relic-border-muted: rgba(28, 25, 23, 0.1);
+  --relic-panel-bg: rgba(255, 255, 255, 0.92);
+  --relic-panel-bg-soft: rgba(255, 255, 255, 0.72);
+  --relic-panel-solid: #ffffff;
+  --relic-card-grid: rgba(255, 255, 255, 0.88);
+  --relic-card-grid-border: rgba(92, 70, 53, 0.12);
+  --relic-nav-bg: rgba(255, 255, 255, 0.82);
+  --relic-nav-border: rgba(92, 70, 53, 0.12);
+  --relic-mobile-nav-bg: rgba(255, 255, 255, 0.97);
+  --relic-input-bg: #ffffff;
+  --relic-chip-bg: #ebe7df;
+  --relic-logo-inner: #1c1917;
+  --relic-btn-primary-fg: #0f0e0d;
+  --relic-ghost-btn-text: #292524;
+  --relic-particle: rgba(198, 165, 107, 0.35);
+  --relic-chart-tooltip-bg: #ffffff;
+  --relic-chart-tooltip-border: rgba(92, 70, 53, 0.22);
+  --relic-chart-axis: #57534e;
+  --relic-chart-bar-primary: #c49a4c;
+  --relic-chart-bar-secondary: #8b7355;
+  --relic-pie-stroke: var(--relic-page);
+  --relic-pie-1: #b8893c;
+  --relic-pie-2: #8b7355;
+  --relic-pie-3: #5c4635;
+  --relic-pie-4: #c9a227;
+  --relic-pie-5: #78716c;
+  --relic-pie-6: #57534e;
+  --relic-pie-7: #44403c;
+  --relic-pie-8: #92400e;
+  --relic-table-head: #78716c;
+  --relic-table-body: #44403c;
+  --relic-table-row-border: rgba(28, 25, 23, 0.08);
+  --relic-description-text: #57534e;
+  --relic-grain-opacity: 0.035;
+  --relic-error-bg: rgba(254, 242, 242, 0.94);
+  --relic-error-border: rgba(185, 28, 28, 0.35);
+  --relic-error-text: #991b1b;
+  --relic-accent-muted-bg: rgba(198, 165, 107, 0.14);
+  --relic-interactive-hover: rgba(28, 25, 23, 0.06);
+  --relic-knowledge-relic: #c2410c;
+  --relic-knowledge-museum: #1d4ed8;
+  --relic-knowledge-dynasty: #6d28d9;
+  --relic-knowledge-material: #047857;
+  --relic-knowledge-edge: rgba(92, 70, 53, 0.38);
+  --relic-knowledge-halo: rgba(196, 154, 76, 0.35);
+  --relic-hero-stop-1: rgba(245, 242, 234, 0.35);
+  --relic-hero-stop-2: rgba(245, 242, 234, 0.72);
+  --relic-hero-stop-3: rgba(245, 242, 234, 0.94);
+  --relic-hero-vignette: rgba(245, 242, 234, 0.55);
+
+  --charcoal-black: #1c1917;
+  --deep-bronze: #5c4635;
+  --antique-gold: #b8893c;
+  --warm-ivory: #1c1917;
+  --stone-gray: #57534e;
+
+  --background: var(--relic-page);
+  --foreground: var(--relic-text);
+  --card: var(--relic-panel-solid);
+  --card-foreground: var(--relic-text);
+  --popover: var(--relic-panel-solid);
+  --popover-foreground: var(--relic-text);
+  --primary: var(--relic-accent-bright);
+  --primary-foreground: var(--relic-btn-primary-fg);
+  --secondary: var(--relic-accent-deep);
+  --secondary-foreground: #fafaf9;
+  --muted: #e7e5e0;
+  --muted-foreground: var(--relic-text-muted);
+  --accent: rgba(198, 165, 107, 0.2);
+  --accent-foreground: var(--relic-text);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: var(--relic-border);
+  --input: var(--relic-border-muted);
+  --input-background: var(--relic-input-bg);
+  --switch-background: var(--relic-accent-deep);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: var(--relic-accent-bright);
+  --chart-1: var(--relic-accent-bright);
+  --chart-2: var(--relic-accent-deep);
+  --chart-3: var(--relic-text-muted);
+  --chart-4: #8b7355;
+  --chart-5: #c9a227;
+  --radius: 0.625rem;
+  --sidebar: var(--relic-panel-solid);
+  --sidebar-foreground: var(--relic-text);
+  --sidebar-primary: var(--relic-accent-bright);
+  --sidebar-primary-foreground: var(--relic-btn-primary-fg);
+  --sidebar-accent: var(--relic-accent-deep);
+  --sidebar-accent-foreground: #fafaf9;
+  --sidebar-border: var(--relic-border);
+  --sidebar-ring: var(--relic-accent-bright);
+}
+
+.dark {
+  color-scheme: dark;
+  --relic-page: #0d0d0d;
+  --relic-page-rgb: 13, 13, 13;
+  --relic-text: #f4efe7;
+  --relic-text-muted: #a8a29e;
+  --relic-text-subtle: #78716c;
+  --relic-text-hover: #e7e5e4;
+  --relic-accent: #c6a56b;
+  --relic-accent-bright: #c6a56b;
+  --relic-accent-deep: #5c4635;
+  --relic-gold-mid: #d4af77;
+  --relic-border: rgba(198, 165, 107, 0.15);
+  --relic-border-accent: rgba(198, 165, 107, 0.35);
+  --relic-border-muted: rgba(255, 255, 255, 0.1);
+  --relic-panel-bg: rgba(26, 26, 26, 0.8);
+  --relic-panel-bg-soft: rgba(26, 26, 26, 0.65);
+  --relic-panel-solid: #1a1a1a;
+  --relic-card-grid: rgba(26, 26, 26, 0.6);
+  --relic-card-grid-border: rgba(198, 165, 107, 0.15);
+  --relic-nav-bg: rgba(13, 13, 13, 0.6);
+  --relic-nav-border: rgba(198, 165, 107, 0.1);
+  --relic-mobile-nav-bg: rgba(13, 13, 13, 0.95);
+  --relic-input-bg: #1a1a1a;
+  --relic-chip-bg: #1a1a1a;
+  --relic-logo-inner: #0d0d0d;
+  --relic-btn-primary-fg: #0d0d0d;
+  --relic-ghost-btn-text: #f4efe7;
+  --relic-particle: rgba(198, 165, 107, 0.3);
+  --relic-chart-tooltip-bg: #1a1a1a;
+  --relic-chart-tooltip-border: rgba(198, 165, 107, 0.35);
+  --relic-chart-axis: #a8a29e;
+  --relic-chart-bar-primary: #c6a56b;
+  --relic-chart-bar-secondary: #8b7355;
+  --relic-pie-stroke: var(--relic-page);
+  --relic-pie-1: #c6a56b;
+  --relic-pie-2: #8b7355;
+  --relic-pie-3: #5c4635;
+  --relic-pie-4: #d4af77;
+  --relic-pie-5: #a8a29e;
+  --relic-pie-6: #78716c;
+  --relic-pie-7: #44403c;
+  --relic-pie-8: #92400e;
+  --relic-table-head: #78716c;
+  --relic-table-body: #cfcbc6;
+  --relic-table-row-border: rgba(255, 255, 255, 0.06);
+  --relic-description-text: #cfcbc6;
+  --relic-grain-opacity: 0.015;
+  --relic-error-bg: rgba(69, 10, 10, 0.4);
+  --relic-error-border: rgba(248, 113, 113, 0.35);
+  --relic-error-text: #fecaca;
+  --relic-accent-muted-bg: rgba(198, 165, 107, 0.12);
+  --relic-interactive-hover: rgba(255, 255, 255, 0.06);
+  --relic-knowledge-relic: #e7bc84;
+  --relic-knowledge-museum: #93c5fd;
+  --relic-knowledge-dynasty: #d8b4fe;
+  --relic-knowledge-material: #6ee7b7;
+  --relic-knowledge-edge: rgba(198, 165, 107, 0.32);
+  --relic-knowledge-halo: rgba(230, 195, 132, 0.45);
+  --relic-hero-stop-1: rgba(13, 13, 13, 0.3);
+  --relic-hero-stop-2: rgba(13, 13, 13, 0.7);
+  --relic-hero-stop-3: rgba(13, 13, 13, 0.95);
+  --relic-hero-vignette: rgba(13, 13, 13, 0.6);
+
+  --charcoal-black: #0d0d0d;
+  --warm-ivory: #f4efe7;
+  --stone-gray: #a8a29e;
+  --antique-gold: #c6a56b;
+
+  --background: var(--relic-page);
+  --foreground: var(--relic-text);
+  --card: var(--relic-panel-solid);
+  --card-foreground: var(--relic-text);
+  --popover: var(--relic-panel-solid);
+  --popover-foreground: var(--relic-text);
+  --primary: var(--relic-accent-bright);
+  --primary-foreground: var(--relic-btn-primary-fg);
+  --secondary: var(--relic-accent-deep);
+  --secondary-foreground: var(--relic-text);
+  --muted: #2a2a2a;
+  --muted-foreground: var(--relic-text-muted);
+  --accent: rgba(198, 165, 107, 0.15);
+  --accent-foreground: var(--relic-text);
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: var(--relic-border);
+  --input: transparent;
+  --input-background: rgba(92, 70, 53, 0.2);
+  --switch-background: var(--relic-accent-deep);
+  --ring: var(--relic-accent-bright);
+  --chart-1: var(--relic-accent-bright);
+  --chart-2: var(--relic-accent-deep);
+  --chart-3: var(--stone-gray);
+  --chart-4: #8b7355;
+  --chart-5: #d4af77;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: var(--relic-text);
+  --sidebar-primary: var(--relic-accent-bright);
+  --sidebar-primary-foreground: var(--relic-btn-primary-fg);
+  --sidebar-accent: var(--relic-accent-deep);
+  --sidebar-accent-foreground: var(--relic-text);
+  --sidebar-border: var(--relic-border);
+  --sidebar-ring: var(--relic-accent-bright);
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  /* Hide scrollbar for horizontal scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+}
