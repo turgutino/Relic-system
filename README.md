@@ -150,7 +150,7 @@ Fixtures typically unset Neo4j so responses come from **`sample_relics.json`**.
 | Method | Path | Description |
 |--------|------|-------------|
 | **GET** | `/health` | Liveness: `{ "status": "ok" }` |
-| **GET** | `/relics` | Paginated catalog. Query params: `page` (≥1), `limit` (1–100, default 10), `dynasty`, `material`, `museum` (exact match each when set), `search` (substring on name/museum), `sort` (`name` \| `dynasty` \| `date`; `period` treated as dynasty), `order` (`asc` \| `desc`). Response: `items`, `total`, `page`, `limit`, `dynasties`, `materials`, `museums`. |
+| **GET** | `/relics` | Paginated catalog. Query params: `page` (≥1), `limit` (1–100, default 10), `dynasty`, `material`, `museum` (exact match each when set), `search` (case-insensitive across name, museum, dynasty, material, artist/author, classification, description; relevance-ranked — exact title match first, then other partials), `sort` (`name` \| `dynasty` \| `date`; `period` treated as dynasty), `order` (`asc` \| `desc`). Response: `items`, `total`, `page`, `limit`, `dynasties`, `materials`, `museums`. |
 | **GET** | `/relics/{relic_id}` | Single relic; **404** if missing. |
 | **GET** | `/relics/{relic_id}/related` | JSON array (≤5) of related relics (shared dynasty or museum). |
 

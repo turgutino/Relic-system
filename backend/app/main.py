@@ -12,6 +12,7 @@ import json
 import os
 import re
 from collections import Counter
+from functools import cmp_to_key
 from pathlib import Path
 from typing import Any, Literal
 
@@ -23,7 +24,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from pydantic import BaseModel, Field
 
-from app.services import relics as relics_service
+from app.services import dynasty_parser, material_parser, relics as relics_service
 
 # Repo root: backend/app/main.py -> parents[2] == Relic-system
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -141,8 +142,8 @@ def _normalize_relic_payload(row: dict) -> dict:
         image_url = ""
     r["image_url"] = image_url
     r["description"] = str(r.get("description") or "").strip()
-    r["material"] = str(r.get("material") or "").strip()
-    r["dynasty"] = str(r.get("dynasty") or "").strip()
+    r["material"] = material_parser.material_for_api(r.get("material"))
+    r["dynasty"] = dynasty_parser.dynasty_for_api(r.get("dynasty"))
     r["museum"] = str(r.get("museum") or "").strip()
     nm = str(r.get("name") or "").strip()
     r["name"] = nm if nm else "Untitled relic"
@@ -164,6 +165,93 @@ def _normalize_relic_payload(row: dict) -> dict:
     return r
 
 
+def _catalog_raw_row_matches_search(row: dict, search: str | None) -> bool:
+    """Case-insensitive match against raw JSON relic fields."""
+    if search is None or not str(search).strip():
+        return True
+    n = search.lower().strip()
+    for key in (
+        "name",
+        "museum",
+        "dynasty",
+        "material",
+        "artist",
+        "author",
+        "classification",
+        "description",
+    ):
+        v = row.get(key)
+        if v is not None and n in str(v).lower():
+            return True
+    return False
+
+
+def _catalog_rank_tier_raw(row: dict, needle: str) -> int:
+    """Align with Neo4j ``SEARCH_ORDER_RANK_CASE`` tiers (larger is a better match)."""
+    q = needle.lower().strip()
+    if not q:
+        return 0
+    name = str(row.get("name") or "").strip()
+    nl = name.lower()
+    if nl == q:
+        return 100
+    if nl.startswith(q):
+        return 80
+    if q in nl:
+        return 70
+    artist = str(row.get("artist") or row.get("author") or "").lower()
+    if q in artist:
+        return 62
+    clf = str(row.get("classification") or "").lower()
+    if q in clf:
+        return 60
+    if q in str(row.get("museum") or "").lower():
+        return 55
+    if q in str(row.get("dynasty") or "").lower():
+        return 52
+    if q in str(row.get("material") or "").lower():
+        return 51
+    if q in str(row.get("description") or "").lower():
+        return 48
+    return 0
+
+
+def _sort_sortable_key_raw(row: dict, sort_field: str) -> str:
+    """Sort helper on raw ingestion rows before API normalization."""
+    if sort_field == "dynasty":
+        raw_d = str(row.get("dynasty") or "").strip()
+        canon = dynasty_parser.extract_clean_dynasty(raw_d)
+        return (canon or raw_d).lower()
+    if sort_field == "date":
+        return str(row.get("date") or "").strip().lower()
+    return str(row.get("name") or "").strip().lower()
+
+
+def _compare_catalog_search_raw_rows(
+    a: dict,
+    b: dict,
+    needle: str,
+    sort_field: str,
+    ascending: bool,
+) -> int:
+    ta = _catalog_rank_tier_raw(a, needle)
+    tb = _catalog_rank_tier_raw(b, needle)
+    if ta != tb:
+        return -1 if ta > tb else 1
+    va = _sort_sortable_key_raw(a, sort_field)
+    vb = _sort_sortable_key_raw(b, sort_field)
+    if va == vb:
+        return 0
+    if ascending:
+        return -1 if va < vb else 1
+    return -1 if va > vb else 1
+
+
+def _sort_raw_rows_catalog_search(rows: list[dict], needle: str, sort_field: str, ascending: bool) -> None:
+    n = needle.strip()
+    rows.sort(key=cmp_to_key(lambda a, b: _compare_catalog_search_raw_rows(a, b, n, sort_field, ascending)))
+
+
 def _filter_sample_relics(
     rows: list[dict],
     dynasty: str | None,
@@ -172,19 +260,19 @@ def _filter_sample_relics(
     museum: str | None = None,
 ) -> list[dict]:
     if dynasty:
-        rows = [r for r in rows if (r.get("dynasty") or "") == dynasty]
-    if material:
-        rows = [r for r in rows if (r.get("material") or "") == material]
-    if museum:
-        rows = [r for r in rows if (r.get("museum") or "") == museum]
-    if search:
-        needle = search.lower()
         rows = [
             r
             for r in rows
-            if needle in (r.get("name") or "").lower()
-            or needle in (r.get("museum") or "").lower()
+            if dynasty_parser.extract_clean_dynasty(str(r.get("dynasty") or "").strip()) == dynasty
         ]
+    if material:
+        rows = [
+            r for r in rows if material_parser.raw_matches_material_filter(r.get("material"), material)
+        ]
+    if museum:
+        rows = [r for r in rows if (r.get("museum") or "") == museum]
+    if search is not None and str(search).strip():
+        rows = [r for r in rows if _catalog_raw_row_matches_search(r, search)]
     return rows
 
 
@@ -197,10 +285,14 @@ def _json_filter_facets(
 ) -> tuple[list[str], list[str], list[str]]:
     """Distinct dynasty / material / museum for dropdowns given other constraints."""
     dynasty_rows = _filter_sample_relics(raw, None, s, m, mu)
-    dynasties = sorted({str(k.get("dynasty")) for k in dynasty_rows if k.get("dynasty")})
+    dynasties = dynasty_parser.distinct_canonical_dynasties_from_raw(
+        k.get("dynasty") for k in dynasty_rows
+    )
 
     material_rows = _filter_sample_relics(raw, d, s, None, mu)
-    materials = sorted({str(k.get("material")) for k in material_rows if k.get("material")})
+    materials = material_parser.distinct_canonical_materials_from_raw(
+        k.get("material") for k in material_rows
+    )
 
     museum_rows = _filter_sample_relics(raw, d, s, m, None)
     museums = sorted({str(k.get("museum")) for k in museum_rows if k.get("museum")})
@@ -263,9 +355,15 @@ def _stats_from_json() -> dict:
         d = str(r.get("dynasty") or "").strip()
         if d:
             dynasty_c[d] += 1
-        mat = str(r.get("material") or "").strip()
-        if mat:
-            material_c[mat] += 1
+        mat_raw = str(r.get("material") or "").strip()
+        if not mat_raw:
+            continue
+        cores = material_parser.extract_core_materials(mat_raw)
+        if cores:
+            for lab in cores:
+                material_c[lab] += 1
+        else:
+            material_c[mat_raw] += 1
 
     by_museum = [{"museum": k, "count": v} for k, v in museum_c.most_common()]
     by_dynasty = [{"dynasty": k, "count": v} for k, v in dynasty_c.most_common(15)]
@@ -301,9 +399,9 @@ def _related_from_sample(relic_id: str) -> list[dict]:
         oid = str(raw.get("id") or "").strip()
         if oid == rid:
             continue
-        rd = raw.get("dynasty") or ""
-        rm = raw.get("museum") or ""
-        match_d = bool(dynasty and rd == dynasty)
+        rd_clean = dynasty_parser.extract_clean_dynasty(str(raw.get("dynasty") or "").strip())
+        rm = str(raw.get("museum") or "").strip()
+        match_d = bool(dynasty and rd_clean == dynasty)
         match_m = bool(museum and rm == museum)
         if not match_d and not match_m:
             continue
@@ -342,7 +440,7 @@ def _matches_advanced_search_row(
         return False
     if dynasty and (row.get("dynasty") or "") != dynasty:
         return False
-    if material and material.lower() not in (row.get("material") or "").lower():
+    if material and not material_parser.raw_matches_material_filter(row.get("material"), material):
         return False
     if artist and artist.lower() not in (row.get("artist") or "").lower():
         return False
@@ -425,9 +523,12 @@ def _catalog_export_rows_json_fallback(
     ascending: bool,
 ) -> list[dict]:
     raw = _load_sample_relics()
-    rows_full = _filter_sample_relics(raw, dynasty, search, material, museum)
-    rows_full = [_normalize_relic_payload(r) for r in rows_full]
-    _sort_sample_rows(rows_full, sort_key, ascending)
+    rows_filtered = _filter_sample_relics(raw, dynasty, search, material, museum)
+    if search and str(search).strip():
+        _sort_raw_rows_catalog_search(rows_filtered, search.strip(), sort_key, ascending)
+    rows_full = [_normalize_relic_payload(r) for r in rows_filtered]
+    if not search or not str(search).strip():
+        _sort_sample_rows(rows_full, sort_key, ascending)
     return rows_full[:EXPORT_MAX_ROWS]
 
 
@@ -516,12 +617,25 @@ def stats() -> dict:
 
 @app.get("/relics")
 def list_relics(
-    dynasty: str | None = Query(None, description="Exact match on Relic.dynasty when set."),
+    dynasty: str | None = Query(
+        None,
+        description=(
+            'Canonical dynasty label (e.g. "Ming", "Qing"); matches noisy period strings '
+            "using keyword extraction server-side."
+        ),
+    ),
     search: str | None = Query(
         None,
-        description="Case-insensitive substring match on name or museum.",
+        description=(
+            "Case-insensitive search across name, museum, dynasty, raw material, artist/author, "
+            "classification, and description. When set, results are ranked (exact name first, "
+            "then partial name, then other fields); sort/order apply as a secondary key."
+        ),
     ),
-    material: str | None = Query(None, description="Exact match on Relic.material when set."),
+    material: str | None = Query(
+        None,
+        description='Core medium label (e.g. "Silk", "Bronze"); matches verbose Relic.medium strings.',
+    ),
     museum: str | None = Query(None, description="Exact match on Relic.museum when set."),
     sort: str | None = Query(
         None,
@@ -534,7 +648,7 @@ def list_relics(
     """Paginated relics: Neo4j when available, else JSON sample (filters apply before SKIP/LIMIT)."""
     d = (dynasty or "").strip() or None
     s = (search or "").strip() or None
-    m = (material or "").strip() or None
+    m = material_parser.canonicalize_material_query((material or "").strip())
     mu = (museum or "").strip() or None
     sort_key = _normalize_list_sort(sort)
     asc = _sort_order_asc(order)
@@ -554,8 +668,11 @@ def list_relics(
 
     raw = _load_sample_relics()
     rows_full = _filter_sample_relics(raw, d, s, m, mu)
+    if s:
+        _sort_raw_rows_catalog_search(rows_full, s, sort_key, asc)
     rows_full = [_normalize_relic_payload(r) for r in rows_full]
-    _sort_sample_rows(rows_full, sort_key, asc)
+    if not s:
+        _sort_sample_rows(rows_full, sort_key, asc)
     total = len(rows_full)
     skip = (page - 1) * limit
     items = rows_full[skip : skip + limit]
@@ -577,7 +694,13 @@ def list_relics(
 def advanced_search_relics(
     name: str | None = Query(None, description="Substring match on relic name."),
     museum: str | None = Query(None, description="Substring match on museum."),
-    dynasty: str | None = Query(None, description="Exact match on dynasty."),
+    dynasty: str | None = Query(
+        None,
+        description=(
+            'Canonical dynasty (same keyword extraction as catalog); excludes rows with '
+            "no recognized dynasty phrase."
+        ),
+    ),
     material: str | None = Query(None, description="Substring match on material."),
     date_from: int | None = Query(
         None,
@@ -601,7 +724,7 @@ def advanced_search_relics(
     q_name = (name or "").strip() or None
     q_museum = (museum or "").strip() or None
     q_dynasty = (dynasty or "").strip() or None
-    q_material = (material or "").strip() or None
+    q_material = material_parser.canonicalize_material_query((material or "").strip())
     q_artist = (artist or "").strip() or None
     q_classification = (classification or "").strip() or None
     sort_key = _normalize_list_sort(sort)
@@ -717,7 +840,7 @@ async def export_relics_catalog(
     """Export up to 10k relics matching catalog filters as CSV, JSON, or styled XLSX."""
     d = (dynasty or "").strip() or None
     s = (search or "").strip() or None
-    m = (material or "").strip() or None
+    m = material_parser.canonicalize_material_query((material or "").strip())
     mu = (museum or "").strip() or None
     sort_key = _normalize_list_sort(sort)
     asc = _sort_order_asc(order)
