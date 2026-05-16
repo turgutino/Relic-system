@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, LayoutGrid, List } from 'lucide-react';
@@ -69,6 +69,15 @@ export function CatalogPage() {
   const [museumOptions, setMuseumOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<CatalogFetchError | null>(null);
+
+  const [nlOpen, setNlOpen] = useState(false);
+  const [nlQuery, setNlQuery] = useState('');
+  const [nlLoading, setNlLoading] = useState(false);
+  const [nlError, setNlError] = useState<string | null>(null);
+  const [nlResults, setNlResults] = useState<Relic[] | null>(null);
+  const [nlParsed, setNlParsed] = useState<Record<string, unknown> | null>(null);
+  const [nlTotal, setNlTotal] = useState(0);
+  const nlInputRef = useRef<HTMLInputElement>(null);
 
   const advancedFieldsActive = Boolean(
     artistFilter.trim()
@@ -335,6 +344,34 @@ export function CatalogPage() {
     fetchCatalog(undefined);
   }, [fetchCatalog]);
 
+  const handleNlSearch = useCallback(async () => {
+    if (!nlQuery.trim() || nlLoading) return;
+    setNlLoading(true);
+    setNlError(null);
+    setNlResults(null);
+    setNlParsed(null);
+    try {
+      const res = await fetch('/relics/query/natural', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: nlQuery.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNlError(res.status === 503 ? 'AI search is not configured on this server (OPENAI_API_KEY missing).' : `Search failed (${res.status})`);
+        return;
+      }
+      const list = Array.isArray(data.items) ? data.items : [];
+      setNlResults(list.map(normalizeRelic).filter(Boolean) as Relic[]);
+      setNlTotal(typeof data.total === 'number' ? data.total : list.length);
+      setNlParsed(data.parsed_filters ?? null);
+    } catch {
+      setNlError('Network error. Please try again.');
+    } finally {
+      setNlLoading(false);
+    }
+  }, [nlQuery, nlLoading]);
+
   const openRelic = useCallback(
     (relicId: string | number) => {
       navigate(`/relics/${encodeURIComponent(String(relicId))}`, {
@@ -395,6 +432,223 @@ export function CatalogPage() {
           {t('catalogPage.subtitle')}
         </p>
       </header>
+
+      {nlOpen ? (
+        <div
+          className="mb-8 rounded-2xl overflow-hidden"
+          style={{
+            background: 'var(--relic-panel-bg)',
+            border: '1px solid var(--relic-border)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          {/* Header bar */}
+          <div
+            className="flex items-center justify-between px-6 py-4 border-b"
+            style={{ borderColor: 'var(--relic-border)' }}
+          >
+            <div className="flex items-center gap-3">
+              <span style={{ fontSize: '1.1rem' }}>✦</span>
+              <span
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  color: 'var(--relic-text)',
+                }}
+              >
+                Ask AI — Natural Language Search
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setNlOpen(false); setNlResults(null); setNlError(null); }}
+              className="text-[var(--relic-text-muted)] hover:text-[var(--relic-text)] text-xl leading-none"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Input area */}
+          <div className="px-6 py-5">
+            <p
+              className="mb-4 text-sm text-[var(--relic-text-muted)]"
+              style={{ fontFamily: "'Inter', sans-serif" }}
+            >
+              Describe what you're looking for in plain English. AI will extract filters and search the collection.
+            </p>
+            <div className="flex gap-3 flex-wrap sm:flex-nowrap">
+              <input
+                ref={nlInputRef}
+                type="text"
+                value={nlQuery}
+                onChange={(e) => setNlQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleNlSearch(); }}
+                placeholder='e.g. "Tang dynasty bronze vessels" or "jade artifacts from London museums"'
+                className={`flex-1 min-w-0 rounded-xl px-4 py-3 text-sm ${selectStyle}`}
+                style={{ fontFamily: "'Inter', sans-serif" }}
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handleNlSearch}
+                disabled={nlLoading || !nlQuery.trim()}
+                className="shrink-0 rounded-xl px-6 py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
+                  color: 'var(--relic-btn-primary-fg)',
+                }}
+              >
+                {nlLoading ? 'Searching…' : 'Search'}
+              </button>
+            </div>
+
+            {/* Example queries */}
+            {!nlResults && !nlLoading && !nlError ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {[
+                  'Tang dynasty bronze vessels',
+                  'Ming porcelain from London',
+                  'jade artifacts before 1000 AD',
+                  'silk paintings from Song dynasty',
+                ].map((ex) => (
+                  <button
+                    key={ex}
+                    type="button"
+                    onClick={() => { setNlQuery(ex); }}
+                    className="rounded-full px-3 py-1 text-xs border transition-colors hover:border-[var(--relic-accent-bright)] hover:text-[var(--relic-accent-bright)]"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      borderColor: 'var(--relic-border-muted)',
+                      color: 'var(--relic-text-muted)',
+                    }}
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            {/* Loading state */}
+            {nlLoading ? (
+              <div className="mt-6 flex items-center gap-3 text-sm text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <div
+                  className="h-4 w-4 rounded-full border-2 border-t-transparent animate-spin"
+                  style={{ borderColor: 'var(--relic-accent-bright)', borderTopColor: 'transparent' }}
+                />
+                AI is analyzing your query…
+              </div>
+            ) : null}
+
+            {/* Error state */}
+            {nlError ? (
+              <div
+                className="mt-4 rounded-xl px-4 py-3 text-sm"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  background: 'var(--relic-error-bg)',
+                  color: 'var(--relic-error-text)',
+                  border: '1px solid var(--relic-error-border)',
+                }}
+              >
+                {nlError}
+              </div>
+            ) : null}
+
+            {/* Parsed filters chips */}
+            {nlParsed && !nlLoading ? (
+              <div className="mt-4 flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Detected:
+                </span>
+                {Object.entries(nlParsed)
+                  .filter(([, v]) => v !== null && v !== undefined && v !== '')
+                  .map(([k, v]) => (
+                    <span
+                      key={k}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs"
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        background: 'var(--relic-accent-muted-bg)',
+                        border: '1px solid var(--relic-border-accent)',
+                        color: 'var(--relic-accent-bright)',
+                      }}
+                    >
+                      <span className="opacity-70">{k}:</span> {String(v)}
+                    </span>
+                  ))}
+              </div>
+            ) : null}
+
+            {/* Results */}
+            {nlResults && !nlLoading ? (
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span
+                    className="text-sm text-[var(--relic-text-muted)]"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {nlTotal} result{nlTotal !== 1 ? 's' : ''} found
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setNlResults(null); setNlParsed(null); setNlError(null); }}
+                    className="text-xs underline text-[var(--relic-accent-bright)]"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    Clear results
+                  </button>
+                </div>
+
+                {nlResults.length === 0 ? (
+                  <p className="text-sm text-[var(--relic-text-muted)]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }}>
+                    No relics matched your query. Try rephrasing.
+                  </p>
+                ) : (
+                  <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {nlResults.map((relic) => (
+                      <li key={relic.id}>
+                        <button
+                          type="button"
+                          onClick={() => openRelic(relic.id)}
+                          className="w-full text-left rounded-2xl overflow-hidden transition-transform duration-200 hover:-translate-y-1"
+                          style={{
+                            background: 'var(--relic-card-grid)',
+                            border: '1px solid var(--relic-card-grid-border)',
+                          }}
+                        >
+                          <div className="h-36 overflow-hidden">
+                            <ImageWithFallback
+                              src={relic.image_url}
+                              alt={relic.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="p-4">
+                            <p
+                              className="font-semibold line-clamp-2 mb-1"
+                              style={{ fontFamily: "'Playfair Display', serif", color: 'var(--relic-text)', fontSize: '0.95rem' }}
+                            >
+                              {relic.name || t('catalogPage.untitled')}
+                            </p>
+                            <p
+                              className="text-xs line-clamp-1"
+                              style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
+                            >
+                              {[relic.dynasty, relic.museum].filter(Boolean).join(' · ') || '—'}
+                            </p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-3 mb-8 items-stretch sm:items-center min-w-0">
         <form
@@ -498,6 +752,19 @@ export function CatalogPage() {
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {t('export.buttonExcel')}
+          </button>
+          <button
+            type="button"
+            onClick={() => { setNlOpen(o => !o); setNlResults(null); setNlError(null); setNlQuery(''); }}
+            className="rounded-full px-4 py-2 text-xs font-medium border transition-all"
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              background: nlOpen ? 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)' : 'transparent',
+              color: nlOpen ? 'var(--relic-btn-primary-fg)' : 'var(--relic-accent-bright)',
+              borderColor: 'var(--relic-accent-bright)',
+            }}
+          >
+            ✦ Ask AI
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Bar,
@@ -11,6 +12,17 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import L from 'leaflet';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+
+const defaultIcon = new L.Icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 type MuseumBucket = { museum: string; count: number };
 type DynastyBucket = { dynasty: string; count: number };
@@ -118,6 +130,21 @@ function normalizeStatsPayload(data: unknown): StatsPayload | null {
   };
 }
 
+function parseTimelinePeriodLabel(barData: unknown): { dateFrom: string; dateTo: string } | null {
+  if (!barData || typeof barData !== 'object') return null;
+  const row = barData as TimelinePeriod & { payload?: TimelinePeriod };
+  const label =
+    typeof row.label === 'string'
+      ? row.label.trim()
+      : typeof row.payload?.label === 'string'
+        ? row.payload.label.trim()
+        : '';
+  if (!label) return null;
+  const parts = label.split('-').map((s) => s.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  return { dateFrom: parts[0], dateTo: parts[1] };
+}
+
 const panel = {
   background: 'var(--relic-panel-bg)',
   border: '1px solid var(--relic-border)',
@@ -125,6 +152,7 @@ const panel = {
 } as const;
 
 export function StatsDashboardPage() {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const numberLocale = i18n.language.startsWith('zh') ? 'zh-CN' : i18n.language.startsWith('az') ? 'az-AZ' : undefined;
   const missing = t('relicDetail.missingValue');
@@ -135,6 +163,7 @@ export function StatsDashboardPage() {
   const [timelinePeriods, setTimelinePeriods] = useState<TimelinePeriod[]>([]);
   const [tlLoading, setTlLoading] = useState(true);
   const [tlError, setTlError] = useState<FetchErr | null>(null);
+  const [timelineBarHoverIx, setTimelineBarHoverIx] = useState<number | null>(null);
 
   const [geoRows, setGeoRows] = useState<GeoRow[]>([]);
   const [geoLoading, setGeoLoading] = useState(true);
@@ -260,6 +289,17 @@ export function StatsDashboardPage() {
   const timelineChartData = useMemo(
     () => timelinePeriods.map((p) => ({ ...p, key: `${p.century}-${p.label}` })),
     [timelinePeriods],
+  );
+
+  const handleTimelineBarClick = useCallback(
+    (barData: unknown) => {
+      const range = parseTimelinePeriodLabel(barData);
+      if (!range) return;
+      navigate(
+        `/catalog?date_from=${encodeURIComponent(range.dateFrom)}&date_to=${encodeURIComponent(range.dateTo)}`,
+      );
+    },
+    [navigate],
   );
 
   const materialsPie = useMemo(() => {
@@ -494,7 +534,30 @@ export function StatsDashboardPage() {
                     return item ? `${item.century} (${item.label})` : String(label ?? '');
                   }}
                 />
-                <Bar dataKey="count" fill="var(--relic-chart-bar-primary)" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="count"
+                  radius={[4, 4, 0, 0]}
+                  cursor="pointer"
+                  onClick={handleTimelineBarClick}
+                  onMouseEnter={(_, ix: number) => setTimelineBarHoverIx(ix)}
+                  onMouseLeave={() => setTimelineBarHoverIx(null)}
+                >
+                  {timelineChartData.map((row, ix) => (
+                    <Cell
+                      key={row.key}
+                      fill={
+                        timelineBarHoverIx === ix ? 'var(--relic-accent-bright)' : 'var(--relic-chart-bar-primary)'
+                      }
+                      style={{
+                        cursor: 'pointer',
+                        opacity: timelineBarHoverIx !== null && timelineBarHoverIx !== ix ? 0.7 : 1,
+                        outline: timelineBarHoverIx === ix ? '1px solid var(--relic-accent-bright)' : undefined,
+                        outlineOffset: 1,
+                        transition: 'fill 0.15s ease, opacity 0.15s ease',
+                      }}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -518,32 +581,38 @@ export function StatsDashboardPage() {
           <p className="text-[var(--relic-text-subtle)] text-sm">{t('statsDashboard.noGeoRows')}</p>
         ) : null}
         {!geoLoading && !geoError && geoRows.length > 0 ? (
-          <table className="w-full text-sm text-left border-collapse min-w-[640px]" style={{ fontFamily: "'Inter', sans-serif" }}>
-            <thead>
-              <tr className="text-[var(--relic-table-head)] border-b border-[var(--relic-border-muted)]">
-                <th className="py-2 pr-4 font-medium">{t('filters.museum')}</th>
-                <th className="py-2 pr-4 font-medium">{t('geo.city')}</th>
-                <th className="py-2 pr-4 font-medium">{t('geo.country')}</th>
-                <th className="py-2 pr-4 font-medium">{t('geo.coordinates')}</th>
-                <th className="py-2 font-medium text-right">{t('geo.relics')}</th>
-              </tr>
-            </thead>
-            <tbody className="text-[var(--relic-table-body)]">
-              {geoRows.map((row) => (
-                <tr key={row.name} className="border-b border-[var(--relic-table-row-border)]">
-                  <td className="py-2 pr-4">{row.name}</td>
-                  <td className="py-2 pr-4">{row.city || missing}</td>
-                  <td className="py-2 pr-4">{row.country || missing}</td>
-                  <td className="py-2 pr-4 font-mono text-xs">
-                    {Number.isFinite(row.lat) && Number.isFinite(row.lng)
-                      ? `${row.lat.toFixed(4)}, ${row.lng.toFixed(4)}`
-                      : missing}
-                  </td>
-                  <td className="py-2 text-right">{row.relic_count.toLocaleString(numberLocale)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div
+            style={{
+              background: 'var(--relic-panel-bg)',
+              border: '1px solid var(--relic-border)',
+              borderRadius: 16,
+              overflow: 'hidden',
+              padding: 0,
+            }}
+          >
+            <MapContainer center={[30, 10]} zoom={2} style={{ height: '420px', borderRadius: '16px' }} scrollWheelZoom={false}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              {geoRows.map((row) =>
+                Number.isFinite(row.lat) && Number.isFinite(row.lng) ? (
+                  <Marker key={row.name} position={[row.lat, row.lng]} icon={defaultIcon}>
+                    <Popup>
+                      <div className="text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
+                        <p className="font-semibold text-[var(--relic-text)] m-0 mb-1">{row.name}</p>
+                        <p className="m-0 mb-0.5 text-[var(--relic-text-muted)]">{row.city || missing}</p>
+                        <p className="m-0 mb-0.5 text-[var(--relic-text-muted)]">{row.country || missing}</p>
+                        <p className="m-0 text-[var(--relic-text)]">
+                          {row.relic_count.toLocaleString(numberLocale)} {t('geo.relics').toLowerCase()}
+                        </p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ) : null,
+              )}
+            </MapContainer>
+          </div>
         ) : null}
       </section>
     </div>

@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import App from '@/app/App';
 import '@/i18n/config';
+import 'leaflet/dist/leaflet.css';
 import '@/styles/index.css';
 import { DocumentLang } from '@/i18n/DocumentLang';
 import { CompareSelectionProvider } from '@/app/context/CompareSelectionContext';
