@@ -1,15 +1,18 @@
 import { motion } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/app/components/LanguageSwitcher';
 import { ThemeToggle } from '@/app/components/ThemeToggle';
+import { useAuth } from '@/app/context/AuthContext';
 
 const navGrad = 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)';
 
 export function Navigation() {
   const { t } = useTranslation();
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const desktopLink =
@@ -81,6 +84,53 @@ export function Navigation() {
         <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
           <ThemeToggle />
           <LanguageSwitcher />
+          {isAuthenticated ? (
+            <>
+              <span
+                className="text-sm font-medium px-2"
+                style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
+              >
+                {user?.username}
+              </span>
+              <button
+                type="button"
+                onClick={() => { logout(); navigate('/', { replace: true }); }}
+                className="px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  color: 'var(--relic-ghost-btn-text)',
+                  border: '1px solid var(--relic-border-accent)',
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                className="px-4 py-2 rounded-full text-sm font-medium no-underline transition-colors"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  color: 'var(--relic-ghost-btn-text)',
+                  border: '1px solid var(--relic-border-accent)',
+                }}
+              >
+                Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                className="px-4 py-2 rounded-full text-sm font-medium no-underline"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  background: navGrad,
+                  color: 'var(--relic-btn-primary-fg)',
+                }}
+              >
+                Register
+              </NavLink>
+            </>
+          )}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <NavLink
               to="/catalog"
@@ -170,6 +220,57 @@ export function Navigation() {
             <div className="flex flex-wrap items-center gap-3 py-2">
               <ThemeToggle />
               <LanguageSwitcher />
+            </div>
+            <div className="py-2 border-t" style={{ borderColor: 'var(--relic-border)' }}>
+              {isAuthenticated ? (
+                <div className="flex flex-col gap-3">
+                  <span
+                    className="text-sm font-medium"
+                    style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
+                  >
+                    Signed in as <strong>{user?.username}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { logout(); setIsMenuOpen(false); navigate('/', { replace: true }); }}
+                    className="w-full py-3 rounded-full text-center text-sm font-medium"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      color: 'var(--relic-ghost-btn-text)',
+                      border: '1px solid var(--relic-border-accent)',
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <NavLink
+                    to="/login"
+                    className="block w-full py-3 rounded-full text-center no-underline text-sm font-medium"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      color: 'var(--relic-ghost-btn-text)',
+                      border: '1px solid var(--relic-border-accent)',
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </NavLink>
+                  <NavLink
+                    to="/register"
+                    className="block w-full py-3 rounded-full text-center no-underline text-sm font-medium"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      background: navGrad,
+                      color: 'var(--relic-btn-primary-fg)',
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Register
+                  </NavLink>
+                </div>
+              )}
             </div>
             <div className="pt-4 border-t" style={{ borderColor: 'var(--relic-border)' }}>
               <NavLink

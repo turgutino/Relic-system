@@ -39,6 +39,9 @@ export default defineConfig({
       '/timeline': 'http://127.0.0.1:8000',
       '/museums': 'http://127.0.0.1:8000',
       '/health': 'http://127.0.0.1:8000',
+      '/auth': { target: 'http://127.0.0.1:8000', changeOrigin: true },
+      '/users': { target: 'http://127.0.0.1:8000', changeOrigin: true },
+      '/admin': { target: 'http://127.0.0.1:8000', changeOrigin: true },
     },
   },
 
