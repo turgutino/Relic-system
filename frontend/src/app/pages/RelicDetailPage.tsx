@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, MapPin, Calendar, ZoomIn } from 'lucide-react';
+import { toast } from 'sonner';
+import { ArrowLeft, MapPin, Calendar, ZoomIn, ThumbsUp, Trash2 } from 'lucide-react';
+import { ConfirmActionDialog, type ConfirmActionState } from '@/app/components/ConfirmActionDialog';
+import { parseApiError } from '@/app/utils/api';
 import type { Relic } from '@/models/relic';
 import { normalizeRelic } from '@/models/relic';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
@@ -9,12 +12,24 @@ import { SafeHtmlDescription } from '@/app/components/SafeHtmlDescription';
 import { RelicKnowledgeGraph } from '@/app/components/RelicKnowledgeGraph';
 import { RelicImageLightbox } from '@/app/components/RelicImageLightbox';
 import { sanitizeRelicHtml } from '@/utils/sanitizeRelicHtml';
+import { useAuth } from '@/app/context/AuthContext';
 
 type DetailError =
   | { type: 'invalidId' }
   | { type: 'notFound' }
   | { type: 'http'; status: number }
   | { type: 'network' };
+
+type CommentRow = {
+  id: number;
+  user_id: number;
+  relic_id: string;
+  username: string;
+  text: string;
+  likes: number;
+  liked_by_me?: boolean;
+  created_at: string;
+};
 
 const panel = {
   background: 'var(--relic-panel-bg)',
@@ -34,6 +49,15 @@ export function RelicDetailPage() {
   const [related, setRelated] = useState<Relic[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
+  const [comments, setComments] = useState<CommentRow[]>([]);
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [likingId, setLikingId] = useState<number | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmActionState | null>(null);
+
+  const { user } = useAuth();
 
   const id = rawId ?? '';
 
@@ -93,6 +117,38 @@ export function RelicDetailPage() {
   }, [id]);
 
   useEffect(() => {
+    if (!user || !relic) return;
+    fetch('/users/me/history', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({
+        relic_id: relic.id,
+        relic_name: relic.name,
+        relic_image_url: relic.image_url,
+      }),
+    }).catch(() => {});
+  }, [relic, user]);
+
+  useEffect(() => {
+    if (!user || !relic) {
+      setIsFavorited(false);
+      return;
+    }
+    fetch('/users/me/favorites', {
+      headers: { Authorization: `Bearer ${user.token}` },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: unknown[]) => {
+        const favs = Array.isArray(data) ? data : [];
+        setIsFavorited(favs.some((f) => (f as { relic_id?: string }).relic_id === relic.id));
+      })
+      .catch(() => {});
+  }, [relic, user]);
+
+  useEffect(() => {
     if (!id.trim() || !relic) {
       setRelated([]);
       return undefined;
@@ -127,6 +183,141 @@ export function RelicDetailPage() {
             : '';
 
   const missing = t('relicDetail.missingValue');
+
+  const toggleFavorite = async () => {
+    if (!user || !relic) return;
+    setFavLoading(true);
+    try {
+      if (isFavorited) {
+        await fetch(`/users/me/favorites/${encodeURIComponent(relic.id)}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setIsFavorited(false);
+      } else {
+        await fetch('/users/me/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            relic_id: relic.id,
+            relic_name: relic.name,
+            relic_image_url: relic.image_url,
+          }),
+        });
+        setIsFavorited(true);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setFavLoading(false);
+    }
+  };
+
+  const fetchComments = useCallback(() => {
+    if (!relic) return;
+    const headers: HeadersInit = user ? { Authorization: `Bearer ${user.token}` } : {};
+    fetch(`/relics/${encodeURIComponent(relic.id)}/comments`, { headers })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: unknown[]) => setComments(Array.isArray(data) ? (data as CommentRow[]) : []))
+      .catch(() => {});
+  }, [relic, user]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  const submitComment = async () => {
+    if (!user || !relic || !commentText.trim()) return;
+    setCommentLoading(true);
+    try {
+      const res = await fetch(`/relics/${encodeURIComponent(relic.id)}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ text: commentText.trim() }),
+      });
+      if (!res.ok) {
+        toast.error(await parseApiError(res));
+        return;
+      }
+      setCommentText('');
+      toast.success('Comment posted');
+      fetchComments();
+    } catch {
+      toast.error('Failed to post comment');
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const likeComment = async (comment: CommentRow) => {
+    if (!user || !relic) return;
+    if (comment.user_id === user.id) {
+      toast.error('You cannot like your own comment');
+      return;
+    }
+    if (comment.liked_by_me) {
+      toast.info('You already liked this comment');
+      return;
+    }
+    setLikingId(comment.id);
+    try {
+      const res = await fetch(
+        `/relics/${encodeURIComponent(relic.id)}/comments/${comment.id}/like`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${user.token}` },
+        },
+      );
+      if (!res.ok) {
+        toast.error(await parseApiError(res));
+        return;
+      }
+      const updated = (await res.json()) as CommentRow;
+      setComments((prev) =>
+        prev.map((c) => (c.id === comment.id ? { ...c, ...updated, liked_by_me: true } : c)),
+      );
+    } catch {
+      toast.error('Failed to like comment');
+    } finally {
+      setLikingId(null);
+    }
+  };
+
+  const requestDeleteComment = (commentId: number) => {
+    setConfirm({
+      title: 'Delete comment?',
+      description: 'This comment will be removed permanently.',
+      confirmLabel: 'Delete',
+      destructive: true,
+      onConfirm: async () => {
+        if (!user || !relic) return;
+        setConfirm(null);
+        try {
+          const res = await fetch(
+            `/relics/${encodeURIComponent(relic.id)}/comments/${commentId}`,
+            {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${user.token}` },
+            },
+          );
+          if (!res.ok) {
+            toast.error(await parseApiError(res));
+            return;
+          }
+          toast.success('Comment deleted');
+          fetchComments();
+        } catch {
+          toast.error('Failed to delete comment');
+        }
+      },
+    });
+  };
 
   return (
     <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto bg-[var(--relic-page)] min-h-screen transition-colors">
@@ -185,6 +376,22 @@ export function RelicDetailPage() {
                 >
                   {relic.name || t('relicDetail.untitled')}
                 </h1>
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={toggleFavorite}
+                    disabled={favLoading}
+                    className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      color: isFavorited ? 'var(--relic-btn-primary-fg)' : 'var(--relic-ghost-btn-text)',
+                      background: isFavorited ? 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)' : 'transparent',
+                      border: isFavorited ? 'none' : '1px solid var(--relic-border-accent)',
+                    }}
+                  >
+                    {isFavorited ? '❤ Saved' : '🤍 Save'}
+                  </button>
+                ) : null}
                 <dl className="space-y-4 text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.95rem' }}>
                   <div className="flex gap-2 items-start">
                     <MapPin size={18} className="mt-0.5 text-[var(--relic-accent-bright)] shrink-0" />
@@ -286,6 +493,140 @@ export function RelicDetailPage() {
             onNavigateRelic={(rid) =>
               navigate(`/relics/${encodeURIComponent(rid)}`, { state: { catalogSearch: catalogQs } })
             }
+          />
+
+          <section className="mt-14">
+            <h2
+              className="mb-6 text-xl"
+              style={{ fontFamily: "'Playfair Display', serif", color: 'var(--relic-text)' }}
+            >
+              Comments
+            </h2>
+
+            {!user ? (
+              <p className="mb-8 text-sm" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}>
+                <Link to="/login" className="text-[var(--relic-accent-bright)] underline">
+                  Sign in
+                </Link>{' '}
+                to post comments and like others&apos; posts.
+              </p>
+            ) : (
+              <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start">
+                <textarea
+                  className="w-full rounded-xl px-4 py-3 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] placeholder:text-[var(--relic-text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--relic-accent-bright)] transition-shadow resize-none"
+                  rows={3}
+                  maxLength={2000}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Write a comment... (max 2000 characters)"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                />
+                <button
+                  type="button"
+                  onClick={submitComment}
+                  disabled={commentLoading || !commentText.trim()}
+                  className="shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-opacity disabled:opacity-50"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
+                    color: 'var(--relic-btn-primary-fg)',
+                  }}
+                >
+                  {commentLoading ? 'Posting...' : 'Post'}
+                </button>
+              </div>
+            )}
+
+            {comments.length === 0 ? (
+              <p
+                className="text-sm"
+                style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
+              >
+                No comments yet
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {comments.map((c) => (
+                  <li
+                    key={c.id}
+                    className="rounded-2xl p-5"
+                    style={panel}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-3 mb-1.5">
+                          <span
+                            className="font-semibold text-sm"
+                            style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
+                          >
+                            {c.username}
+                          </span>
+                          <span
+                            className="text-xs"
+                            style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
+                          >
+                            {new Date(c.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p
+                          className="text-sm leading-relaxed"
+                          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
+                        >
+                          {c.text}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => likeComment(c)}
+                        disabled={
+                          !user ||
+                          c.user_id === user?.id ||
+                          c.liked_by_me ||
+                          likingId === c.id
+                        }
+                        title={
+                          !user
+                            ? 'Sign in to like'
+                            : c.user_id === user?.id
+                              ? 'Cannot like your own comment'
+                              : c.liked_by_me
+                                ? 'Already liked'
+                                : undefined
+                        }
+                        className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors disabled:opacity-40"
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          color: c.liked_by_me ? 'var(--relic-accent-bright)' : 'var(--relic-text-muted)',
+                        }}
+                      >
+                        <ThumbsUp size={14} fill={c.liked_by_me ? 'currentColor' : 'none'} />
+                        {c.likes}
+                      </button>
+                      {user && (user.id === c.user_id || user.is_admin) ? (
+                        <button
+                          type="button"
+                          onClick={() => requestDeleteComment(c.id)}
+                          aria-label="Delete comment"
+                          className="inline-flex items-center gap-1 text-xs font-medium transition-colors hover:text-red-500"
+                          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <ConfirmActionDialog
+            state={confirm}
+            onOpenChange={(open) => {
+              if (!open) setConfirm(null);
+            }}
           />
         </>
       ) : null}
