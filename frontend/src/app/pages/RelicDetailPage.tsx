@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, MapPin, Calendar, ZoomIn } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, ZoomIn, ThumbsUp, Trash2 } from 'lucide-react';
 import type { Relic } from '@/models/relic';
 import { normalizeRelic } from '@/models/relic';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
@@ -9,12 +9,23 @@ import { SafeHtmlDescription } from '@/app/components/SafeHtmlDescription';
 import { RelicKnowledgeGraph } from '@/app/components/RelicKnowledgeGraph';
 import { RelicImageLightbox } from '@/app/components/RelicImageLightbox';
 import { sanitizeRelicHtml } from '@/utils/sanitizeRelicHtml';
+import { useAuth } from '@/app/context/AuthContext';
 
 type DetailError =
   | { type: 'invalidId' }
   | { type: 'notFound' }
   | { type: 'http'; status: number }
   | { type: 'network' };
+
+type CommentRow = {
+  id: number;
+  user_id: number;
+  relic_id: string;
+  username: string;
+  text: string;
+  likes: number;
+  created_at: string;
+};
 
 const panel = {
   background: 'var(--relic-panel-bg)',
@@ -34,6 +45,13 @@ export function RelicDetailPage() {
   const [related, setRelated] = useState<Relic[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
+  const [comments, setComments] = useState<CommentRow[]>([]);
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+
+  const { user } = useAuth();
 
   const id = rawId ?? '';
 
@@ -93,6 +111,38 @@ export function RelicDetailPage() {
   }, [id]);
 
   useEffect(() => {
+    if (!user || !relic) return;
+    fetch('/users/me/history', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({
+        relic_id: relic.id,
+        relic_name: relic.name,
+        relic_image_url: relic.image_url,
+      }),
+    }).catch(() => {});
+  }, [relic, user]);
+
+  useEffect(() => {
+    if (!user || !relic) {
+      setIsFavorited(false);
+      return;
+    }
+    fetch('/users/me/favorites', {
+      headers: { Authorization: `Bearer ${user.token}` },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: unknown[]) => {
+        const favs = Array.isArray(data) ? data : [];
+        setIsFavorited(favs.some((f) => (f as { relic_id?: string }).relic_id === relic.id));
+      })
+      .catch(() => {});
+  }, [relic, user]);
+
+  useEffect(() => {
     if (!id.trim() || !relic) {
       setRelated([]);
       return undefined;
@@ -127,6 +177,98 @@ export function RelicDetailPage() {
             : '';
 
   const missing = t('relicDetail.missingValue');
+
+  const toggleFavorite = async () => {
+    if (!user || !relic) return;
+    setFavLoading(true);
+    try {
+      if (isFavorited) {
+        await fetch(`/users/me/favorites/${encodeURIComponent(relic.id)}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setIsFavorited(false);
+      } else {
+        await fetch('/users/me/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            relic_id: relic.id,
+            relic_name: relic.name,
+            relic_image_url: relic.image_url,
+          }),
+        });
+        setIsFavorited(true);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setFavLoading(false);
+    }
+  };
+
+  const fetchComments = () => {
+    if (!relic) return;
+    fetch(`/relics/${encodeURIComponent(relic.id)}/comments`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: unknown[]) => setComments(Array.isArray(data) ? (data as CommentRow[]) : []))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [relic]);
+
+  const submitComment = async () => {
+    if (!user || !relic || !commentText.trim()) return;
+    setCommentLoading(true);
+    try {
+      await fetch(`/relics/${encodeURIComponent(relic.id)}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ text: commentText.trim() }),
+      });
+      setCommentText('');
+      fetchComments();
+    } catch {
+      /* ignore */
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const likeComment = async (commentId: number) => {
+    if (!user || !relic) return;
+    try {
+      await fetch(`/relics/${encodeURIComponent(relic.id)}/comments/${commentId}/like`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      fetchComments();
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const deleteComment = async (commentId: number) => {
+    if (!user || !relic) return;
+    try {
+      await fetch(`/relics/${encodeURIComponent(relic.id)}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      fetchComments();
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
     <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto bg-[var(--relic-page)] min-h-screen transition-colors">
@@ -185,6 +327,22 @@ export function RelicDetailPage() {
                 >
                   {relic.name || t('relicDetail.untitled')}
                 </h1>
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={toggleFavorite}
+                    disabled={favLoading}
+                    className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      color: isFavorited ? 'var(--relic-btn-primary-fg)' : 'var(--relic-ghost-btn-text)',
+                      background: isFavorited ? 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)' : 'transparent',
+                      border: isFavorited ? 'none' : '1px solid var(--relic-border-accent)',
+                    }}
+                  >
+                    {isFavorited ? '❤ Saved' : '🤍 Save'}
+                  </button>
+                ) : null}
                 <dl className="space-y-4 text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.95rem' }}>
                   <div className="flex gap-2 items-start">
                     <MapPin size={18} className="mt-0.5 text-[var(--relic-accent-bright)] shrink-0" />
@@ -287,6 +445,107 @@ export function RelicDetailPage() {
               navigate(`/relics/${encodeURIComponent(rid)}`, { state: { catalogSearch: catalogQs } })
             }
           />
+
+          <section className="mt-14">
+            <h2
+              className="mb-6 text-xl"
+              style={{ fontFamily: "'Playfair Display', serif", color: 'var(--relic-text)' }}
+            >
+              Comments
+            </h2>
+
+            {user ? (
+              <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start">
+                <textarea
+                  className="w-full rounded-xl px-4 py-3 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] placeholder:text-[var(--relic-text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--relic-accent-bright)] transition-shadow resize-none"
+                  rows={3}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Write a comment..."
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                />
+                <button
+                  type="button"
+                  onClick={submitComment}
+                  disabled={commentLoading || !commentText.trim()}
+                  className="shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-opacity disabled:opacity-50"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
+                    color: 'var(--relic-btn-primary-fg)',
+                  }}
+                >
+                  {commentLoading ? 'Posting...' : 'Post'}
+                </button>
+              </div>
+            ) : null}
+
+            {comments.length === 0 ? (
+              <p
+                className="text-sm"
+                style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
+              >
+                No comments yet
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {comments.map((c) => (
+                  <li
+                    key={c.id}
+                    className="rounded-2xl p-5"
+                    style={panel}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-3 mb-1.5">
+                          <span
+                            className="font-semibold text-sm"
+                            style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
+                          >
+                            {c.username}
+                          </span>
+                          <span
+                            className="text-xs"
+                            style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
+                          >
+                            {new Date(c.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p
+                          className="text-sm leading-relaxed"
+                          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
+                        >
+                          {c.text}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => likeComment(c.id)}
+                        disabled={!user}
+                        className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors disabled:opacity-40"
+                        style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
+                      >
+                        <ThumbsUp size={14} />
+                        {c.likes}
+                      </button>
+                      {user && (user.id === c.user_id || user.is_admin) ? (
+                        <button
+                          type="button"
+                          onClick={() => deleteComment(c.id)}
+                          className="inline-flex items-center gap-1 text-xs font-medium transition-colors hover:text-red-500"
+                          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       ) : null}
     </div>
