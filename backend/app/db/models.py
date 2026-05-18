@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
 from app.db.database import Base
 
 
@@ -17,7 +17,7 @@ class User(Base):
 class Favorite(Base):
     __tablename__ = "favorites"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     relic_id = Column(String, nullable=False, index=True)
     relic_name = Column(String, nullable=False)
     relic_image_url = Column(String, nullable=True)
@@ -27,7 +27,7 @@ class Favorite(Base):
 class History(Base):
     __tablename__ = "history"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     relic_id = Column(String, nullable=False, index=True)
     relic_name = Column(String, nullable=False)
     relic_image_url = Column(String, nullable=True)
@@ -37,7 +37,7 @@ class History(Base):
 class Comment(Base):
     __tablename__ = "comments"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     relic_id = Column(String, nullable=False, index=True)
     relic_name = Column(String, nullable=False)
     relic_image_url = Column(String, nullable=True)
@@ -45,3 +45,13 @@ class Comment(Base):
     text = Column(Text, nullable=False)
     likes = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
+
+
+class CommentLike(Base):
+    __tablename__ = "comment_likes"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    comment_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+    __table_args__ = (UniqueConstraint("user_id", "comment_id", name="uq_user_comment_like"),)

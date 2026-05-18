@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { ArrowLeft, MapPin, Calendar, ZoomIn, ThumbsUp, Trash2 } from 'lucide-react';
+import { ConfirmActionDialog, type ConfirmActionState } from '@/app/components/ConfirmActionDialog';
+import { parseApiError } from '@/app/utils/api';
 import type { Relic } from '@/models/relic';
 import { normalizeRelic } from '@/models/relic';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
@@ -24,6 +27,7 @@ type CommentRow = {
   username: string;
   text: string;
   likes: number;
+  liked_by_me?: boolean;
   created_at: string;
 };
 
@@ -50,6 +54,8 @@ export function RelicDetailPage() {
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [commentText, setCommentText] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
+  const [likingId, setLikingId] = useState<number | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmActionState | null>(null);
 
   const { user } = useAuth();
 
@@ -210,24 +216,24 @@ export function RelicDetailPage() {
     }
   };
 
-  const fetchComments = () => {
+  const fetchComments = useCallback(() => {
     if (!relic) return;
-    fetch(`/relics/${encodeURIComponent(relic.id)}/comments`)
+    const headers: HeadersInit = user ? { Authorization: `Bearer ${user.token}` } : {};
+    fetch(`/relics/${encodeURIComponent(relic.id)}/comments`, { headers })
       .then((res) => (res.ok ? res.json() : []))
       .then((data: unknown[]) => setComments(Array.isArray(data) ? (data as CommentRow[]) : []))
       .catch(() => {});
-  };
+  }, [relic, user]);
 
   useEffect(() => {
     fetchComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [relic]);
+  }, [fetchComments]);
 
   const submitComment = async () => {
     if (!user || !relic || !commentText.trim()) return;
     setCommentLoading(true);
     try {
-      await fetch(`/relics/${encodeURIComponent(relic.id)}/comments`, {
+      const res = await fetch(`/relics/${encodeURIComponent(relic.id)}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -235,39 +241,82 @@ export function RelicDetailPage() {
         },
         body: JSON.stringify({ text: commentText.trim() }),
       });
+      if (!res.ok) {
+        toast.error(await parseApiError(res));
+        return;
+      }
       setCommentText('');
+      toast.success('Comment posted');
       fetchComments();
     } catch {
-      /* ignore */
+      toast.error('Failed to post comment');
     } finally {
       setCommentLoading(false);
     }
   };
 
-  const likeComment = async (commentId: number) => {
+  const likeComment = async (comment: CommentRow) => {
     if (!user || !relic) return;
+    if (comment.user_id === user.id) {
+      toast.error('You cannot like your own comment');
+      return;
+    }
+    if (comment.liked_by_me) {
+      toast.info('You already liked this comment');
+      return;
+    }
+    setLikingId(comment.id);
     try {
-      await fetch(`/relics/${encodeURIComponent(relic.id)}/comments/${commentId}/like`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      fetchComments();
+      const res = await fetch(
+        `/relics/${encodeURIComponent(relic.id)}/comments/${comment.id}/like`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${user.token}` },
+        },
+      );
+      if (!res.ok) {
+        toast.error(await parseApiError(res));
+        return;
+      }
+      const updated = (await res.json()) as CommentRow;
+      setComments((prev) =>
+        prev.map((c) => (c.id === comment.id ? { ...c, ...updated, liked_by_me: true } : c)),
+      );
     } catch {
-      /* ignore */
+      toast.error('Failed to like comment');
+    } finally {
+      setLikingId(null);
     }
   };
 
-  const deleteComment = async (commentId: number) => {
-    if (!user || !relic) return;
-    try {
-      await fetch(`/relics/${encodeURIComponent(relic.id)}/comments/${commentId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      fetchComments();
-    } catch {
-      /* ignore */
-    }
+  const requestDeleteComment = (commentId: number) => {
+    setConfirm({
+      title: 'Delete comment?',
+      description: 'This comment will be removed permanently.',
+      confirmLabel: 'Delete',
+      destructive: true,
+      onConfirm: async () => {
+        if (!user || !relic) return;
+        setConfirm(null);
+        try {
+          const res = await fetch(
+            `/relics/${encodeURIComponent(relic.id)}/comments/${commentId}`,
+            {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${user.token}` },
+            },
+          );
+          if (!res.ok) {
+            toast.error(await parseApiError(res));
+            return;
+          }
+          toast.success('Comment deleted');
+          fetchComments();
+        } catch {
+          toast.error('Failed to delete comment');
+        }
+      },
+    });
   };
 
   return (
@@ -454,14 +503,22 @@ export function RelicDetailPage() {
               Comments
             </h2>
 
-            {user ? (
+            {!user ? (
+              <p className="mb-8 text-sm" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}>
+                <Link to="/login" className="text-[var(--relic-accent-bright)] underline">
+                  Sign in
+                </Link>{' '}
+                to post comments and like others&apos; posts.
+              </p>
+            ) : (
               <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start">
                 <textarea
                   className="w-full rounded-xl px-4 py-3 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] placeholder:text-[var(--relic-text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--relic-accent-bright)] transition-shadow resize-none"
                   rows={3}
+                  maxLength={2000}
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Write a comment..."
+                  placeholder="Write a comment... (max 2000 characters)"
                   style={{ fontFamily: "'Inter', sans-serif" }}
                 />
                 <button
@@ -478,7 +535,7 @@ export function RelicDetailPage() {
                   {commentLoading ? 'Posting...' : 'Post'}
                 </button>
               </div>
-            ) : null}
+            )}
 
             {comments.length === 0 ? (
               <p
@@ -522,18 +579,36 @@ export function RelicDetailPage() {
                     <div className="mt-3 flex items-center gap-4">
                       <button
                         type="button"
-                        onClick={() => likeComment(c.id)}
-                        disabled={!user}
+                        onClick={() => likeComment(c)}
+                        disabled={
+                          !user ||
+                          c.user_id === user?.id ||
+                          c.liked_by_me ||
+                          likingId === c.id
+                        }
+                        title={
+                          !user
+                            ? 'Sign in to like'
+                            : c.user_id === user?.id
+                              ? 'Cannot like your own comment'
+                              : c.liked_by_me
+                                ? 'Already liked'
+                                : undefined
+                        }
                         className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors disabled:opacity-40"
-                        style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          color: c.liked_by_me ? 'var(--relic-accent-bright)' : 'var(--relic-text-muted)',
+                        }}
                       >
-                        <ThumbsUp size={14} />
+                        <ThumbsUp size={14} fill={c.liked_by_me ? 'currentColor' : 'none'} />
                         {c.likes}
                       </button>
                       {user && (user.id === c.user_id || user.is_admin) ? (
                         <button
                           type="button"
-                          onClick={() => deleteComment(c.id)}
+                          onClick={() => requestDeleteComment(c.id)}
+                          aria-label="Delete comment"
                           className="inline-flex items-center gap-1 text-xs font-medium transition-colors hover:text-red-500"
                           style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-subtle)' }}
                         >
@@ -546,6 +621,13 @@ export function RelicDetailPage() {
               </ul>
             )}
           </section>
+
+          <ConfirmActionDialog
+            state={confirm}
+            onOpenChange={(open) => {
+              if (!open) setConfirm(null);
+            }}
+          />
         </>
       ) : null}
     </div>

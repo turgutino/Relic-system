@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from app.db.database import get_db
-from app.db.models import Comment, Favorite, History, User
+from app.db.models import Comment, CommentLike, Favorite, History, User
 from app.routers.auth import require_admin
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -42,6 +42,32 @@ class StatsOut(BaseModel):
     total_comments: int
 
 
+def _admin_count(db: Session) -> int:
+    return db.query(User).filter(User.is_admin.is_(True)).count()
+
+
+def _delete_user_data(db: Session, user_id: int) -> None:
+    comment_ids = [
+        row[0]
+        for row in db.query(Comment.id).filter(Comment.user_id == user_id).all()
+    ]
+    if comment_ids:
+        db.query(CommentLike).filter(CommentLike.comment_id.in_(comment_ids)).delete(
+            synchronize_session=False
+        )
+    db.query(Comment).filter(Comment.user_id == user_id).delete(synchronize_session=False)
+    db.query(CommentLike).filter(CommentLike.user_id == user_id).delete(synchronize_session=False)
+    db.query(Favorite).filter(Favorite.user_id == user_id).delete(synchronize_session=False)
+    db.query(History).filter(History.user_id == user_id).delete(synchronize_session=False)
+
+
+def _delete_comment_record(db: Session, comment: Comment) -> None:
+    db.query(CommentLike).filter(CommentLike.comment_id == comment.id).delete(
+        synchronize_session=False
+    )
+    db.delete(comment)
+
+
 @router.get("/users", response_model=list[UserOut])
 def list_users(
     db: Session = Depends(get_db),
@@ -54,8 +80,10 @@ def list_users(
 def toggle_ban(
     user_id: int,
     db: Session = Depends(get_db),
-    _admin: User = Depends(require_admin),
+    current_user: User = Depends(require_admin),
 ):
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot ban yourself")
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -69,28 +97,38 @@ def toggle_ban(
 def toggle_admin(
     user_id: int,
     db: Session = Depends(get_db),
-    _admin: User = Depends(require_admin),
+    current_user: User = Depends(require_admin),
 ):
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot change your own admin role")
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if user.is_admin and _admin_count(db) <= 1:
+        raise HTTPException(status_code=400, detail="Cannot remove the last admin")
     user.is_admin = not user.is_admin
     db.commit()
     db.refresh(user)
     return user
 
 
-@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    _admin: User = Depends(require_admin),
+    current_user: User = Depends(require_admin),
 ):
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if user.is_admin and _admin_count(db) <= 1:
+        raise HTTPException(status_code=400, detail="Cannot delete the last admin")
+    _delete_user_data(db, user_id)
     db.delete(user)
     db.commit()
+    return {"ok": True}
 
 
 @router.get("/comments", response_model=list[CommentOut])
@@ -110,7 +148,7 @@ def delete_comment(
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
-    db.delete(comment)
+    _delete_comment_record(db, comment)
     db.commit()
 
 

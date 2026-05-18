@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import '@/styles/index.css';
 import { DocumentLang } from '@/i18n/DocumentLang';
 import { CompareSelectionProvider } from '@/app/context/CompareSelectionContext';
+import { Toaster } from '@/app/components/ui/sonner';
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="relic-theme" disableTransitionOnChange>
         <DocumentLang />
         <App />
+        <Toaster richColors closeButton position="top-right" />
       </ThemeProvider>
     </CompareSelectionProvider>
   </BrowserRouter>,

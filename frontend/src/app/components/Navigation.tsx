@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Menu, X } from 'lucide-react';
+import { Menu, Shield, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -86,6 +86,31 @@ export function Navigation() {
           <LanguageSwitcher />
           {isAuthenticated ? (
             <>
+              <NavLink
+                to="/profile"
+                className="px-4 py-2 rounded-full text-sm font-medium no-underline transition-colors"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  color: 'var(--relic-ghost-btn-text)',
+                  border: '1px solid var(--relic-border-accent)',
+                }}
+              >
+                Profile
+              </NavLink>
+              {user?.is_admin ? (
+                <NavLink
+                  to="/admin"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium no-underline transition-colors"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    color: 'var(--relic-ghost-btn-text)',
+                    border: '1px solid var(--relic-border-accent)',
+                  }}
+                >
+                  <Shield size={14} aria-hidden />
+                  Admin
+                </NavLink>
+              ) : null}
               <span
                 className="text-sm font-medium px-2"
                 style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
@@ -230,6 +255,33 @@ export function Navigation() {
                   >
                     Signed in as <strong>{user?.username}</strong>
                   </span>
+                  <NavLink
+                    to="/profile"
+                    className="block w-full py-3 rounded-full text-center no-underline text-sm font-medium"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      color: 'var(--relic-ghost-btn-text)',
+                      border: '1px solid var(--relic-border-accent)',
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Profile
+                  </NavLink>
+                  {user?.is_admin ? (
+                    <NavLink
+                      to="/admin"
+                      className="flex w-full items-center justify-center gap-2 py-3 rounded-full text-center no-underline text-sm font-medium"
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        color: 'var(--relic-ghost-btn-text)',
+                        border: '1px solid var(--relic-border-accent)',
+                      }}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Shield size={16} aria-hidden />
+                      Admin Panel
+                    </NavLink>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => { logout(); setIsMenuOpen(false); navigate('/', { replace: true }); }}
