@@ -1,0 +1,1689 @@
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/CompareStickyBar.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/CompareStickyBar.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/CompareStickyBar.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/CompareStickyBar.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -14,7 +14,7 @@
+ 
+   return (
+     <div
+-      className="fixed bottom-0 left-0 right-0 z-[60] border-t border-[var(--relic-border)] bg-[color-mix(in_srgb,var(--relic-panel-solid)_94%,transparent)] px-4 py-3 shadow-[0_-8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md transition-colors dark:shadow-[0_-8px_32px_rgba(0,0,0,0.45)]"
++      className="fixed bottom-0 left-0 right-0 z-[60] border-t border-[var(--relic-border)] bg-[color-mix(in_srgb,var(--relic-panel-solid)_94%,transparent)] px-3 py-3 shadow-[0_-8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md transition-colors dark:shadow-[0_-8px_32px_rgba(0,0,0,0.45)] sm:px-4"
+       style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+     >
+       <div className="mx-auto flex max-w-[1600px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+@@ -46,11 +46,11 @@
+             ))}
+           </div>
+         </div>
+-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
++        <div className="grid w-full shrink-0 grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
+           <button
+             type="button"
+             onClick={clear}
+-            className="rounded-full px-4 py-2 text-xs text-[var(--relic-text-muted)] underline-offset-2 hover:underline"
++            className="min-w-0 rounded-full px-3 py-2 text-xs text-[var(--relic-text-muted)] underline-offset-2 hover:underline sm:px-4"
+             style={{ fontFamily: "'Inter', sans-serif" }}
+           >
+             {t('compare.clearAll')}
+@@ -59,7 +59,7 @@
+             type="button"
+             disabled={!canCompare}
+             onClick={() => navigate('/compare')}
+-            className="rounded-full px-6 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45"
++            className="min-w-0 rounded-full px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45 sm:px-6"
+             style={{
+               fontFamily: "'Inter', sans-serif",
+               background: canCompare
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/FeaturedRelics.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/FeaturedRelics.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/FeaturedRelics.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/FeaturedRelics.tsx	2026-05-19 11:48:33.000000000 +0000
+@@ -1,23 +1,12 @@
+ import { motion } from 'motion/react';
+-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
++import { useEffect, useState } from 'react';
+ import { Link } from 'react-router-dom';
+-import { MapPin, Calendar, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
++import { MapPin, Calendar, ExternalLink } from 'lucide-react';
+ import { useTranslation } from 'react-i18next';
+ import { ImageWithFallback } from './figma/ImageWithFallback';
+-import { cn } from '@/app/components/ui/utils';
+ import type { Relic } from '@/models/relic';
+ import { normalizeRelic } from '@/models/relic';
+ 
+-function FeaturedCardStride(el: HTMLElement | null): number {
+-  if (!el) return 0;
+-  const card = el.querySelector<HTMLElement>('[data-featured-card]');
+-  if (!card) return 0;
+-  const styles = getComputedStyle(el);
+-  const gapRaw = styles.columnGap || styles.gap || '0';
+-  const gap = Number.parseFloat(gapRaw) || 0;
+-  return card.getBoundingClientRect().width + gap;
+-}
+-
+ function RelicCard({
+   relic,
+   defaultBadge,
+@@ -31,19 +20,19 @@
+     <Link
+       data-featured-card
+       to={`/relics/${encodeURIComponent(relic.id)}`}
+-      className="block shrink-0 w-[min(380px,82dvw)] max-w-[380px] rounded-3xl outline-none ring-offset-4 ring-offset-[var(--relic-page)] focus-visible:ring-2 focus-visible:ring-[var(--relic-accent-bright)] sm:w-[380px] sm:max-w-[380px]"
++      className="block min-w-0 w-full rounded-[1.35rem] sm:rounded-3xl outline-none ring-offset-4 ring-offset-[var(--relic-page)] focus-visible:ring-2 focus-visible:ring-[var(--relic-accent-bright)]"
+     >
+       <motion.div
+-        whileHover={{ y: -12 }}
+-        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+-        className="group relative h-full rounded-3xl overflow-hidden cursor-pointer"
++        whileHover={{ y: -8 }}
++        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
++        className="group relative h-full rounded-[1.35rem] sm:rounded-3xl overflow-hidden cursor-pointer"
+         style={{
+           background: 'var(--relic-card-grid)',
+           border: '1px solid var(--relic-card-grid-border)',
+           backdropFilter: 'blur(10px)',
+         }}
+       >
+-        <div className="relative h-[220px] sm:h-[260px] lg:h-[280px] overflow-hidden">
++        <div className="relative h-[clamp(8.5rem,22vw,13.5rem)] overflow-hidden">
+           <ImageWithFallback
+             src={relic.image_url}
+             alt={relic.name}
+@@ -56,7 +45,7 @@
+             }}
+           />
+           <div
+-            className="absolute top-4 right-4 px-4 py-1.5 rounded-full"
++            className="absolute right-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full px-3 py-1 sm:right-4 sm:top-4 sm:px-4 sm:py-1.5"
+             style={{
+               background: 'var(--relic-accent-muted-bg)',
+               backdropFilter: 'blur(10px)',
+@@ -64,9 +53,10 @@
+             }}
+           >
+             <span
++              className="block truncate"
+               style={{
+                 fontFamily: "'Inter', sans-serif",
+-                fontSize: '0.75rem',
++                fontSize: 'clamp(0.62rem, 1.6vw, 0.75rem)',
+                 color: 'var(--relic-accent-bright)',
+                 letterSpacing: '0.05em',
+               }}
+@@ -77,7 +67,7 @@
+           <motion.div
+             initial={{ opacity: 0, scale: 0.8 }}
+             whileHover={{ opacity: 1, scale: 1 }}
+-            className="absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center"
++            className="absolute bottom-4 right-4 flex size-10 items-center justify-center rounded-full sm:size-12"
+             style={{
+               background: 'var(--relic-accent-bright)',
+               backdropFilter: 'blur(10px)',
+@@ -87,28 +77,28 @@
+           </motion.div>
+         </div>
+ 
+-        <div className="min-w-0 p-5 sm:p-6">
++        <div className="min-w-0 p-4 sm:p-5">
+           <h3
+-            className="mb-4 line-clamp-2 [overflow-wrap:anywhere]"
++            className="mb-3 line-clamp-2 [overflow-wrap:anywhere] sm:mb-4"
+             style={{
+               fontFamily: "'Playfair Display', serif",
+-              fontSize: 'clamp(1.15rem, 3.5vw, 1.5rem)',
++              fontSize: 'clamp(0.95rem, 1.55vw, 1.22rem)',
+               fontWeight: 600,
+               color: 'var(--relic-text)',
+-              lineHeight: 1.3,
++              lineHeight: 1.28,
+             }}
+           >
+             {relic.name || untitled}
+           </h3>
+ 
+-          <div className="space-y-2">
++          <div className="space-y-1.5 sm:space-y-2">
+             <div className="flex min-w-0 items-start gap-2">
+-              <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--relic-accent-bright)' }} />
++              <MapPin size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--relic-accent-bright)' }} />
+               <span
+                 className="min-w-0 line-clamp-2 [overflow-wrap:anywhere]"
+                 style={{
+                   fontFamily: "'Inter', sans-serif",
+-                  fontSize: '0.9rem',
++                  fontSize: 'clamp(0.72rem, 1.45vw, 0.86rem)',
+                   color: 'var(--relic-text-muted)',
+                 }}
+               >
+@@ -116,12 +106,12 @@
+               </span>
+             </div>
+             <div className="flex min-w-0 items-start gap-2">
+-              <Calendar size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--relic-accent-bright)' }} />
++              <Calendar size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--relic-accent-bright)' }} />
+               <span
+                 className="min-w-0 line-clamp-2 [overflow-wrap:anywhere]"
+                 style={{
+                   fontFamily: "'Inter', sans-serif",
+-                  fontSize: '0.9rem',
++                  fontSize: 'clamp(0.72rem, 1.45vw, 0.86rem)',
+                   color: 'var(--relic-text-muted)',
+                 }}
+               >
+@@ -144,52 +134,9 @@
+ 
+ export function FeaturedRelics() {
+   const { t } = useTranslation();
+-  const scrollRef = useRef<HTMLDivElement>(null);
+   const [relics, setRelics] = useState<Relic[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [fetchError, setFetchError] = useState(false);
+-  const [canPrev, setCanPrev] = useState(false);
+-  const [canNext, setCanNext] = useState(false);
+-
+-  const syncArrows = useCallback(() => {
+-    const el = scrollRef.current;
+-    if (!el) return;
+-    const tol = 6;
+-    setCanPrev(el.scrollLeft > tol);
+-    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - tol);
+-  }, []);
+-
+-  useLayoutEffect(() => {
+-    const el = scrollRef.current;
+-    if (!el) return;
+-    syncArrows();
+-  }, [relics.length, loading, fetchError, syncArrows]);
+-
+-  useEffect(() => {
+-    const el = scrollRef.current;
+-    if (!el) return;
+-    syncArrows();
+-    el.addEventListener('scroll', syncArrows, { passive: true });
+-    const ro = new ResizeObserver(syncArrows);
+-    ro.observe(el);
+-    window.addEventListener('resize', syncArrows);
+-    return () => {
+-      el.removeEventListener('scroll', syncArrows);
+-      window.removeEventListener('resize', syncArrows);
+-      ro.disconnect();
+-    };
+-  }, [relics.length, loading, fetchError, syncArrows]);
+-
+-  const scrollByOne = useCallback((direction: -1 | 1) => {
+-    const el = scrollRef.current;
+-    if (!el) return;
+-    const stride = FeaturedCardStride(el);
+-    if (stride <= 0) return;
+-    el.scrollBy({ left: direction * stride, behavior: 'smooth' });
+-    window.requestAnimationFrame(() => {
+-      window.setTimeout(syncArrows, 320);
+-    });
+-  }, [syncArrows]);
+ 
+   useEffect(() => {
+     const ac = new AbortController();
+@@ -219,23 +166,9 @@
+   const defaultBadge = t('landing.featured.defaultBadge');
+   const untitled = t('catalogPage.untitled');
+ 
+-  const arrowClass = cn(
+-    'absolute top-1/2 z-30 flex size-11 -translate-y-1/2 items-center justify-center rounded-full shadow-md transition-opacity duration-200',
+-    'border backdrop-blur-md',
+-    'bg-[var(--relic-card-grid)] text-[var(--relic-text)]',
+-    'border-[var(--relic-card-grid-border)]',
+-    'hover:bg-[var(--relic-accent-muted-bg)]',
+-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--relic-accent-bright)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--relic-page)]',
+-    'opacity-100',
+-    'md:opacity-0 md:pointer-events-none',
+-    'md:group-hover/featured:opacity-100 md:group-hover/featured:pointer-events-auto',
+-    'md:group-focus-within/featured:opacity-100 md:group-focus-within/featured:pointer-events-auto',
+-    'disabled:pointer-events-none disabled:opacity-30 disabled:hover:bg-[var(--relic-card-grid)]',
+-  );
+-
+   return (
+-    <section id="collections" className="py-20 sm:py-28 lg:py-32 relative bg-[var(--relic-page)] transition-colors min-w-0">
+-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-12 mb-10 lg:mb-12">
++    <section id="collections" className="landing-featured-section relative min-w-0 overflow-x-clip bg-[var(--relic-page)] py-14 transition-colors sm:py-20 lg:py-28">
++      <div className="mx-auto mb-9 max-w-5xl px-4 text-center sm:px-6 lg:mb-12">
+         <motion.div
+           initial={{ opacity: 0, y: 30 }}
+           whileInView={{ opacity: 1, y: 0 }}
+@@ -243,10 +176,10 @@
+           transition={{ duration: 0.8 }}
+         >
+           <h2
+-            className="mb-6"
++            className="mb-4 text-balance sm:mb-6"
+             style={{
+               fontFamily: "'Playfair Display', serif",
+-              fontSize: 'clamp(2rem, 5vw, 4rem)',
++              fontSize: 'clamp(1.65rem, 5vw, 3.4rem)',
+               fontWeight: 700,
+               color: 'var(--relic-text)',
+               letterSpacing: '-0.02em',
+@@ -255,12 +188,12 @@
+             {t('landing.featured.title')}
+           </h2>
+           <p
+-            className="max-w-2xl"
++            className="mx-auto max-w-2xl text-balance"
+             style={{
+               fontFamily: "'Cormorant Garamond', serif",
+-              fontSize: '1.25rem',
++              fontSize: 'clamp(0.95rem, 2.5vw, 1.18rem)',
+               color: 'var(--relic-text-muted)',
+-              lineHeight: 1.8,
++              lineHeight: 1.7,
+             }}
+           >
+             {t('landing.featured.subtitle')}
+@@ -269,66 +202,37 @@
+       </div>
+ 
+       {loading ? (
+-        <p className="px-4 sm:px-6 lg:px-12 text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
++        <p className="mx-auto max-w-5xl px-4 text-center text-[var(--relic-text-muted)] sm:px-6" style={{ fontFamily: "'Inter', sans-serif" }}>
+           {t('landing.featured.loading')}
+         </p>
+       ) : null}
+       {fetchError ? (
+-        <p className="px-4 sm:px-6 lg:px-12 text-[var(--relic-error-text)] text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
++        <p className="mx-auto max-w-5xl px-4 text-center text-sm text-[var(--relic-error-text)] sm:px-6" style={{ fontFamily: "'Inter', sans-serif" }}>
+           {t('landing.featured.error', { host: '127.0.0.1:8000' })}
+         </p>
+       ) : null}
+ 
+       {!loading && !fetchError ? (
+-        <div className="group/featured relative z-10 min-w-0 max-w-[100vw]">
+-          {relics.length > 0 ? (
+-            <>
+-              <button
+-                type="button"
+-                aria-label={t('landing.featured.scrollPrev')}
+-                disabled={!canPrev}
+-                onClick={() => scrollByOne(-1)}
+-                className={cn(arrowClass, 'left-[max(0.5rem,env(safe-area-inset-left,0px))] sm:left-4 lg:left-10')}
+-              >
+-                <ChevronLeft className="size-6" aria-hidden />
+-              </button>
+-              <button
+-                type="button"
+-                aria-label={t('landing.featured.scrollNext')}
+-                disabled={!canNext}
+-                onClick={() => scrollByOne(1)}
+-                className={cn(arrowClass, 'right-[max(0.5rem,env(safe-area-inset-right,0px))] sm:right-4 lg:right-10')}
+-              >
+-                <ChevronRight className="size-6" aria-hidden />
+-              </button>
+-            </>
+-          ) : null}
+-
+-          <div
+-            ref={scrollRef}
+-            className={cn(
+-              'flex gap-4 overflow-x-auto scroll-smooth overscroll-x-contain sm:gap-6',
+-              'touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+-              'pb-8',
+-              'ps-[max(1rem,env(safe-area-inset-left,0px))] pe-[max(1rem,env(safe-area-inset-right,0px))]',
+-              'sm:ps-6 sm:pe-6 lg:ps-12 lg:pe-12',
+-            )}
+-          >
+-            {relics.length === 0 ? (
+-              <p className="text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
+-                {t('landing.featured.empty')}
+-              </p>
+-            ) : (
+-              relics.map((relic) => (
++        <div className="landing-featured-shell relative z-10 mx-auto w-full max-w-[116rem] min-w-0 px-4 sm:px-6 lg:px-10">
++          {relics.length === 0 ? (
++            <p className="text-center text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
++              {t('landing.featured.empty')}
++            </p>
++          ) : (
++            <div
++              data-featured-card-row
++              className="landing-featured-grid grid min-w-0 justify-center gap-4 sm:gap-5 lg:gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,12.5rem),15.25rem))] min-[1600px]:[grid-template-columns:repeat(auto-fit,minmax(13rem,16rem))]"
++            >
++              {relics.map((relic) => (
+                 <RelicCard key={relic.id} relic={relic} defaultBadge={defaultBadge} untitled={untitled} />
+-              ))
+-            )}
+-          </div>
++              ))}
++            </div>
++          )}
+         </div>
+       ) : null}
+ 
+       <div
+-        className="pointer-events-none absolute top-0 right-0 bottom-0 z-[5] w-16 sm:w-24 md:w-32"
++        className="hidden"
+         style={{
+           background: 'linear-gradient(90deg, transparent, var(--relic-page))',
+         }}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/Footer.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/Footer.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/Footer.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/Footer.tsx	2026-05-19 17:33:43.000000000 +0000
+@@ -42,7 +42,7 @@
+   ];
+ 
+   return (
+-    <footer className="relative pt-20 sm:pt-28 lg:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 md:px-10 lg:px-12 overflow-x-hidden bg-[var(--relic-page)] transition-colors">
++    <footer className="landing-footer-section relative pt-20 sm:pt-28 lg:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 md:px-10 lg:px-12 bg-[var(--relic-page)] transition-colors">
+       <div
+         className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] opacity-10 blur-3xl"
+         style={{
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/HeroSection.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/HeroSection.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/HeroSection.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/HeroSection.tsx	2026-05-19 17:33:12.000000000 +0000
+@@ -14,7 +14,7 @@
+   const titleAfter = t("landing.hero.titleAfter");
+ 
+   return (
+-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--relic-page)] transition-colors">
++    <div className="landing-hero-section relative min-h-[100svh] flex items-center justify-center bg-[var(--relic-page)] transition-colors py-24 sm:py-28 lg:py-32">
+       <div className="absolute inset-0">
+         <ImageWithFallback
+           src="https://images.unsplash.com/photo-1722785111601-7042acb5d703?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmNpZW50JTIwYXJ0aWZhY3RzJTIwbXVzZXVtJTIwZXhoaWJpdGlvbiUyMGx1eHVyeXxlbnwxfHx8fDE3Nzg1NjM5NjB8MA&ixlib=rb-4.1.0&q=80&w=1920"
+@@ -57,7 +57,7 @@
+       ))}
+ 
+       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12 text-center w-full min-w-0">
+-        <div className="flex justify-center gap-3 lg:hidden pt-24 sm:pt-28 pb-6">
++        <div className="flex justify-center gap-3 min-[1360px]:hidden pb-4">
+           <ThemeToggle />
+           <LanguageSwitcher />
+         </div>
+@@ -69,7 +69,7 @@
+           className="mb-6"
+         >
+           <div
+-            className="inline-flex items-center gap-2 px-6 py-2 rounded-full mb-8 transition-colors"
++            className="inline-flex max-w-full items-center gap-2 px-4 py-2 sm:px-6 rounded-full mb-6 sm:mb-8 transition-colors"
+             style={{
+               background: "var(--relic-accent-muted-bg)",
+               border: "1px solid var(--relic-border-accent)",
+@@ -99,7 +99,7 @@
+           className="mb-8"
+           style={{
+             fontFamily: "'Playfair Display', serif",
+-            fontSize: "clamp(2.5rem, 8vw, 7rem)",
++            fontSize: "clamp(2rem, 9vw, 6.25rem)",
+             fontWeight: 700,
+             lineHeight: 1.1,
+             color: "var(--relic-text)",
+@@ -133,8 +133,8 @@
+           className="max-w-3xl mx-auto mb-12"
+           style={{
+             fontFamily: "'Cormorant Garamond', serif",
+-            fontSize: "clamp(1.1rem, 2vw, 1.5rem)",
+-            lineHeight: 1.8,
++            fontSize: "clamp(1rem, 4vw, 1.4rem)",
++            lineHeight: 1.65,
+             color: "var(--relic-text-muted)",
+             letterSpacing: "0.01em",
+           }}
+@@ -152,7 +152,7 @@
+             <motion.span
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+-              className="group w-full sm:w-auto justify-center px-8 py-4 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all no-underline cursor-pointer max-w-full"
++              className="group w-full sm:w-auto justify-center px-5 py-3.5 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all no-underline cursor-pointer max-w-full"
+               style={{
+                 fontFamily: "'Inter', sans-serif",
+                 fontSize: "1rem",
+@@ -174,7 +174,7 @@
+             type="button"
+             whileHover={{ scale: 1.05 }}
+             whileTap={{ scale: 0.95 }}
+-            className="group w-full sm:w-auto justify-center px-8 py-4 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all max-w-full"
++            className="group w-full sm:w-auto justify-center px-5 py-3.5 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all max-w-full"
+             style={{
+               fontFamily: "'Inter', sans-serif",
+               fontSize: "1rem",
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/Navigation.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/Navigation.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/Navigation.tsx"	2026-05-18 08:36:14.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/Navigation.tsx	2026-05-19 10:56:11.000000000 +0000
+@@ -27,10 +27,10 @@
+       initial={{ opacity: 0, y: -20 }}
+       animate={{ opacity: 1, y: 0 }}
+       transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+-      className="fixed top-0 left-0 right-0 z-[60] px-3 py-3 sm:px-4 sm:py-4 lg:px-10 lg:py-6"
++      className="fixed top-0 left-0 right-0 z-[60] px-1.5 py-1.5 sm:px-4 sm:py-4 min-[1360px]:px-10 min-[1360px]:py-6"
+     >
+       <div
+-        className="max-w-[1800px] mx-auto flex items-start justify-between gap-2 px-3 py-3 sm:items-center sm:px-4 sm:py-3.5 lg:px-8 lg:py-4 rounded-full backdrop-blur-xl transition-colors min-w-0"
++        className="max-w-[1800px] mx-auto flex items-center justify-between gap-2 px-2.5 py-2 sm:px-4 sm:py-3.5 min-[1360px]:px-8 min-[1360px]:py-4 rounded-2xl sm:rounded-full backdrop-blur-xl transition-colors min-w-0"
+         style={{
+           background: 'var(--relic-nav-bg)',
+           border: '1px solid var(--relic-nav-border)',
+@@ -38,11 +38,11 @@
+       >
+         <NavLink
+           to="/"
+-          className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 py-0.5 no-underline lg:flex-initial lg:max-w-none lg:py-0"
++          className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 py-0.5 no-underline min-[1360px]:flex-initial min-[1360px]:max-w-none min-[1360px]:py-0"
+         >
+-          <motion.div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 lg:flex-initial" whileHover={{ scale: 1.02 }}>
++          <motion.div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 min-[1360px]:flex-initial" whileHover={{ scale: 1.02 }}>
+             <div
+-              className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full flex items-center justify-center"
++              className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full flex items-center justify-center"
+               style={{
+                 background: navGrad,
+               }}
+@@ -55,7 +55,7 @@
+               </span>
+             </div>
+             <span
+-              className="min-w-0 flex-1 text-[0.8125rem] leading-[1.2] tracking-wide break-words sm:text-base sm:leading-snug lg:flex-initial lg:text-lg"
++              className="min-w-0 flex-1 truncate text-[0.78rem] leading-[1.2] tracking-wide sm:text-base sm:leading-snug min-[1360px]:flex-initial min-[1360px]:text-lg"
+               style={{
+                 fontFamily: "'Cormorant Garamond', serif",
+                 color: 'var(--relic-text)',
+@@ -66,7 +66,7 @@
+           </motion.div>
+         </NavLink>
+ 
+-        <div className="hidden lg:flex items-center gap-5 xl:gap-8 shrink-0">
++        <div className="hidden min-[1360px]:flex items-center gap-5 min-[1360px]:gap-8 shrink-0">
+           <NavLink to="/catalog" className={({ isActive }) => (isActive ? linkActive : linkInactive)}>
+             {t('nav.catalog')}
+           </NavLink>
+@@ -81,7 +81,7 @@
+           </a>
+         </div>
+ 
+-        <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
++        <div className="hidden min-[1360px]:flex items-center gap-2 min-[1360px]:gap-3 shrink-0">
+           <ThemeToggle />
+           <LanguageSwitcher />
+           {isAuthenticated ? (
+@@ -159,7 +159,7 @@
+           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+             <NavLink
+               to="/catalog"
+-              className="inline-block px-4 py-2 xl:px-6 rounded-full no-underline transition-colors whitespace-nowrap"
++              className="inline-block px-4 py-2 min-[1360px]:px-6 rounded-full no-underline transition-colors whitespace-nowrap"
+               style={{
+                 fontFamily: "'Inter', sans-serif",
+                 fontSize: '0.9rem',
+@@ -173,7 +173,7 @@
+           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+             <NavLink
+               to="/stats"
+-              className="inline-block px-4 py-2 xl:px-6 rounded-full no-underline whitespace-nowrap"
++              className="inline-block px-4 py-2 min-[1360px]:px-6 rounded-full no-underline whitespace-nowrap"
+               style={{
+                 fontFamily: "'Inter', sans-serif",
+                 fontSize: '0.9rem',
+@@ -188,7 +188,7 @@
+ 
+         <button
+           type="button"
+-          className="shrink-0 lg:hidden min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg"
++          className="shrink-0 min-[1360px]:hidden min-h-10 min-w-10 inline-flex items-center justify-center rounded-lg"
+           onClick={() => setIsMenuOpen(!isMenuOpen)}
+           style={{ color: 'var(--relic-accent-bright)' }}
+           aria-expanded={isMenuOpen}
+@@ -203,7 +203,7 @@
+           initial={{ opacity: 0, y: -20 }}
+           animate={{ opacity: 1, y: 0 }}
+           exit={{ opacity: 0, y: -20 }}
+-          className="lg:hidden mt-3 sm:mt-4 mx-0 sm:mx-0 p-4 sm:p-6 rounded-2xl sm:rounded-3xl backdrop-blur-xl transition-colors max-h-[min(70vh,calc(100dvh-8rem))] overflow-y-auto overscroll-contain"
++          className="min-[1360px]:hidden mt-3 sm:mt-4 mx-0 sm:mx-0 p-4 sm:p-6 rounded-2xl sm:rounded-3xl backdrop-blur-xl transition-colors max-h-[min(78vh,calc(100dvh_-_5rem))] overflow-y-auto overscroll-contain"
+           style={{
+             background: 'var(--relic-mobile-nav-bg)',
+             border: '1px solid var(--relic-border)',
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/StatisticsSection.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/StatisticsSection.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/StatisticsSection.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/StatisticsSection.tsx	2026-05-19 17:33:12.000000000 +0000
+@@ -48,7 +48,7 @@
+         className="mb-4"
+         style={{
+           fontFamily: "'Playfair Display', serif",
+-          fontSize: 'clamp(3rem, 6vw, 5rem)',
++          fontSize: 'clamp(2.2rem, 11vw, 4.75rem)',
+           fontWeight: 700,
+           background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-gold-mid) 100%)',
+           WebkitBackgroundClip: 'text',
+@@ -63,7 +63,7 @@
+       <div
+         style={{
+           fontFamily: "'Inter', sans-serif",
+-          fontSize: '1rem',
++          fontSize: 'clamp(0.72rem, 2.6vw, 1rem)',
+           color: 'var(--relic-text-muted)',
+           letterSpacing: '0.05em',
+           textTransform: 'uppercase',
+@@ -124,7 +124,7 @@
+       ];
+ 
+   return (
+-    <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-hidden bg-[var(--relic-page)] transition-colors">
++    <section className="landing-statistics-section py-14 sm:py-20 lg:py-28 px-4 sm:px-6 md:px-10 lg:px-12 relative bg-[var(--relic-page)] transition-colors">
+       <div
+         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10 blur-3xl"
+         style={{
+@@ -138,13 +138,13 @@
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true, amount: 0.3 }}
+           transition={{ duration: 0.8 }}
+-          className="text-center mb-20"
++          className="text-center mb-12 sm:mb-16 lg:mb-20"
+         >
+           <h2
+             className="mb-6"
+             style={{
+               fontFamily: "'Playfair Display', serif",
+-              fontSize: 'clamp(2rem, 5vw, 4rem)',
++              fontSize: 'clamp(1.75rem, 7vw, 4rem)',
+               fontWeight: 700,
+               color: 'var(--relic-text)',
+               letterSpacing: '-0.02em',
+@@ -156,7 +156,7 @@
+             className="max-w-2xl mx-auto"
+             style={{
+               fontFamily: "'Cormorant Garamond', serif",
+-              fontSize: '1.25rem',
++              fontSize: 'clamp(1rem, 4vw, 1.25rem)',
+               color: 'var(--relic-text-muted)',
+               lineHeight: 1.8,
+             }}
+@@ -170,7 +170,7 @@
+             {t('landing.statistics.loading')}
+           </p>
+         ) : (
+-          <div className="grid grid-cols-2 gap-6 sm:gap-10 lg:grid-cols-4 lg:gap-8">
++          <div className="grid grid-cols-1 gap-8 min-[420px]:grid-cols-2 sm:gap-10 lg:grid-cols-4 lg:gap-8">
+             {rows.map((stat) => (
+               <AnimatedStat key={`${stat.label}-${stat.end}`} {...stat} />
+             ))}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/StorytellingSection.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/StorytellingSection.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/StorytellingSection.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/StorytellingSection.tsx	2026-05-19 11:48:33.000000000 +0000
+@@ -23,12 +23,12 @@
+       whileInView={{ opacity: 1, y: 0 }}
+       viewport={{ once: true, amount: 0.2 }}
+       transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+-      className={`grid min-w-0 lg:grid-cols-2 gap-10 lg:gap-16 items-center pb-8 lg:pb-0 ${
+-        isEven ? "" : "lg:grid-flow-dense"
+-      }`}
++      className={`landing-storytelling-feature-card ${
++        isEven ? "landing-storytelling-feature-card--normal" : "landing-storytelling-feature-card--reverse lg:grid-flow-dense"
++      } grid min-w-0 lg:grid-cols-2 gap-10 lg:gap-16 items-center pb-8 lg:pb-0`}
+     >
+       <motion.div
+-        className={`relative ${isEven ? "" : "lg:col-start-2"}`}
++        className={`landing-storytelling-feature-media relative min-w-0 ${isEven ? "" : "lg:col-start-2"}`}
+         whileHover={{ scale: 1.02 }}
+         transition={{ duration: 0.4 }}
+       >
+@@ -67,7 +67,7 @@
+         </div>
+ 
+         <motion.div
+-          className="absolute -bottom-6 -right-6 w-48 h-48 rounded-full opacity-20 blur-3xl"
++          className="landing-storytelling-feature-glow absolute -bottom-6 -right-6 w-48 h-48 rounded-full opacity-20 blur-3xl"
+           style={{
+             background: "radial-gradient(circle, var(--relic-accent-bright) 0%, transparent 70%)",
+           }}
+@@ -79,7 +79,7 @@
+         />
+       </motion.div>
+ 
+-      <div className={isEven ? "" : "lg:col-start-1 lg:row-start-1"}>
++      <div className={`landing-storytelling-feature-copy min-w-0 ${isEven ? "" : "lg:col-start-1 lg:row-start-1"}`}>
+         <motion.div
+           initial={{ opacity: 0, x: isEven ? -40 : 40 }}
+           whileInView={{ opacity: 1, x: 0 }}
+@@ -111,7 +111,7 @@
+             className="mb-6"
+             style={{
+               fontFamily: "'Playfair Display', serif",
+-              fontSize: "clamp(1.75rem, 3vw, 3rem)",
++              fontSize: "clamp(1.45rem, 6vw, 3rem)",
+               fontWeight: 700,
+               color: "var(--relic-text)",
+               lineHeight: 1.2,
+@@ -125,7 +125,7 @@
+             className="mb-8"
+             style={{
+               fontFamily: "'Cormorant Garamond', serif",
+-              fontSize: "1.25rem",
++              fontSize: "clamp(1rem, 4vw, 1.25rem)",
+               color: "var(--relic-text-muted)",
+               lineHeight: 1.8,
+             }}
+@@ -136,7 +136,7 @@
+           <motion.button
+             type="button"
+             whileHover={{ x: 5 }}
+-            className="group flex items-center gap-3 px-8 py-4 rounded-full transition-all"
++            className="group flex w-full justify-center sm:w-auto sm:justify-start items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full transition-all"
+             style={{
+               fontFamily: "'Inter', sans-serif",
+               fontSize: "0.95rem",
+@@ -197,7 +197,7 @@
+   );
+ 
+   return (
+-    <section id="about" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-clip bg-[var(--relic-page)] transition-colors">
++    <section id="about" className="landing-storytelling-section py-14 sm:py-20 lg:py-28 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-clip bg-[var(--relic-page)] transition-colors">
+       <div
+         className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full opacity-5 blur-3xl"
+         style={{
+@@ -223,7 +223,7 @@
+             className="mb-6"
+             style={{
+               fontFamily: "'Playfair Display', serif",
+-              fontSize: "clamp(2rem, 5vw, 4rem)",
++              fontSize: "clamp(1.75rem, 7vw, 4rem)",
+               fontWeight: 700,
+               color: "var(--relic-text)",
+               letterSpacing: "-0.02em",
+@@ -235,7 +235,7 @@
+             className="max-w-3xl mx-auto"
+             style={{
+               fontFamily: "'Cormorant Garamond', serif",
+-              fontSize: "1.25rem",
++              fontSize: "clamp(1rem, 4vw, 1.25rem)",
+               color: "var(--relic-text-muted)",
+               lineHeight: 1.8,
+             }}
+@@ -244,7 +244,7 @@
+           </p>
+         </motion.div>
+ 
+-        <div className="space-y-20 sm:space-y-28 lg:space-y-32">
++        <div className="landing-storytelling-features space-y-20 sm:space-y-28 lg:space-y-32">
+           {features.map((feature, index) => (
+             <FeatureCard key={`${feature.title}-${index}`} feature={feature} index={index} />
+           ))}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/alert-dialog.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/ui/alert-dialog.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/alert-dialog.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/ui/alert-dialog.tsx	2026-05-19 10:34:44.000000000 +0000
+@@ -54,7 +54,7 @@
+       <AlertDialogPrimitive.Content
+         data-slot="alert-dialog-content"
+         className={cn(
+-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
++          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%_-_1rem)] max-h-[calc(100dvh_-_2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-lg border p-4 shadow-lg duration-200 sm:max-w-lg sm:p-6",
+           className,
+         )}
+         {...props}
+@@ -84,7 +84,7 @@
+     <div
+       data-slot="alert-dialog-footer"
+       className={cn(
+-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
++        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end [&>*]:w-full sm:[&>*]:w-auto",
+         className,
+       )}
+       {...props}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/dialog.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/ui/dialog.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/dialog.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/ui/dialog.tsx	2026-05-19 10:34:44.000000000 +0000
+@@ -57,7 +57,7 @@
+       <DialogPrimitive.Content
+         data-slot="dialog-content"
+         className={cn(
+-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
++          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%_-_1rem)] max-h-[calc(100dvh_-_2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-lg border p-4 shadow-lg duration-200 sm:max-w-lg sm:p-6",
+           className,
+         )}
+         {...props}
+@@ -87,7 +87,7 @@
+     <div
+       data-slot="dialog-footer"
+       className={cn(
+-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
++        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end [&>*]:w-full sm:[&>*]:w-auto",
+         className,
+       )}
+       {...props}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/switch.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/ui/switch.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/switch.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/ui/switch.tsx	2026-05-19 10:35:10.000000000 +0000
+@@ -21,7 +21,7 @@
+       <SwitchPrimitive.Thumb
+         data-slot="switch-thumb"
+         className={cn(
+-          "bg-card dark:data-[state=unchecked]:bg-card-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
++          "bg-card dark:data-[state=unchecked]:bg-card-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%_-_2px)] data-[state=unchecked]:translate-x-0",
+         )}
+       />
+     </SwitchPrimitive.Root>
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/tabs.tsx" /mnt/data/final_cumulative/final/frontend/src/app/components/ui/tabs.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/components/ui/tabs.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/components/ui/tabs.tsx	2026-05-19 10:35:10.000000000 +0000
+@@ -42,7 +42,7 @@
+     <TabsPrimitive.Trigger
+       data-slot="tabs-trigger"
+       className={cn(
+-        "data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++        "data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%_-_1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+         className,
+       )}
+       {...props}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/layout/AppShell.tsx" /mnt/data/final_cumulative/final/frontend/src/app/layout/AppShell.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/layout/AppShell.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/layout/AppShell.tsx	2026-05-19 17:33:12.000000000 +0000
+@@ -6,7 +6,7 @@
+ 
+ export function AppShell({ children }: { children: ReactNode }) {
+   return (
+-    <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground transition-colors">
++    <div className="app-shell-scroll-root min-h-screen w-full bg-background text-foreground transition-colors">
+       <Navigation />
+       {children}
+       <div
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/CatalogPage.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/CatalogPage.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/CatalogPage.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/CatalogPage.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -29,7 +29,7 @@
+ } as const;
+ 
+ const selectStyle =
+-  'w-full rounded-xl px-3 py-2.5 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] focus:outline-none focus:ring-1 focus:ring-[var(--relic-accent-bright)]';
++  'w-full min-w-0 max-w-full rounded-xl px-3 py-2.5 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] focus:outline-none focus:ring-1 focus:ring-[var(--relic-accent-bright)]';
+ 
+ export function CatalogPage() {
+   const { t, i18n } = useTranslation();
+@@ -444,10 +444,10 @@
+         >
+           {/* Header bar */}
+           <div
+-            className="flex items-center justify-between px-6 py-4 border-b"
++            className="flex flex-col items-start justify-between gap-3 px-4 py-4 border-b sm:flex-row sm:items-center sm:px-6"
+             style={{ borderColor: 'var(--relic-border)' }}
+           >
+-            <div className="flex items-center gap-3">
++            <div className="flex min-w-0 items-center gap-3">
+               <span style={{ fontSize: '1.1rem' }}>✦</span>
+               <span
+                 style={{
+@@ -470,14 +470,14 @@
+           </div>
+ 
+           {/* Input area */}
+-          <div className="px-6 py-5">
++          <div className="px-4 py-5 sm:px-6">
+             <p
+               className="mb-4 text-sm text-[var(--relic-text-muted)]"
+               style={{ fontFamily: "'Inter', sans-serif" }}
+             >
+               Describe what you're looking for in plain English. AI will extract filters and search the collection.
+             </p>
+-            <div className="flex gap-3 flex-wrap sm:flex-nowrap">
++            <div className="flex flex-col gap-3 sm:flex-row">
+               <input
+                 ref={nlInputRef}
+                 type="text"
+@@ -485,7 +485,7 @@
+                 onChange={(e) => setNlQuery(e.target.value)}
+                 onKeyDown={(e) => { if (e.key === 'Enter') handleNlSearch(); }}
+                 placeholder='e.g. "Tang dynasty bronze vessels" or "jade artifacts from London museums"'
+-                className={`flex-1 min-w-0 rounded-xl px-4 py-3 text-sm ${selectStyle}`}
++                className={`min-w-0 flex-1 rounded-xl px-4 py-3 text-sm ${selectStyle}`}
+                 style={{ fontFamily: "'Inter', sans-serif" }}
+                 autoFocus
+               />
+@@ -493,7 +493,7 @@
+                 type="button"
+                 onClick={handleNlSearch}
+                 disabled={nlLoading || !nlQuery.trim()}
+-                className="shrink-0 rounded-xl px-6 py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
++                className="w-full shrink-0 rounded-xl px-6 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 transition-opacity sm:w-auto"
+                 style={{
+                   fontFamily: "'Inter', sans-serif",
+                   background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
+@@ -650,9 +650,9 @@
+         </div>
+       ) : null}
+ 
+-      <div className="flex flex-wrap gap-3 mb-8 items-stretch sm:items-center min-w-0">
++      <div className="flex min-w-0 flex-col gap-3 mb-8 sm:flex-row sm:flex-wrap sm:items-center">
+         <form
+-          className="flex w-full flex-wrap gap-2 min-w-0 sm:flex-1 sm:min-w-[200px]"
++          className="flex w-full min-w-0 flex-col gap-2 min-[420px]:flex-row sm:flex-1 sm:min-w-[240px]"
+           role="search"
+           onSubmit={(e) => {
+             e.preventDefault();
+@@ -664,11 +664,11 @@
+             placeholder={t('catalogPage.searchPlaceholder')}
+             value={searchInput}
+             onChange={(e) => setSearchInput(e.target.value)}
+-            className={`min-w-0 flex-1 basis-[min(100%,12rem)] rounded-full px-4 py-2.5 text-sm sm:px-5 ${selectStyle}`}
++            className={`min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm sm:px-5 ${selectStyle}`}
+           />
+           <button
+             type="submit"
+-            className="rounded-full px-6 py-2.5 text-sm font-medium"
++            className="w-full rounded-full px-6 py-2.5 text-sm font-medium min-[420px]:w-auto"
+             style={{
+               fontFamily: "'Inter', sans-serif",
+               background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
+@@ -679,7 +679,7 @@
+           </button>
+         </form>
+ 
+-        <div className="flex w-full flex-wrap gap-2 items-center sm:w-auto sm:min-w-0">
++        <div className="flex w-full min-w-0 flex-wrap gap-2 items-center sm:w-auto sm:min-w-0">
+           <button
+             type="button"
+             onClick={() =>
+@@ -704,7 +704,7 @@
+           </button>
+ 
+           <label
+-            className="flex items-center gap-2 text-xs text-[var(--relic-text-muted)]"
++            className="flex w-full min-w-[10rem] flex-col gap-1 text-xs text-[var(--relic-text-muted)] min-[480px]:w-auto min-[480px]:flex-row min-[480px]:items-center min-[480px]:gap-2"
+             style={{ fontFamily: "'Inter', sans-serif" }}
+           >
+             {t('catalogPage.sortShort')}
+@@ -716,7 +716,7 @@
+                   n.set('page', '1');
+                 });
+               }}
+-              className={`rounded-xl px-2 py-2 ${selectStyle}`}
++              className={`rounded-xl px-2 py-2 min-[480px]:w-auto ${selectStyle}`}
+             >
+               <option value="name">{t('home.sortFieldName')}</option>
+               <option value="dynasty">{t('home.sortFieldDynasty')}</option>
+@@ -740,7 +740,7 @@
+           <button
+             type="button"
+             onClick={() => runCatalogExport('csv', 'relics_export.csv')}
+-            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)]"
++            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)] whitespace-nowrap"
+             style={{ fontFamily: "'Inter', sans-serif" }}
+           >
+             {t('export.button')}
+@@ -748,7 +748,7 @@
+           <button
+             type="button"
+             onClick={() => runCatalogExport('xlsx', 'relics_export.xlsx')}
+-            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)]"
++            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)] whitespace-nowrap"
+             style={{ fontFamily: "'Inter', sans-serif" }}
+           >
+             {t('export.buttonExcel')}
+@@ -756,7 +756,7 @@
+           <button
+             type="button"
+             onClick={() => { setNlOpen(o => !o); setNlResults(null); setNlError(null); setNlQuery(''); }}
+-            className="rounded-full px-4 py-2 text-xs font-medium border transition-all"
++            className="rounded-full px-4 py-2 text-xs font-medium border transition-all whitespace-nowrap"
+             style={{
+               fontFamily: "'Inter', sans-serif",
+               background: nlOpen ? 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)' : 'transparent',
+@@ -846,7 +846,7 @@
+       ) : null}
+ 
+       {(hasFacetFilters || searchActive || hasAdvancedFilters) && (
+-        <div className="flex flex-wrap gap-2 items-center mb-8 p-4 rounded-2xl text-sm" style={panelStyle}>
++        <div className="flex min-w-0 flex-wrap gap-2 items-center mb-8 p-4 rounded-2xl text-sm" style={panelStyle}>
+           <span className="text-[var(--relic-text-muted)] mr-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+             {t('home.applied')}
+           </span>
+@@ -973,7 +973,7 @@
+           <button
+             type="button"
+             onClick={clearSearchAndFilters}
+-            className="ml-auto rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)]"
++            className="w-full rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] sm:ml-auto sm:w-auto"
+             style={{ fontFamily: "'Inter', sans-serif" }}
+           >
+             {t('home.clearAll')}
+@@ -982,7 +982,7 @@
+             <button
+               type="button"
+               onClick={clearFacetFilters}
+-              className="rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-muted)] text-[var(--relic-text-muted)]"
++              className="w-full rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-muted)] text-[var(--relic-text-muted)] sm:w-auto"
+               style={{ fontFamily: "'Inter', sans-serif" }}
+             >
+               {t('home.clearFacetsOnly')}
+@@ -1095,7 +1095,7 @@
+           ) : null}
+ 
+           {!loading && !error && !viewIsList ? (
+-            <ul className="grid min-w-0 gap-6 sm:gap-8 sm:grid-cols-2 xl:grid-cols-3">
++            <ul className="grid min-w-0 gap-5 sm:gap-6 md:gap-8 sm:grid-cols-2 xl:grid-cols-3">
+               {relics.map((relic) => {
+                 const sel = isSelected(relic.id);
+                 const addBlocked = !sel && compareSelected.length >= 3;
+@@ -1138,7 +1138,7 @@
+                         onClick={() => openRelic(relic.id)}
+                         className="w-full cursor-pointer text-left"
+                       >
+-                        <div className="relative h-52 overflow-hidden">
++                        <div className="relative h-44 overflow-hidden sm:h-52">
+                           <ImageWithFallback
+                             src={relic.image_url}
+                             alt={relic.name}
+@@ -1180,7 +1180,7 @@
+                 return (
+                   <li key={relic.id} className="min-w-0">
+                     <div
+-                      className="flex gap-3 rounded-2xl p-2 transition-colors hover:bg-[var(--relic-interactive-hover)]"
++                      className="flex min-w-0 flex-col gap-3 rounded-2xl p-2 transition-colors hover:bg-[var(--relic-interactive-hover)] min-[460px]:flex-row"
+                       style={{
+                         background: 'var(--relic-panel-bg-soft)',
+                         border: '1px solid var(--relic-card-grid-border)',
+@@ -1211,9 +1211,9 @@
+                       <button
+                         type="button"
+                         onClick={() => openRelic(relic.id)}
+-                        className="flex min-w-0 flex-1 cursor-pointer gap-4 rounded-xl p-2 text-left"
++                        className="flex min-w-0 flex-1 cursor-pointer flex-col gap-3 rounded-xl p-2 text-left min-[460px]:flex-row min-[460px]:gap-4"
+                       >
+-                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl">
++                        <div className="h-36 w-full shrink-0 overflow-hidden rounded-xl min-[460px]:h-20 min-[460px]:w-20">
+                           <ImageWithFallback src={relic.image_url} alt="" className="h-full w-full object-cover" />
+                         </div>
+                         <div className="min-w-0 flex-1">
+@@ -1223,7 +1223,7 @@
+                           <div className="truncate text-sm text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
+                             {relic.dynasty} · {relic.museum}
+                           </div>
+-                          <div className="text-xs text-[var(--relic-text-subtle)]" style={{ fontFamily: "'Inter', sans-serif" }}>
++                          <div className="text-xs text-[var(--relic-text-subtle)] break-words" style={{ fontFamily: "'Inter', sans-serif" }}>
+                             {relic.material}
+                           </div>
+                         </div>
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/ComparePage.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/ComparePage.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/ComparePage.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/ComparePage.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -111,7 +111,7 @@
+   return (
+     <div className="min-h-screen bg-[var(--relic-page)] pt-24 sm:pt-28 pb-14 sm:pb-16 text-[var(--relic-text)] transition-colors">
+       <div className="mx-auto max-w-[1400px] w-full min-w-0 px-3 sm:px-4 md:px-8">
+-        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
++        <header className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:flex-wrap">
+           <div>
+             <h1 className="mb-2 text-2xl md:text-3xl" style={{ fontFamily: "'Playfair Display', serif" }}>
+               {t('compare.pageTitle')}
+@@ -120,12 +120,12 @@
+               {t('compare.pageSubtitle')}
+             </p>
+           </div>
+-          <div className="flex flex-wrap items-center gap-2">
++          <div className="flex w-full flex-col gap-2 min-[420px]:flex-row sm:w-auto sm:flex-wrap sm:items-center">
+             {selected.length < 3 ? (
+               <button
+                 type="button"
+                 onClick={() => navigate('/catalog')}
+-                className="inline-flex items-center gap-2 rounded-full border border-[var(--relic-border-accent)] bg-[var(--relic-accent-muted-bg)] px-4 py-2 text-sm text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)]"
++                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--relic-border-accent)] bg-[var(--relic-accent-muted-bg)] px-4 py-2 text-sm text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)] min-[420px]:w-auto"
+                 style={{ fontFamily: "'Inter', sans-serif" }}
+               >
+                 <Plus size={18} />
+@@ -135,7 +135,7 @@
+             <button
+               type="button"
+               onClick={close}
+-              className="inline-flex items-center gap-2 rounded-full border border-[var(--relic-border-muted)] px-4 py-2 text-sm text-[var(--relic-text)] hover:bg-[var(--relic-interactive-hover)]"
++              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--relic-border-muted)] px-4 py-2 text-sm text-[var(--relic-text)] hover:bg-[var(--relic-interactive-hover)] min-[420px]:w-auto"
+               style={{ fontFamily: "'Inter', sans-serif" }}
+             >
+               <X size={18} />
+@@ -149,13 +149,13 @@
+             {t('compare.loading')}
+           </p>
+         ) : (
+-          <div className="overflow-x-auto rounded-3xl" style={panel}>
+-            <table className="w-full min-w-[720px] border-collapse text-left">
++          <div className="max-w-full overflow-x-auto rounded-3xl [scrollbar-gutter:stable]" style={panel}>
++            <table className="w-full min-w-[640px] border-collapse text-left sm:min-w-[720px]">
+               <thead>
+                 <tr className="border-b border-[var(--relic-border)]">
+                   <th
+                     scope="col"
+-                    className="sticky left-0 z-[1] w-36 min-w-[120px] bg-[var(--relic-panel-solid)] px-3 py-4 align-bottom text-xs font-medium uppercase tracking-wide text-[var(--relic-text-subtle)] md:w-44"
++                    className="sticky left-0 z-[1] w-28 min-w-[104px] bg-[var(--relic-panel-solid)] px-2 py-4 align-bottom text-xs font-medium uppercase tracking-wide text-[var(--relic-text-subtle)] sm:w-36 sm:min-w-[120px] sm:px-3 md:w-44"
+                     style={{ fontFamily: "'Inter', sans-serif" }}
+                   />
+                   {selected.map((stub, i) => {
+@@ -205,7 +205,7 @@
+                     <tr key={def.key} className={`border-b border-[var(--relic-border-muted)] ${rowBg}`}>
+                       <th
+                         scope="row"
+-                        className={`sticky left-0 z-[1] whitespace-nowrap px-3 py-3 text-xs font-medium uppercase tracking-wide ${highlight ? 'text-[var(--relic-accent-deep)] dark:text-[var(--relic-accent-bright)]' : 'text-[var(--relic-text-subtle)]'} bg-[var(--relic-panel-solid)]`}
++                        className={`sticky left-0 z-[1] whitespace-normal px-2 py-3 text-xs font-medium uppercase tracking-wide sm:whitespace-nowrap sm:px-3 ${highlight ? 'text-[var(--relic-accent-deep)] dark:text-[var(--relic-accent-bright)]' : 'text-[var(--relic-text-subtle)]'} bg-[var(--relic-panel-solid)]`}
+                         style={{ fontFamily: "'Inter', sans-serif" }}
+                       >
+                         {def.label}
+@@ -213,7 +213,7 @@
+                       {cells.map((raw, ci) => (
+                         <td
+                           key={`${def.key}-${selected[ci]?.id ?? ci}`}
+-                          className={`max-w-[280px] px-3 py-3 align-top text-sm ${cellText} ${def.key === 'description' ? 'break-words' : ''}`}
++                          className={`max-w-[240px] px-2 py-3 align-top text-sm sm:max-w-[280px] sm:px-3 ${cellText} ${def.key === 'description' ? 'break-words' : 'break-words'}`}
+                           style={
+                             def.key === 'description'
+                               ? undefined
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/HomeLanding.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/HomeLanding.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/HomeLanding.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/HomeLanding.tsx	2026-05-19 17:33:12.000000000 +0000
+@@ -6,12 +6,12 @@
+ 
+ export function HomeLanding() {
+   return (
+-    <>
++    <main className="home-landing-page min-w-0">
+       <HeroSection />
+       <StatisticsSection />
+       <FeaturedRelics />
+       <StorytellingSection />
+       <Footer />
+-    </>
++    </main>
+   );
+ }
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/ProfilePage.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/ProfilePage.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/ProfilePage.tsx"	2026-05-18 08:36:14.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/ProfilePage.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -164,7 +164,7 @@
+       className="min-h-screen pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto"
+       style={{ background: 'var(--relic-page)' }}
+     >
+-      <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 mb-10" style={panelStyle}>
++      <div className="rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 mb-10" style={panelStyle}>
+         <h1
+           className="text-2xl sm:text-3xl lg:text-4xl mb-2"
+           style={{ fontFamily: "'Playfair Display', serif", color: 'var(--relic-text)' }}
+@@ -178,7 +178,7 @@
+           Signed in as <strong>{user?.username}</strong>
+         </p>
+ 
+-        <div className="flex flex-wrap gap-2 mb-8">
++        <div className="grid grid-cols-1 gap-2 mb-8 min-[420px]:flex min-[420px]:flex-wrap">
+           {(['favorites', 'history', 'settings'] as Tab[]).map((t) => (
+             <button
+               key={t}
+@@ -316,7 +316,7 @@
+           </section>
+         ) : (
+           <section>
+-            <div className="max-w-md">
++            <div className="max-w-md min-w-0">
+               <div className="mb-6">
+                 <label
+                   className="block mb-1.5 text-sm font-medium"
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/RelicDetailPage.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/RelicDetailPage.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/RelicDetailPage.tsx"	2026-05-18 08:36:14.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/RelicDetailPage.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -320,7 +320,7 @@
+   };
+ 
+   return (
+-    <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto bg-[var(--relic-page)] min-h-screen transition-colors">
++    <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto bg-[var(--relic-page)] min-h-screen transition-colors overflow-x-hidden">
+       <button
+         type="button"
+         onClick={() => navigate(catalogPath)}
+@@ -364,7 +364,7 @@
+                   <ZoomIn size={18} strokeWidth={2} />
+                 </span>
+               </button>
+-              <div className="min-w-0 p-6 sm:p-8 md:p-12">
++              <div className="min-w-0 p-5 sm:p-8 md:p-12">
+                 <h1
+                   className="mb-6"
+                   style={{
+@@ -397,37 +397,37 @@
+                     <MapPin size={18} className="mt-0.5 text-[var(--relic-accent-bright)] shrink-0" />
+                     <div>
+                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.museumDt')}</dt>
+-                      <dd className="text-[var(--relic-text)]">{relic.museum || missing}</dd>
++                      <dd className="text-[var(--relic-text)] break-words">{relic.museum || missing}</dd>
+                     </div>
+                   </div>
+                   <div className="flex gap-2 items-start">
+                     <Calendar size={18} className="mt-0.5 text-[var(--relic-accent-bright)] shrink-0" />
+                     <div>
+                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.periodDateLabel')}</dt>
+-                      <dd className="text-[var(--relic-text)]">{[relic.dynasty, relic.date].filter(Boolean).join(' · ') || missing}</dd>
++                      <dd className="text-[var(--relic-text)] break-words">{[relic.dynasty, relic.date].filter(Boolean).join(' · ') || missing}</dd>
+                     </div>
+                   </div>
+                   <div>
+                     <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.materialDt')}</dt>
+-                    <dd className="text-[var(--relic-text)]">{relic.material || missing}</dd>
++                    <dd className="text-[var(--relic-text)] break-words">{relic.material || missing}</dd>
+                   </div>
+                   {relic.artist ? (
+                     <div>
+                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.artistDt')}</dt>
+-                      <dd className="text-[var(--relic-text)]">{relic.artist}</dd>
++                      <dd className="text-[var(--relic-text)] break-words">{relic.artist}</dd>
+                     </div>
+                   ) : null}
+                   {relic.classification ? (
+                     <div>
+                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.classificationDt')}</dt>
+-                      <dd className="text-[var(--relic-text)]">{relic.classification}</dd>
++                      <dd className="text-[var(--relic-text)] break-words">{relic.classification}</dd>
+                     </div>
+                   ) : null}
+                 </dl>
+                 {relic.description?.trim() && sanitizeRelicHtml(relic.description).trim() ? (
+                   <SafeHtmlDescription
+                     html={relic.description}
+-                    className="mt-8 pt-8 border-t border-[var(--relic-border-muted)] text-[var(--relic-text-muted)] leading-relaxed [&_a]:text-[var(--relic-accent-bright)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--relic-border-accent)] [&_blockquote]:pl-3 [&_em]:italic [&_li]:ml-4 [&_li]:list-disc [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
++                    className="mt-8 pt-8 border-t border-[var(--relic-border-muted)] text-[var(--relic-text-muted)] leading-relaxed break-words [&_a]:text-[var(--relic-accent-bright)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--relic-border-accent)] [&_blockquote]:pl-3 [&_em]:italic [&_li]:ml-4 [&_li]:list-disc [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
+                     style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.15rem' }}
+                   />
+                 ) : null}
+@@ -436,7 +436,7 @@
+                     href={relic.object_url}
+                     target="_blank"
+                     rel="noopener noreferrer"
+-                    className="inline-block mt-8 text-[var(--relic-accent-bright)] underline text-sm"
++                    className="inline-block mt-8 text-[var(--relic-accent-bright)] underline text-sm break-words"
+                     style={{ fontFamily: "'Inter', sans-serif" }}
+                   >
+                     {t('detailPage.viewSourceRecord')}
+@@ -525,7 +525,7 @@
+                   type="button"
+                   onClick={submitComment}
+                   disabled={commentLoading || !commentText.trim()}
+-                  className="shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-opacity disabled:opacity-50"
++                  className="w-full shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-opacity disabled:opacity-50 sm:w-auto"
+                   style={{
+                     fontFamily: "'Inter', sans-serif",
+                     background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
+@@ -549,12 +549,12 @@
+                 {comments.map((c) => (
+                   <li
+                     key={c.id}
+-                    className="rounded-2xl p-5"
++                    className="rounded-2xl p-4 sm:p-5"
+                     style={panel}
+                   >
+-                    <div className="flex items-start justify-between gap-3">
++                    <div className="flex min-w-0 items-start justify-between gap-3">
+                       <div className="min-w-0 flex-1">
+-                        <div className="flex items-center gap-3 mb-1.5">
++                        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 mb-1.5">
+                           <span
+                             className="font-semibold text-sm"
+                             style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
+@@ -569,7 +569,7 @@
+                           </span>
+                         </div>
+                         <p
+-                          className="text-sm leading-relaxed"
++                          className="text-sm leading-relaxed break-words"
+                           style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
+                         >
+                           {c.text}
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/StatsDashboardPage.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/StatsDashboardPage.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/StatsDashboardPage.tsx"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/StatsDashboardPage.tsx	2026-05-19 10:32:06.000000000 +0000
+@@ -336,6 +336,8 @@
+   const materialsPieChartHeight =
+     layoutTier === 'narrow' ? 210 : layoutTier === 'tablet' ? 250 : 280;
+ 
++  const timelineMinWidth = Math.max(360, timelineChartData.length * (layoutTier === 'narrow' ? 44 : 38));
++
+   return (
+     <div className="pt-24 sm:pt-28 pb-16 sm:pb-24 px-3 sm:px-4 md:px-8 xl:px-10 max-w-[1400px] w-full min-w-0 mx-auto space-y-12 sm:space-y-14 bg-[var(--relic-page)] min-h-screen transition-colors">
+       <header>
+@@ -513,8 +515,9 @@
+           <p className="text-[var(--relic-text-subtle)] text-sm">{t('statsDashboard.noTimelineData')}</p>
+         ) : null}
+         {!tlLoading && !tlError && timelineChartData.length > 0 ? (
+-          <div className="h-[320px] md:h-[380px]">
+-            <ResponsiveContainer width="100%" height="100%">
++          <div className="w-full overflow-x-auto [scrollbar-gutter:stable]">
++            <div className="h-[320px] md:h-[380px]" style={{ minWidth: timelineMinWidth }}>
++              <ResponsiveContainer width="100%" height="100%">
+               <BarChart data={timelineChartData} margin={{ top: 8, right: 12, left: 8, bottom: 52 }}>
+                 <XAxis
+                   dataKey="century"
+@@ -560,11 +563,12 @@
+                 </Bar>
+               </BarChart>
+             </ResponsiveContainer>
++            </div>
+           </div>
+         ) : null}
+       </section>
+ 
+-      <section className="rounded-3xl p-6 md:p-8 overflow-x-auto" style={panel}>
++      <section className="rounded-2xl p-4 sm:rounded-3xl sm:p-6 md:p-8 overflow-hidden" style={panel}>
+         <h2 className="mb-4 text-lg text-[var(--relic-text)]" style={{ fontFamily: "'Playfair Display', serif" }}>
+           {t('statsDashboard.museumsMapTitle')}
+         </h2>
+@@ -590,7 +594,7 @@
+               padding: 0,
+             }}
+           >
+-            <MapContainer center={[30, 10]} zoom={2} style={{ height: '420px', borderRadius: '16px' }} scrollWheelZoom={false}>
++            <MapContainer center={[30, 10]} zoom={2} className="h-[340px] sm:h-[420px]" style={{ borderRadius: '16px' }} scrollWheelZoom={false}>
+               <TileLayer
+                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/admin/AdminComments.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/admin/AdminComments.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/admin/AdminComments.tsx"	2026-05-18 08:36:14.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/admin/AdminComments.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -16,7 +16,7 @@
+ };
+ 
+ const thStyle = 'text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-white/50';
+-const tdStyle = 'px-4 py-3 text-sm text-white/80';
++const tdStyle = 'px-4 py-3 text-sm text-white/80 align-top break-words';
+ 
+ const panelBg = { background: '#1a1a2e', border: '1px solid #2a2a3d' };
+ 
+@@ -80,9 +80,9 @@
+       {loading ? (
+         <p className="text-white/50 text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>Loading...</p>
+       ) : (
+-        <div className="rounded-2xl overflow-hidden" style={panelBg}>
+-          <div className="overflow-x-auto">
+-            <table className="w-full min-w-[700px]" style={{ fontFamily: "'Inter', sans-serif" }}>
++        <div className="max-w-full overflow-hidden rounded-2xl" style={panelBg}>
++          <div className="max-w-full overflow-x-auto [scrollbar-gutter:stable]">
++            <table className="w-full min-w-[640px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+               <thead style={{ background: '#151525' }}>
+                 <tr>
+                   <th className={thStyle}>ID</th>
+@@ -108,7 +108,7 @@
+                       </Link>
+                     </td>
+                     <td className={tdStyle}>
+-                      <span className="line-clamp-2 max-w-[280px]">{c.text}</span>
++                      <span className="line-clamp-3 max-w-[240px] break-words sm:max-w-[280px]">{c.text}</span>
+                     </td>
+                     <td className={tdStyle}>{c.likes}</td>
+                     <td className={tdStyle} style={{ color: '#ffffff66' }}>
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/admin/AdminLayout.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/admin/AdminLayout.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/admin/AdminLayout.tsx"	2026-05-18 08:36:14.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/admin/AdminLayout.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -26,7 +26,7 @@
+   }
+ 
+   return (
+-    <div className="flex min-h-screen" style={{ background: '#0f0f1a' }}>
++    <div className="flex min-h-screen min-w-0 overflow-x-hidden" style={{ background: '#0f0f1a' }}>
+       <aside
+         className="fixed top-0 left-0 bottom-0 z-40 hidden w-64 flex-col border-r lg:flex"
+         style={{ background: '#151525', borderColor: '#2a2a3d' }}
+@@ -74,8 +74,8 @@
+       </aside>
+ 
+       <main className="min-w-0 flex-1 lg:ml-64">
+-        <div className="border-b px-4 py-3 lg:hidden" style={{ background: '#151525', borderColor: '#2a2a3d' }}>
+-          <div className="flex flex-wrap items-center gap-2">
++        <div className="sticky top-0 z-30 border-b px-3 py-3 lg:hidden" style={{ background: '#151525', borderColor: '#2a2a3d' }}>
++          <div className="flex min-w-0 flex-wrap items-center gap-2">
+             {links.map((link) => (
+               <NavLink
+                 key={link.to}
+@@ -90,12 +90,12 @@
+                 {link.label}
+               </NavLink>
+             ))}
+-            <NavLink to="/" className="ml-auto text-xs text-white/50 no-underline hover:text-white/80">
++            <NavLink to="/" className="ml-auto shrink-0 text-xs text-white/50 no-underline hover:text-white/80">
+               Site
+             </NavLink>
+           </div>
+         </div>
+-        <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
++        <div className="min-w-0 px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+           <Outlet />
+         </div>
+       </main>
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/admin/AdminUsers.tsx" /mnt/data/final_cumulative/final/frontend/src/app/pages/admin/AdminUsers.tsx
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/app/pages/admin/AdminUsers.tsx"	2026-05-18 08:36:14.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/app/pages/admin/AdminUsers.tsx	2026-05-19 10:27:41.000000000 +0000
+@@ -14,7 +14,7 @@
+ };
+ 
+ const thStyle = 'text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-white/50';
+-const tdStyle = 'px-4 py-3 text-sm text-white/80';
++const tdStyle = 'px-4 py-3 text-sm text-white/80 align-top break-words';
+ const btnBase =
+   'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
+ 
+@@ -134,9 +134,9 @@
+       {loading ? (
+         <p className="text-white/50 text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>Loading...</p>
+       ) : (
+-        <div className="rounded-2xl overflow-hidden" style={panelBg}>
+-          <div className="overflow-x-auto">
+-            <table className="w-full min-w-[800px]" style={{ fontFamily: "'Inter', sans-serif" }}>
++        <div className="max-w-full overflow-hidden rounded-2xl" style={panelBg}>
++          <div className="max-w-full overflow-x-auto [scrollbar-gutter:stable]">
++            <table className="w-full min-w-[720px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+               <thead style={{ background: '#151525' }}>
+                 <tr>
+                   <th className={thStyle}>ID</th>
+diff -ruN --strip-trailing-cr "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/styles/theme.css" /mnt/data/final_cumulative/final/frontend/src/styles/theme.css
+--- "/mnt/data/final_cumulative/orig/Relic-system - Copy/frontend/src/styles/theme.css"	2026-05-18 06:53:06.000000000 +0000
++++ /mnt/data/final_cumulative/final/frontend/src/styles/theme.css	2026-05-19 17:33:43.000000000 +0000
+@@ -259,12 +259,50 @@
+ @layer base {
+   * {
+     @apply border-border outline-ring/50;
++    box-sizing: border-box;
++  }
++
++  html,
++  body,
++  #root {
++    min-width: 0;
++    width: 100%;
++    max-width: 100%;
++  }
++
++  html {
++    overflow-x: hidden;
++    -webkit-text-size-adjust: 100%;
++    text-size-adjust: 100%;
++  }
++
++  #root {
++    overflow-x: clip;
+   }
+ 
+   body {
+     @apply bg-background text-foreground;
+     scroll-behavior: smooth;
+     overflow-x: hidden;
++    overscroll-behavior-x: none;
++    text-rendering: optimizeLegibility;
++  }
++
++  img,
++  video,
++  canvas {
++    max-width: 100%;
++  }
++
++  p,
++  dd,
++  li,
++  blockquote,
++  input,
++  textarea,
++  select,
++  button {
++    overflow-wrap: anywhere;
+   }
+ 
+   /* Hide scrollbar for horizontal scroll */
+@@ -328,3 +366,269 @@
+     line-height: 1.5;
+   }
+ }
++
++
++@media (max-width: 480px) {
++  :root {
++    --font-size: 15px;
++  }
++}
++
++@media (max-width: 360px) {
++  :root {
++    --font-size: 14px;
++  }
++}
++
++/* Targeted landing-page responsive fixes: keep desktop/tablet unchanged. */
++.landing-featured-section,
++.landing-storytelling-section,
++.landing-footer-section {
++  max-width: 100%;
++  overflow-x: clip;
++  overflow-y: visible;
++}
++
++.landing-featured-shell,
++.landing-featured-grid,
++.landing-storytelling-features,
++.landing-storytelling-feature-card,
++.landing-storytelling-feature-media,
++.landing-storytelling-feature-copy {
++  min-width: 0;
++  max-width: 100%;
++}
++
++/* Hide carousel/scroll controls only inside the Featured Collections scope. */
++.landing-featured-section [data-slot="carousel-previous"],
++.landing-featured-section [data-slot="carousel-next"],
++.landing-featured-section [data-carousel-control],
++.landing-featured-section .carousel-button,
++.landing-featured-section .slick-arrow,
++.landing-featured-section .featured-scroll-button {
++  display: none !important;
++}
++
++.landing-featured-section .scrollbar-hide,
++.landing-featured-section [data-featured-card-row] {
++  -ms-overflow-style: none;
++  scrollbar-width: none;
++}
++
++.landing-featured-section .scrollbar-hide::-webkit-scrollbar,
++.landing-featured-section [data-featured-card-row]::-webkit-scrollbar {
++  display: none;
++}
++
++@media (max-width: 767px) {
++  .landing-storytelling-section {
++    overflow: clip;
++    isolation: isolate;
++    contain: paint;
++  }
++
++  .landing-storytelling-feature-card {
++    display: flex !important;
++    flex-direction: column;
++    overflow: hidden;
++  }
++
++  .landing-storytelling-feature-media,
++  .landing-storytelling-feature-copy {
++    width: 100%;
++    max-width: 100%;
++  }
++
++  .landing-storytelling-feature-card--normal .landing-storytelling-feature-media {
++    order: 1;
++  }
++
++  .landing-storytelling-feature-card--normal .landing-storytelling-feature-copy {
++    order: 2;
++  }
++
++  .landing-storytelling-feature-card--reverse .landing-storytelling-feature-copy {
++    order: 1;
++  }
++
++  .landing-storytelling-feature-card--reverse .landing-storytelling-feature-media {
++    order: 2;
++  }
++
++  .landing-storytelling-feature-glow {
++    right: 0;
++    bottom: -1.5rem;
++    width: min(9rem, 42vw);
++    height: min(9rem, 42vw);
++    transform: translateX(22%);
++    pointer-events: none;
++  }
++
++  .landing-featured-section {
++    overflow-x: clip;
++    overflow-y: visible;
++  }
++
++  .landing-featured-shell {
++    max-width: 100%;
++    overflow-x: auto;
++    overflow-y: hidden;
++    overscroll-behavior-x: contain;
++    scroll-padding-inline: 1rem;
++    -webkit-overflow-scrolling: touch;
++    -ms-overflow-style: none;
++    scrollbar-width: none;
++  }
++
++  .landing-featured-shell::-webkit-scrollbar {
++    display: none;
++  }
++
++  .landing-featured-grid {
++    display: flex !important;
++    width: max-content;
++    max-width: none;
++    min-width: 100%;
++    grid-template-columns: none !important;
++    flex-wrap: nowrap;
++    justify-content: flex-start;
++    align-items: stretch;
++    gap: 1rem;
++    overflow: visible;
++    scroll-snap-type: x mandatory;
++  }
++
++  .landing-featured-grid > [data-featured-card] {
++    flex: 0 0 min(82vw, 20rem);
++    width: min(82vw, 20rem);
++    scroll-snap-align: center;
++  }
++
++  .landing-featured-grid > [data-featured-card]:first-child {
++    scroll-snap-align: start;
++  }
++}
++
++
++/* Prevent the hero/statistics area from becoming a second vertical scroll container.
++   Do not use overflow-x: hidden on these wrappers: per CSS overflow rules it can
++   compute overflow-y to auto and create the extra inner scrollbar seen at zoom. */
++.app-shell-scroll-root,
++.home-landing-page,
++.landing-hero-section,
++.landing-statistics-section,
++.landing-footer-section {
++  overflow-x: clip;
++  overflow-y: visible;
++  scrollbar-width: none;
++}
++
++.app-shell-scroll-root::-webkit-scrollbar,
++.home-landing-page::-webkit-scrollbar,
++.landing-hero-section::-webkit-scrollbar,
++.landing-statistics-section::-webkit-scrollbar,
++.landing-footer-section::-webkit-scrollbar {
++  width: 0;
++  height: 0;
++  display: none;
++}
++
++/* The stat glow is decorative and should never expand the scrollable area. */
++.landing-statistics-section {
++  isolation: isolate;
++}
++
++.landing-statistics-section > .absolute {
++  pointer-events: none;
++}
++
++/* Landing-page scrollbar cleanup: keep only the browser/page scrollbar visible.
++   Nested landing sections may still scroll where required, but their own scrollbar UI is hidden. */
++.app-shell-scroll-root,
++.home-landing-page,
++.landing-hero-section,
++.landing-statistics-section,
++.landing-footer-section {
++  width: 100%;
++  max-width: 100%;
++  min-width: 0;
++  overflow-x: clip;
++  overflow-y: visible;
++  overscroll-behavior-x: none;
++}
++
++.home-landing-page :where(section, div) {
++  min-width: 0;
++}
++
++.home-landing-page :where(
++  .landing-featured-section,
++  .landing-featured-shell,
++  .landing-featured-grid,
++  .landing-storytelling-section,
++  .landing-storytelling-features,
++  .landing-storytelling-feature-card
++) {
++  max-width: 100%;
++  -ms-overflow-style: none;
++  scrollbar-width: none;
++}
++
++.home-landing-page :where(
++  .landing-featured-section,
++  .landing-featured-shell,
++  .landing-featured-grid,
++  .landing-storytelling-section,
++  .landing-storytelling-features,
++  .landing-storytelling-feature-card
++)::-webkit-scrollbar {
++  width: 0 !important;
++  height: 0 !important;
++  display: none !important;
++}
++
++.home-landing-page .landing-featured-section,
++.home-landing-page .landing-storytelling-section,
++.home-landing-page .landing-hero-section,
++.home-landing-page .landing-statistics-section,
++.home-landing-page .landing-footer-section {
++  overflow-x: clip;
++  overflow-y: visible;
++}
++
++.home-landing-page .landing-featured-shell {
++  overflow-x: auto;
++  overflow-y: hidden !important;
++  -webkit-overflow-scrolling: touch;
++  overscroll-behavior-x: contain;
++  overscroll-behavior-y: none;
++  scrollbar-gutter: auto;
++  touch-action: pan-x pan-y;
++}
++
++.home-landing-page .landing-featured-grid {
++  overflow: visible;
++}
++
++/* Some browser extensions inject fixed helper panels into the body and can create a second in-page scrollbar.
++   Hide scrollbar chrome for non-app injected siblings without changing the actual app scroll. */
++body > :not(#root):not(script):not(style):not(link):not(meta) {
++  -ms-overflow-style: none !important;
++  scrollbar-width: none !important;
++}
++
++body > :not(#root):not(script):not(style):not(link):not(meta)::-webkit-scrollbar {
++  width: 0 !important;
++  height: 0 !important;
++  display: none !important;
++}
++
++/* Use the document viewport as the single vertical scroll owner. */
++html {
++  overflow-y: auto;
++}
++
++body,
++#root {
++  overflow-y: visible;
++}
