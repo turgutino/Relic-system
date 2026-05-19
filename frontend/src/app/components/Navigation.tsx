@@ -27,10 +27,10 @@ export function Navigation() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-      className="fixed top-0 left-0 right-0 z-[60] px-3 py-3 sm:px-4 sm:py-4 lg:px-10 lg:py-6"
+      className="fixed top-0 left-0 right-0 z-[60] px-1.5 py-1.5 sm:px-4 sm:py-4 min-[1360px]:px-10 min-[1360px]:py-6"
     >
       <div
-        className="max-w-[1800px] mx-auto flex items-start justify-between gap-2 px-3 py-3 sm:items-center sm:px-4 sm:py-3.5 lg:px-8 lg:py-4 rounded-full backdrop-blur-xl transition-colors min-w-0"
+        className="max-w-[1800px] mx-auto flex items-center justify-between gap-2 px-2.5 py-2 sm:px-4 sm:py-3.5 min-[1360px]:px-8 min-[1360px]:py-4 rounded-2xl sm:rounded-full backdrop-blur-xl transition-colors min-w-0"
         style={{
           background: 'var(--relic-nav-bg)',
           border: '1px solid var(--relic-nav-border)',
@@ -38,11 +38,11 @@ export function Navigation() {
       >
         <NavLink
           to="/"
-          className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 py-0.5 no-underline lg:flex-initial lg:max-w-none lg:py-0"
+          className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 py-0.5 no-underline min-[1360px]:flex-initial min-[1360px]:max-w-none min-[1360px]:py-0"
         >
-          <motion.div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 lg:flex-initial" whileHover={{ scale: 1.02 }}>
+          <motion.div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 min-[1360px]:flex-initial" whileHover={{ scale: 1.02 }}>
             <div
-              className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full flex items-center justify-center"
+              className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full flex items-center justify-center"
               style={{
                 background: navGrad,
               }}
@@ -55,7 +55,7 @@ export function Navigation() {
               </span>
             </div>
             <span
-              className="min-w-0 flex-1 text-[0.8125rem] leading-[1.2] tracking-wide break-words sm:text-base sm:leading-snug lg:flex-initial lg:text-lg"
+              className="min-w-0 flex-1 truncate text-[0.78rem] leading-[1.2] tracking-wide sm:text-base sm:leading-snug min-[1360px]:flex-initial min-[1360px]:text-lg"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 color: 'var(--relic-text)',
@@ -66,7 +66,7 @@ export function Navigation() {
           </motion.div>
         </NavLink>
 
-        <div className="hidden lg:flex items-center gap-5 xl:gap-8 shrink-0">
+        <div className="hidden min-[1360px]:flex items-center gap-5 min-[1360px]:gap-8 shrink-0">
           <NavLink to="/catalog" className={({ isActive }) => (isActive ? linkActive : linkInactive)}>
             {t('nav.catalog')}
           </NavLink>
@@ -81,7 +81,7 @@ export function Navigation() {
           </a>
         </div>
 
-        <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
+        <div className="hidden min-[1360px]:flex items-center gap-2 min-[1360px]:gap-3 shrink-0">
           <ThemeToggle />
           <LanguageSwitcher />
           {isAuthenticated ? (
@@ -159,7 +159,7 @@ export function Navigation() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <NavLink
               to="/catalog"
-              className="inline-block px-4 py-2 xl:px-6 rounded-full no-underline transition-colors whitespace-nowrap"
+              className="inline-block px-4 py-2 min-[1360px]:px-6 rounded-full no-underline transition-colors whitespace-nowrap"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: '0.9rem',
@@ -173,7 +173,7 @@ export function Navigation() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <NavLink
               to="/stats"
-              className="inline-block px-4 py-2 xl:px-6 rounded-full no-underline whitespace-nowrap"
+              className="inline-block px-4 py-2 min-[1360px]:px-6 rounded-full no-underline whitespace-nowrap"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: '0.9rem',
@@ -188,7 +188,7 @@ export function Navigation() {
 
         <button
           type="button"
-          className="shrink-0 lg:hidden min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg"
+          className="shrink-0 min-[1360px]:hidden min-h-10 min-w-10 inline-flex items-center justify-center rounded-lg"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           style={{ color: 'var(--relic-accent-bright)' }}
           aria-expanded={isMenuOpen}
@@ -203,7 +203,7 @@ export function Navigation() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="lg:hidden mt-3 sm:mt-4 mx-0 sm:mx-0 p-4 sm:p-6 rounded-2xl sm:rounded-3xl backdrop-blur-xl transition-colors max-h-[min(70vh,calc(100dvh-8rem))] overflow-y-auto overscroll-contain"
+          className="min-[1360px]:hidden mt-3 sm:mt-4 mx-0 sm:mx-0 p-4 sm:p-6 rounded-2xl sm:rounded-3xl backdrop-blur-xl transition-colors max-h-[min(78vh,calc(100dvh_-_5rem))] overflow-y-auto overscroll-contain"
           style={{
             background: 'var(--relic-mobile-nav-bg)',
             border: '1px solid var(--relic-border)',

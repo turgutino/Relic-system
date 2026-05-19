@@ -26,7 +26,7 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#0f0f1a' }}>
+    <div className="flex min-h-screen min-w-0 overflow-x-hidden" style={{ background: '#0f0f1a' }}>
       <aside
         className="fixed top-0 left-0 bottom-0 z-40 hidden w-64 flex-col border-r lg:flex"
         style={{ background: '#151525', borderColor: '#2a2a3d' }}
@@ -74,8 +74,8 @@ export function AdminLayout() {
       </aside>
 
       <main className="min-w-0 flex-1 lg:ml-64">
-        <div className="border-b px-4 py-3 lg:hidden" style={{ background: '#151525', borderColor: '#2a2a3d' }}>
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="sticky top-0 z-30 border-b px-3 py-3 lg:hidden" style={{ background: '#151525', borderColor: '#2a2a3d' }}>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             {links.map((link) => (
               <NavLink
                 key={link.to}
@@ -90,12 +90,12 @@ export function AdminLayout() {
                 {link.label}
               </NavLink>
             ))}
-            <NavLink to="/" className="ml-auto text-xs text-white/50 no-underline hover:text-white/80">
+            <NavLink to="/" className="ml-auto shrink-0 text-xs text-white/50 no-underline hover:text-white/80">
               Site
             </NavLink>
           </div>
         </div>
-        <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="min-w-0 px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
           <Outlet />
         </div>
       </main>

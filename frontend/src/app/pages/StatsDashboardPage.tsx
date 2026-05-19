@@ -336,6 +336,8 @@ export function StatsDashboardPage() {
   const materialsPieChartHeight =
     layoutTier === 'narrow' ? 210 : layoutTier === 'tablet' ? 250 : 280;
 
+  const timelineMinWidth = Math.max(360, timelineChartData.length * (layoutTier === 'narrow' ? 44 : 38));
+
   return (
     <div className="pt-24 sm:pt-28 pb-16 sm:pb-24 px-3 sm:px-4 md:px-8 xl:px-10 max-w-[1400px] w-full min-w-0 mx-auto space-y-12 sm:space-y-14 bg-[var(--relic-page)] min-h-screen transition-colors">
       <header>
@@ -513,8 +515,9 @@ export function StatsDashboardPage() {
           <p className="text-[var(--relic-text-subtle)] text-sm">{t('statsDashboard.noTimelineData')}</p>
         ) : null}
         {!tlLoading && !tlError && timelineChartData.length > 0 ? (
-          <div className="h-[320px] md:h-[380px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full overflow-x-auto [scrollbar-gutter:stable]">
+            <div className="h-[320px] md:h-[380px]" style={{ minWidth: timelineMinWidth }}>
+              <ResponsiveContainer width="100%" height="100%">
               <BarChart data={timelineChartData} margin={{ top: 8, right: 12, left: 8, bottom: 52 }}>
                 <XAxis
                   dataKey="century"
@@ -560,11 +563,12 @@ export function StatsDashboardPage() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </div>
         ) : null}
       </section>
 
-      <section className="rounded-3xl p-6 md:p-8 overflow-x-auto" style={panel}>
+      <section className="rounded-2xl p-4 sm:rounded-3xl sm:p-6 md:p-8 overflow-hidden" style={panel}>
         <h2 className="mb-4 text-lg text-[var(--relic-text)]" style={{ fontFamily: "'Playfair Display', serif" }}>
           {t('statsDashboard.museumsMapTitle')}
         </h2>
@@ -590,7 +594,7 @@ export function StatsDashboardPage() {
               padding: 0,
             }}
           >
-            <MapContainer center={[30, 10]} zoom={2} style={{ height: '420px', borderRadius: '16px' }} scrollWheelZoom={false}>
+            <MapContainer center={[30, 10]} zoom={2} className="h-[340px] sm:h-[420px]" style={{ borderRadius: '16px' }} scrollWheelZoom={false}>
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

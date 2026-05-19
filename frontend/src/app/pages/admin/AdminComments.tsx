@@ -16,7 +16,7 @@ type CommentRow = {
 };
 
 const thStyle = 'text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-white/50';
-const tdStyle = 'px-4 py-3 text-sm text-white/80';
+const tdStyle = 'px-4 py-3 text-sm text-white/80 align-top break-words';
 
 const panelBg = { background: '#1a1a2e', border: '1px solid #2a2a3d' };
 
@@ -80,9 +80,9 @@ export function AdminComments() {
       {loading ? (
         <p className="text-white/50 text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>Loading...</p>
       ) : (
-        <div className="rounded-2xl overflow-hidden" style={panelBg}>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div className="max-w-full overflow-hidden rounded-2xl" style={panelBg}>
+          <div className="max-w-full overflow-x-auto [scrollbar-gutter:stable]">
+            <table className="w-full min-w-[640px]" style={{ fontFamily: "'Inter', sans-serif" }}>
               <thead style={{ background: '#151525' }}>
                 <tr>
                   <th className={thStyle}>ID</th>
@@ -108,7 +108,7 @@ export function AdminComments() {
                       </Link>
                     </td>
                     <td className={tdStyle}>
-                      <span className="line-clamp-2 max-w-[280px]">{c.text}</span>
+                      <span className="line-clamp-3 max-w-[240px] break-words sm:max-w-[280px]">{c.text}</span>
                     </td>
                     <td className={tdStyle}>{c.likes}</td>
                     <td className={tdStyle} style={{ color: '#ffffff66' }}>
