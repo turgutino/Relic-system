@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -166,17 +167,31 @@ export function Footer() {
                 <ul className="space-y-3">
                   {group.links.map((item) => (
                     <li key={item}>
-                      <motion.a
-                        href="#"
-                        whileHover={{ x: 4 }}
-                        className="inline-block transition-colors hover:!text-[var(--relic-text)] text-[var(--relic-text-muted)]"
-                        style={{
-                          fontFamily: "'Inter', sans-serif",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        {item}
-                      </motion.a>
+                      {item === t("landing.footer.linkCollections") ? (
+                        <motion.a
+                          href="/collections"
+                          whileHover={{ x: 4 }}
+                          className="inline-block transition-colors hover:!text-[var(--relic-text)] text-[var(--relic-text-muted)]"
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          {item}
+                        </motion.a>
+                      ) : (
+                        <motion.a
+                          href="#"
+                          whileHover={{ x: 4 }}
+                          className="inline-block transition-colors hover:!text-[var(--relic-text)] text-[var(--relic-text-muted)]"
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          {item}
+                        </motion.a>
+                      )}
                     </li>
                   ))}
                 </ul>

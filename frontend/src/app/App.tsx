@@ -8,6 +8,7 @@ import { ComparePage } from '@/app/pages/ComparePage';
 import { LoginPage } from '@/app/pages/LoginPage';
 import { RegisterPage } from '@/app/pages/RegisterPage';
 import { ProfilePage } from '@/app/pages/ProfilePage';
+import CollectionsPage from '@/app/pages/CollectionsPage';
 import { AdminLayout } from '@/app/pages/admin/AdminLayout';
 import { AdminDashboard } from '@/app/pages/admin/AdminDashboard';
 import { AdminUsers } from '@/app/pages/admin/AdminUsers';
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="comments" element={<AdminComments />} />
         </Route>
+
         <Route
           path="*"
           element={
