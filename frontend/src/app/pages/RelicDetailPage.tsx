@@ -320,7 +320,7 @@ export function RelicDetailPage() {
   };
 
   return (
-    <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto bg-[var(--relic-page)] min-h-screen transition-colors">
+    <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto bg-[var(--relic-page)] min-h-screen transition-colors overflow-x-hidden">
       <button
         type="button"
         onClick={() => navigate(catalogPath)}
@@ -364,7 +364,7 @@ export function RelicDetailPage() {
                   <ZoomIn size={18} strokeWidth={2} />
                 </span>
               </button>
-              <div className="min-w-0 p-6 sm:p-8 md:p-12">
+              <div className="min-w-0 p-5 sm:p-8 md:p-12">
                 <h1
                   className="mb-6"
                   style={{
@@ -397,37 +397,37 @@ export function RelicDetailPage() {
                     <MapPin size={18} className="mt-0.5 text-[var(--relic-accent-bright)] shrink-0" />
                     <div>
                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.museumDt')}</dt>
-                      <dd className="text-[var(--relic-text)]">{relic.museum || missing}</dd>
+                      <dd className="text-[var(--relic-text)] break-words">{relic.museum || missing}</dd>
                     </div>
                   </div>
                   <div className="flex gap-2 items-start">
                     <Calendar size={18} className="mt-0.5 text-[var(--relic-accent-bright)] shrink-0" />
                     <div>
                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.periodDateLabel')}</dt>
-                      <dd className="text-[var(--relic-text)]">{[relic.dynasty, relic.date].filter(Boolean).join(' · ') || missing}</dd>
+                      <dd className="text-[var(--relic-text)] break-words">{[relic.dynasty, relic.date].filter(Boolean).join(' · ') || missing}</dd>
                     </div>
                   </div>
                   <div>
                     <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.materialDt')}</dt>
-                    <dd className="text-[var(--relic-text)]">{relic.material || missing}</dd>
+                    <dd className="text-[var(--relic-text)] break-words">{relic.material || missing}</dd>
                   </div>
                   {relic.artist ? (
                     <div>
                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.artistDt')}</dt>
-                      <dd className="text-[var(--relic-text)]">{relic.artist}</dd>
+                      <dd className="text-[var(--relic-text)] break-words">{relic.artist}</dd>
                     </div>
                   ) : null}
                   {relic.classification ? (
                     <div>
                       <dt className="text-[var(--relic-text-subtle)] text-xs uppercase tracking-wide">{t('detailPage.classificationDt')}</dt>
-                      <dd className="text-[var(--relic-text)]">{relic.classification}</dd>
+                      <dd className="text-[var(--relic-text)] break-words">{relic.classification}</dd>
                     </div>
                   ) : null}
                 </dl>
                 {relic.description?.trim() && sanitizeRelicHtml(relic.description).trim() ? (
                   <SafeHtmlDescription
                     html={relic.description}
-                    className="mt-8 pt-8 border-t border-[var(--relic-border-muted)] text-[var(--relic-text-muted)] leading-relaxed [&_a]:text-[var(--relic-accent-bright)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--relic-border-accent)] [&_blockquote]:pl-3 [&_em]:italic [&_li]:ml-4 [&_li]:list-disc [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
+                    className="mt-8 pt-8 border-t border-[var(--relic-border-muted)] text-[var(--relic-text-muted)] leading-relaxed break-words [&_a]:text-[var(--relic-accent-bright)] [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-[var(--relic-border-accent)] [&_blockquote]:pl-3 [&_em]:italic [&_li]:ml-4 [&_li]:list-disc [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
                     style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.15rem' }}
                   />
                 ) : null}
@@ -436,7 +436,7 @@ export function RelicDetailPage() {
                     href={relic.object_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-8 text-[var(--relic-accent-bright)] underline text-sm"
+                    className="inline-block mt-8 text-[var(--relic-accent-bright)] underline text-sm break-words"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
                     {t('detailPage.viewSourceRecord')}
@@ -525,7 +525,7 @@ export function RelicDetailPage() {
                   type="button"
                   onClick={submitComment}
                   disabled={commentLoading || !commentText.trim()}
-                  className="shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-opacity disabled:opacity-50"
+                  className="w-full shrink-0 rounded-full px-6 py-3 text-sm font-medium transition-opacity disabled:opacity-50 sm:w-auto"
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
@@ -549,12 +549,12 @@ export function RelicDetailPage() {
                 {comments.map((c) => (
                   <li
                     key={c.id}
-                    className="rounded-2xl p-5"
+                    className="rounded-2xl p-4 sm:p-5"
                     style={panel}
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-3 mb-1.5">
+                        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 mb-1.5">
                           <span
                             className="font-semibold text-sm"
                             style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text)' }}
@@ -569,7 +569,7 @@ export function RelicDetailPage() {
                           </span>
                         </div>
                         <p
-                          className="text-sm leading-relaxed"
+                          className="text-sm leading-relaxed break-words"
                           style={{ fontFamily: "'Inter', sans-serif", color: 'var(--relic-text-muted)' }}
                         >
                           {c.text}

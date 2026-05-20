@@ -23,12 +23,12 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-      className={`grid min-w-0 lg:grid-cols-2 gap-10 lg:gap-16 items-center pb-8 lg:pb-0 ${
-        isEven ? "" : "lg:grid-flow-dense"
-      }`}
+      className={`landing-storytelling-feature-card ${
+        isEven ? "landing-storytelling-feature-card--normal" : "landing-storytelling-feature-card--reverse lg:grid-flow-dense"
+      } grid min-w-0 lg:grid-cols-2 gap-10 lg:gap-16 items-center pb-8 lg:pb-0`}
     >
       <motion.div
-        className={`relative ${isEven ? "" : "lg:col-start-2"}`}
+        className={`landing-storytelling-feature-media relative min-w-0 ${isEven ? "" : "lg:col-start-2"}`}
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.4 }}
       >
@@ -67,7 +67,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
         </div>
 
         <motion.div
-          className="absolute -bottom-6 -right-6 w-48 h-48 rounded-full opacity-20 blur-3xl"
+          className="landing-storytelling-feature-glow absolute -bottom-6 -right-6 w-48 h-48 rounded-full opacity-20 blur-3xl"
           style={{
             background: "radial-gradient(circle, var(--relic-accent-bright) 0%, transparent 70%)",
           }}
@@ -79,7 +79,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
         />
       </motion.div>
 
-      <div className={isEven ? "" : "lg:col-start-1 lg:row-start-1"}>
+      <div className={`landing-storytelling-feature-copy min-w-0 ${isEven ? "" : "lg:col-start-1 lg:row-start-1"}`}>
         <motion.div
           initial={{ opacity: 0, x: isEven ? -40 : 40 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -111,7 +111,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
             className="mb-6"
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(1.75rem, 3vw, 3rem)",
+              fontSize: "clamp(1.45rem, 6vw, 3rem)",
               fontWeight: 700,
               color: "var(--relic-text)",
               lineHeight: 1.2,
@@ -125,7 +125,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
             className="mb-8"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "1.25rem",
+              fontSize: "clamp(1rem, 4vw, 1.25rem)",
               color: "var(--relic-text-muted)",
               lineHeight: 1.8,
             }}
@@ -136,7 +136,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
           <motion.button
             type="button"
             whileHover={{ x: 5 }}
-            className="group flex items-center gap-3 px-8 py-4 rounded-full transition-all"
+            className="group flex w-full justify-center sm:w-auto sm:justify-start items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full transition-all"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "0.95rem",
@@ -197,7 +197,7 @@ export function StorytellingSection() {
   );
 
   return (
-    <section id="about" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-clip bg-[var(--relic-page)] transition-colors">
+    <section id="about" className="landing-storytelling-section py-14 sm:py-20 lg:py-28 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-clip bg-[var(--relic-page)] transition-colors">
       <div
         className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full opacity-5 blur-3xl"
         style={{
@@ -223,7 +223,7 @@ export function StorytellingSection() {
             className="mb-6"
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(2rem, 5vw, 4rem)",
+              fontSize: "clamp(1.75rem, 7vw, 4rem)",
               fontWeight: 700,
               color: "var(--relic-text)",
               letterSpacing: "-0.02em",
@@ -235,7 +235,7 @@ export function StorytellingSection() {
             className="max-w-3xl mx-auto"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "1.25rem",
+              fontSize: "clamp(1rem, 4vw, 1.25rem)",
               color: "var(--relic-text-muted)",
               lineHeight: 1.8,
             }}
@@ -244,7 +244,7 @@ export function StorytellingSection() {
           </p>
         </motion.div>
 
-        <div className="space-y-20 sm:space-y-28 lg:space-y-32">
+        <div className="landing-storytelling-features space-y-20 sm:space-y-28 lg:space-y-32">
           {features.map((feature, index) => (
             <FeatureCard key={`${feature.title}-${index}`} feature={feature} index={index} />
           ))}

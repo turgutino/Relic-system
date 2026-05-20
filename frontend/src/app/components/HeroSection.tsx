@@ -14,7 +14,7 @@ export function HeroSection() {
   const titleAfter = t("landing.hero.titleAfter");
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--relic-page)] transition-colors">
+    <div className="relative min-h-[100svh] flex items-center justify-center overflow-x-hidden overflow-y-visible bg-[var(--relic-page)] transition-colors py-24 sm:py-28 lg:py-32">
       <div className="absolute inset-0">
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1722785111601-7042acb5d703?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmNpZW50JTIwYXJ0aWZhY3RzJTIwbXVzZXVtJTIwZXhoaWJpdGlvbiUyMGx1eHVyeXxlbnwxfHx8fDE3Nzg1NjM5NjB8MA&ixlib=rb-4.1.0&q=80&w=1920"
@@ -57,7 +57,7 @@ export function HeroSection() {
       ))}
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12 text-center w-full min-w-0">
-        <div className="flex justify-center gap-3 lg:hidden pt-24 sm:pt-28 pb-6">
+        <div className="flex justify-center gap-3 min-[1360px]:hidden pb-4">
           <ThemeToggle />
           <LanguageSwitcher />
         </div>
@@ -69,7 +69,7 @@ export function HeroSection() {
           className="mb-6"
         >
           <div
-            className="inline-flex items-center gap-2 px-6 py-2 rounded-full mb-8 transition-colors"
+            className="inline-flex max-w-full items-center gap-2 px-4 py-2 sm:px-6 rounded-full mb-6 sm:mb-8 transition-colors"
             style={{
               background: "var(--relic-accent-muted-bg)",
               border: "1px solid var(--relic-border-accent)",
@@ -99,7 +99,7 @@ export function HeroSection() {
           className="mb-8"
           style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: "clamp(2.5rem, 8vw, 7rem)",
+            fontSize: "clamp(2rem, 9vw, 6.25rem)",
             fontWeight: 700,
             lineHeight: 1.1,
             color: "var(--relic-text)",
@@ -133,8 +133,8 @@ export function HeroSection() {
           className="max-w-3xl mx-auto mb-12"
           style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: "clamp(1.1rem, 2vw, 1.5rem)",
-            lineHeight: 1.8,
+            fontSize: "clamp(1rem, 4vw, 1.4rem)",
+            lineHeight: 1.65,
             color: "var(--relic-text-muted)",
             letterSpacing: "0.01em",
           }}
@@ -152,7 +152,7 @@ export function HeroSection() {
             <motion.span
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="group w-full sm:w-auto justify-center px-8 py-4 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all no-underline cursor-pointer max-w-full"
+              className="group w-full sm:w-auto justify-center px-5 py-3.5 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all no-underline cursor-pointer max-w-full"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "1rem",
@@ -174,7 +174,7 @@ export function HeroSection() {
             type="button"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="group w-full sm:w-auto justify-center px-8 py-4 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all max-w-full"
+            className="group w-full sm:w-auto justify-center px-5 py-3.5 sm:px-10 sm:py-5 rounded-full flex items-center gap-3 transition-all max-w-full"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "1rem",

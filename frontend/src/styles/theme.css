@@ -259,12 +259,50 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  #root {
+    overflow-x: clip;
   }
 
   body {
     @apply bg-background text-foreground;
     scroll-behavior: smooth;
     overflow-x: hidden;
+    overscroll-behavior-x: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  img,
+  video,
+  canvas {
+    max-width: 100%;
+  }
+
+  p,
+  dd,
+  li,
+  blockquote,
+  input,
+  textarea,
+  select,
+  button {
+    overflow-wrap: anywhere;
   }
 
   /* Hide scrollbar for horizontal scroll */
@@ -327,4 +365,109 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+
+@media (max-width: 480px) {
+  :root {
+    --font-size: 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --font-size: 14px;
+  }
+}
+
+/* Targeted landing-page responsive fixes: keep desktop/tablet unchanged. */
+.landing-featured-section,
+.landing-storytelling-section {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.landing-featured-shell,
+.landing-featured-grid,
+.landing-storytelling-features,
+.landing-storytelling-feature-card,
+.landing-storytelling-feature-media,
+.landing-storytelling-feature-copy {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Hide carousel/scroll controls only inside the Featured Collections scope. */
+.landing-featured-section [data-slot="carousel-previous"],
+.landing-featured-section [data-slot="carousel-next"],
+.landing-featured-section [data-carousel-control],
+.landing-featured-section .carousel-button,
+.landing-featured-section .slick-arrow,
+.landing-featured-section .featured-scroll-button {
+  display: none !important;
+}
+
+.landing-featured-section .scrollbar-hide,
+.landing-featured-section [data-featured-card-row] {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.landing-featured-section .scrollbar-hide::-webkit-scrollbar,
+.landing-featured-section [data-featured-card-row]::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .landing-storytelling-section {
+    overflow: hidden;
+    isolation: isolate;
+    contain: paint;
+  }
+
+  .landing-storytelling-feature-card {
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .landing-storytelling-feature-media,
+  .landing-storytelling-feature-copy {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .landing-storytelling-feature-card--normal .landing-storytelling-feature-media {
+    order: 1;
+  }
+
+  .landing-storytelling-feature-card--normal .landing-storytelling-feature-copy {
+    order: 2;
+  }
+
+  .landing-storytelling-feature-card--reverse .landing-storytelling-feature-copy {
+    order: 1;
+  }
+
+  .landing-storytelling-feature-card--reverse .landing-storytelling-feature-media {
+    order: 2;
+  }
+
+  .landing-storytelling-feature-glow {
+    right: 0;
+    bottom: -1.5rem;
+    width: min(9rem, 42vw);
+    height: min(9rem, 42vw);
+    transform: translateX(22%);
+    pointer-events: none;
+  }
+
+  .landing-featured-section {
+    overflow: hidden;
+  }
+
+  .landing-featured-shell {
+    overflow-x: hidden;
+  }
+
 }

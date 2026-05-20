@@ -29,7 +29,7 @@ const panelStyle = {
 } as const;
 
 const selectStyle =
-  'w-full rounded-xl px-3 py-2.5 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] focus:outline-none focus:ring-1 focus:ring-[var(--relic-accent-bright)]';
+  'w-full min-w-0 max-w-full rounded-xl px-3 py-2.5 text-sm bg-[var(--relic-input-bg)] border border-[var(--relic-border)] text-[var(--relic-text)] focus:outline-none focus:ring-1 focus:ring-[var(--relic-accent-bright)]';
 
 export function CatalogPage() {
   const { t, i18n } = useTranslation();
@@ -444,10 +444,10 @@ export function CatalogPage() {
         >
           {/* Header bar */}
           <div
-            className="flex items-center justify-between px-6 py-4 border-b"
+            className="flex flex-col items-start justify-between gap-3 px-4 py-4 border-b sm:flex-row sm:items-center sm:px-6"
             style={{ borderColor: 'var(--relic-border)' }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <span style={{ fontSize: '1.1rem' }}>✦</span>
               <span
                 style={{
@@ -470,14 +470,14 @@ export function CatalogPage() {
           </div>
 
           {/* Input area */}
-          <div className="px-6 py-5">
+          <div className="px-4 py-5 sm:px-6">
             <p
               className="mb-4 text-sm text-[var(--relic-text-muted)]"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Describe what you're looking for in plain English. AI will extract filters and search the collection.
             </p>
-            <div className="flex gap-3 flex-wrap sm:flex-nowrap">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 ref={nlInputRef}
                 type="text"
@@ -485,7 +485,7 @@ export function CatalogPage() {
                 onChange={(e) => setNlQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleNlSearch(); }}
                 placeholder='e.g. "Tang dynasty bronze vessels" or "jade artifacts from London museums"'
-                className={`flex-1 min-w-0 rounded-xl px-4 py-3 text-sm ${selectStyle}`}
+                className={`min-w-0 flex-1 rounded-xl px-4 py-3 text-sm ${selectStyle}`}
                 style={{ fontFamily: "'Inter', sans-serif" }}
                 autoFocus
               />
@@ -493,7 +493,7 @@ export function CatalogPage() {
                 type="button"
                 onClick={handleNlSearch}
                 disabled={nlLoading || !nlQuery.trim()}
-                className="shrink-0 rounded-xl px-6 py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                className="w-full shrink-0 rounded-xl px-6 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 transition-opacity sm:w-auto"
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
@@ -650,9 +650,9 @@ export function CatalogPage() {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-3 mb-8 items-stretch sm:items-center min-w-0">
+      <div className="flex min-w-0 flex-col gap-3 mb-8 sm:flex-row sm:flex-wrap sm:items-center">
         <form
-          className="flex w-full flex-wrap gap-2 min-w-0 sm:flex-1 sm:min-w-[200px]"
+          className="flex w-full min-w-0 flex-col gap-2 min-[420px]:flex-row sm:flex-1 sm:min-w-[240px]"
           role="search"
           onSubmit={(e) => {
             e.preventDefault();
@@ -664,11 +664,11 @@ export function CatalogPage() {
             placeholder={t('catalogPage.searchPlaceholder')}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className={`min-w-0 flex-1 basis-[min(100%,12rem)] rounded-full px-4 py-2.5 text-sm sm:px-5 ${selectStyle}`}
+            className={`min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm sm:px-5 ${selectStyle}`}
           />
           <button
             type="submit"
-            className="rounded-full px-6 py-2.5 text-sm font-medium"
+            className="w-full rounded-full px-6 py-2.5 text-sm font-medium min-[420px]:w-auto"
             style={{
               fontFamily: "'Inter', sans-serif",
               background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)',
@@ -679,7 +679,7 @@ export function CatalogPage() {
           </button>
         </form>
 
-        <div className="flex w-full flex-wrap gap-2 items-center sm:w-auto sm:min-w-0">
+        <div className="flex w-full min-w-0 flex-wrap gap-2 items-center sm:w-auto sm:min-w-0">
           <button
             type="button"
             onClick={() =>
@@ -704,7 +704,7 @@ export function CatalogPage() {
           </button>
 
           <label
-            className="flex items-center gap-2 text-xs text-[var(--relic-text-muted)]"
+            className="flex w-full min-w-[10rem] flex-col gap-1 text-xs text-[var(--relic-text-muted)] min-[480px]:w-auto min-[480px]:flex-row min-[480px]:items-center min-[480px]:gap-2"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {t('catalogPage.sortShort')}
@@ -716,7 +716,7 @@ export function CatalogPage() {
                   n.set('page', '1');
                 });
               }}
-              className={`rounded-xl px-2 py-2 ${selectStyle}`}
+              className={`rounded-xl px-2 py-2 min-[480px]:w-auto ${selectStyle}`}
             >
               <option value="name">{t('home.sortFieldName')}</option>
               <option value="dynasty">{t('home.sortFieldDynasty')}</option>
@@ -740,7 +740,7 @@ export function CatalogPage() {
           <button
             type="button"
             onClick={() => runCatalogExport('csv', 'relics_export.csv')}
-            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)]"
+            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)] whitespace-nowrap"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {t('export.button')}
@@ -748,7 +748,7 @@ export function CatalogPage() {
           <button
             type="button"
             onClick={() => runCatalogExport('xlsx', 'relics_export.xlsx')}
-            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)]"
+            className="rounded-full px-4 py-2 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)] whitespace-nowrap"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {t('export.buttonExcel')}
@@ -756,7 +756,7 @@ export function CatalogPage() {
           <button
             type="button"
             onClick={() => { setNlOpen(o => !o); setNlResults(null); setNlError(null); setNlQuery(''); }}
-            className="rounded-full px-4 py-2 text-xs font-medium border transition-all"
+            className="rounded-full px-4 py-2 text-xs font-medium border transition-all whitespace-nowrap"
             style={{
               fontFamily: "'Inter', sans-serif",
               background: nlOpen ? 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-accent-deep) 100%)' : 'transparent',
@@ -846,7 +846,7 @@ export function CatalogPage() {
       ) : null}
 
       {(hasFacetFilters || searchActive || hasAdvancedFilters) && (
-        <div className="flex flex-wrap gap-2 items-center mb-8 p-4 rounded-2xl text-sm" style={panelStyle}>
+        <div className="flex min-w-0 flex-wrap gap-2 items-center mb-8 p-4 rounded-2xl text-sm" style={panelStyle}>
           <span className="text-[var(--relic-text-muted)] mr-2" style={{ fontFamily: "'Inter', sans-serif" }}>
             {t('home.applied')}
           </span>
@@ -973,7 +973,7 @@ export function CatalogPage() {
           <button
             type="button"
             onClick={clearSearchAndFilters}
-            className="ml-auto rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)]"
+            className="w-full rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-accent)] text-[var(--relic-text)] sm:ml-auto sm:w-auto"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {t('home.clearAll')}
@@ -982,7 +982,7 @@ export function CatalogPage() {
             <button
               type="button"
               onClick={clearFacetFilters}
-              className="rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-muted)] text-[var(--relic-text-muted)]"
+              className="w-full rounded-full px-4 py-1.5 text-xs border border-[var(--relic-border-muted)] text-[var(--relic-text-muted)] sm:w-auto"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               {t('home.clearFacetsOnly')}
@@ -1095,7 +1095,7 @@ export function CatalogPage() {
           ) : null}
 
           {!loading && !error && !viewIsList ? (
-            <ul className="grid min-w-0 gap-6 sm:gap-8 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid min-w-0 gap-5 sm:gap-6 md:gap-8 sm:grid-cols-2 xl:grid-cols-3">
               {relics.map((relic) => {
                 const sel = isSelected(relic.id);
                 const addBlocked = !sel && compareSelected.length >= 3;
@@ -1138,7 +1138,7 @@ export function CatalogPage() {
                         onClick={() => openRelic(relic.id)}
                         className="w-full cursor-pointer text-left"
                       >
-                        <div className="relative h-52 overflow-hidden">
+                        <div className="relative h-44 overflow-hidden sm:h-52">
                           <ImageWithFallback
                             src={relic.image_url}
                             alt={relic.name}
@@ -1180,7 +1180,7 @@ export function CatalogPage() {
                 return (
                   <li key={relic.id} className="min-w-0">
                     <div
-                      className="flex gap-3 rounded-2xl p-2 transition-colors hover:bg-[var(--relic-interactive-hover)]"
+                      className="flex min-w-0 flex-col gap-3 rounded-2xl p-2 transition-colors hover:bg-[var(--relic-interactive-hover)] min-[460px]:flex-row"
                       style={{
                         background: 'var(--relic-panel-bg-soft)',
                         border: '1px solid var(--relic-card-grid-border)',
@@ -1211,9 +1211,9 @@ export function CatalogPage() {
                       <button
                         type="button"
                         onClick={() => openRelic(relic.id)}
-                        className="flex min-w-0 flex-1 cursor-pointer gap-4 rounded-xl p-2 text-left"
+                        className="flex min-w-0 flex-1 cursor-pointer flex-col gap-3 rounded-xl p-2 text-left min-[460px]:flex-row min-[460px]:gap-4"
                       >
-                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+                        <div className="h-36 w-full shrink-0 overflow-hidden rounded-xl min-[460px]:h-20 min-[460px]:w-20">
                           <ImageWithFallback src={relic.image_url} alt="" className="h-full w-full object-cover" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -1223,7 +1223,7 @@ export function CatalogPage() {
                           <div className="truncate text-sm text-[var(--relic-text-muted)]" style={{ fontFamily: "'Inter', sans-serif" }}>
                             {relic.dynasty} · {relic.museum}
                           </div>
-                          <div className="text-xs text-[var(--relic-text-subtle)]" style={{ fontFamily: "'Inter', sans-serif" }}>
+                          <div className="text-xs text-[var(--relic-text-subtle)] break-words" style={{ fontFamily: "'Inter', sans-serif" }}>
                             {relic.material}
                           </div>
                         </div>

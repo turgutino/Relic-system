@@ -111,7 +111,7 @@ export function ComparePage() {
   return (
     <div className="min-h-screen bg-[var(--relic-page)] pt-24 sm:pt-28 pb-14 sm:pb-16 text-[var(--relic-text)] transition-colors">
       <div className="mx-auto max-w-[1400px] w-full min-w-0 px-3 sm:px-4 md:px-8">
-        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <header className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:flex-wrap">
           <div>
             <h1 className="mb-2 text-2xl md:text-3xl" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t('compare.pageTitle')}
@@ -120,12 +120,12 @@ export function ComparePage() {
               {t('compare.pageSubtitle')}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-col gap-2 min-[420px]:flex-row sm:w-auto sm:flex-wrap sm:items-center">
             {selected.length < 3 ? (
               <button
                 type="button"
                 onClick={() => navigate('/catalog')}
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--relic-border-accent)] bg-[var(--relic-accent-muted-bg)] px-4 py-2 text-sm text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)]"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--relic-border-accent)] bg-[var(--relic-accent-muted-bg)] px-4 py-2 text-sm text-[var(--relic-text)] hover:border-[var(--relic-accent-bright)] min-[420px]:w-auto"
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 <Plus size={18} />
@@ -135,7 +135,7 @@ export function ComparePage() {
             <button
               type="button"
               onClick={close}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--relic-border-muted)] px-4 py-2 text-sm text-[var(--relic-text)] hover:bg-[var(--relic-interactive-hover)]"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--relic-border-muted)] px-4 py-2 text-sm text-[var(--relic-text)] hover:bg-[var(--relic-interactive-hover)] min-[420px]:w-auto"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               <X size={18} />
@@ -149,13 +149,13 @@ export function ComparePage() {
             {t('compare.loading')}
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-3xl" style={panel}>
-            <table className="w-full min-w-[720px] border-collapse text-left">
+          <div className="max-w-full overflow-x-auto rounded-3xl [scrollbar-gutter:stable]" style={panel}>
+            <table className="w-full min-w-[640px] border-collapse text-left sm:min-w-[720px]">
               <thead>
                 <tr className="border-b border-[var(--relic-border)]">
                   <th
                     scope="col"
-                    className="sticky left-0 z-[1] w-36 min-w-[120px] bg-[var(--relic-panel-solid)] px-3 py-4 align-bottom text-xs font-medium uppercase tracking-wide text-[var(--relic-text-subtle)] md:w-44"
+                    className="sticky left-0 z-[1] w-28 min-w-[104px] bg-[var(--relic-panel-solid)] px-2 py-4 align-bottom text-xs font-medium uppercase tracking-wide text-[var(--relic-text-subtle)] sm:w-36 sm:min-w-[120px] sm:px-3 md:w-44"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   />
                   {selected.map((stub, i) => {
@@ -205,7 +205,7 @@ export function ComparePage() {
                     <tr key={def.key} className={`border-b border-[var(--relic-border-muted)] ${rowBg}`}>
                       <th
                         scope="row"
-                        className={`sticky left-0 z-[1] whitespace-nowrap px-3 py-3 text-xs font-medium uppercase tracking-wide ${highlight ? 'text-[var(--relic-accent-deep)] dark:text-[var(--relic-accent-bright)]' : 'text-[var(--relic-text-subtle)]'} bg-[var(--relic-panel-solid)]`}
+                        className={`sticky left-0 z-[1] whitespace-normal px-2 py-3 text-xs font-medium uppercase tracking-wide sm:whitespace-nowrap sm:px-3 ${highlight ? 'text-[var(--relic-accent-deep)] dark:text-[var(--relic-accent-bright)]' : 'text-[var(--relic-text-subtle)]'} bg-[var(--relic-panel-solid)]`}
                         style={{ fontFamily: "'Inter', sans-serif" }}
                       >
                         {def.label}
@@ -213,7 +213,7 @@ export function ComparePage() {
                       {cells.map((raw, ci) => (
                         <td
                           key={`${def.key}-${selected[ci]?.id ?? ci}`}
-                          className={`max-w-[280px] px-3 py-3 align-top text-sm ${cellText} ${def.key === 'description' ? 'break-words' : ''}`}
+                          className={`max-w-[240px] px-2 py-3 align-top text-sm sm:max-w-[280px] sm:px-3 ${cellText} ${def.key === 'description' ? 'break-words' : 'break-words'}`}
                           style={
                             def.key === 'description'
                               ? undefined

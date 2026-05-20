@@ -14,7 +14,7 @@ export function CompareStickyBar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[60] border-t border-[var(--relic-border)] bg-[color-mix(in_srgb,var(--relic-panel-solid)_94%,transparent)] px-4 py-3 shadow-[0_-8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md transition-colors dark:shadow-[0_-8px_32px_rgba(0,0,0,0.45)]"
+      className="fixed bottom-0 left-0 right-0 z-[60] border-t border-[var(--relic-border)] bg-[color-mix(in_srgb,var(--relic-panel-solid)_94%,transparent)] px-3 py-3 shadow-[0_-8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md transition-colors dark:shadow-[0_-8px_32px_rgba(0,0,0,0.45)] sm:px-4"
       style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
     >
       <div className="mx-auto flex max-w-[1600px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
@@ -46,11 +46,11 @@ export function CompareStickyBar() {
             ))}
           </div>
         </div>
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <div className="grid w-full shrink-0 grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
           <button
             type="button"
             onClick={clear}
-            className="rounded-full px-4 py-2 text-xs text-[var(--relic-text-muted)] underline-offset-2 hover:underline"
+            className="min-w-0 rounded-full px-3 py-2 text-xs text-[var(--relic-text-muted)] underline-offset-2 hover:underline sm:px-4"
             style={{ fontFamily: "'Inter', sans-serif" }}
           >
             {t('compare.clearAll')}
@@ -59,7 +59,7 @@ export function CompareStickyBar() {
             type="button"
             disabled={!canCompare}
             onClick={() => navigate('/compare')}
-            className="rounded-full px-6 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45"
+            className="min-w-0 rounded-full px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45 sm:px-6"
             style={{
               fontFamily: "'Inter', sans-serif",
               background: canCompare

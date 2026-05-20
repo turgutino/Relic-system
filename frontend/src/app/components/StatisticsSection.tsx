@@ -48,7 +48,7 @@ function AnimatedStat({ end, suffix, label, delay }: StatProps) {
         className="mb-4"
         style={{
           fontFamily: "'Playfair Display', serif",
-          fontSize: 'clamp(3rem, 6vw, 5rem)',
+          fontSize: 'clamp(2.2rem, 11vw, 4.75rem)',
           fontWeight: 700,
           background: 'linear-gradient(135deg, var(--relic-accent-bright) 0%, var(--relic-gold-mid) 100%)',
           WebkitBackgroundClip: 'text',
@@ -63,7 +63,7 @@ function AnimatedStat({ end, suffix, label, delay }: StatProps) {
       <div
         style={{
           fontFamily: "'Inter', sans-serif",
-          fontSize: '1rem',
+          fontSize: 'clamp(0.72rem, 2.6vw, 1rem)',
           color: 'var(--relic-text-muted)',
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
@@ -124,7 +124,7 @@ export function StatisticsSection() {
       ];
 
   return (
-    <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-hidden bg-[var(--relic-page)] transition-colors">
+    <section className="py-14 sm:py-20 lg:py-28 px-4 sm:px-6 md:px-10 lg:px-12 relative overflow-x-hidden bg-[var(--relic-page)] transition-colors">
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10 blur-3xl"
         style={{
@@ -138,13 +138,13 @@ export function StatisticsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
         >
           <h2
             className="mb-6"
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: 'clamp(2rem, 5vw, 4rem)',
+              fontSize: 'clamp(1.75rem, 7vw, 4rem)',
               fontWeight: 700,
               color: 'var(--relic-text)',
               letterSpacing: '-0.02em',
@@ -156,7 +156,7 @@ export function StatisticsSection() {
             className="max-w-2xl mx-auto"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1rem, 4vw, 1.25rem)',
               color: 'var(--relic-text-muted)',
               lineHeight: 1.8,
             }}
@@ -170,7 +170,7 @@ export function StatisticsSection() {
             {t('landing.statistics.loading')}
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-6 sm:gap-10 lg:grid-cols-4 lg:gap-8">
+          <div className="grid grid-cols-1 gap-8 min-[420px]:grid-cols-2 sm:gap-10 lg:grid-cols-4 lg:gap-8">
             {rows.map((stat) => (
               <AnimatedStat key={`${stat.label}-${stat.end}`} {...stat} />
             ))}

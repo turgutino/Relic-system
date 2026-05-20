@@ -164,7 +164,7 @@ export function ProfilePage() {
       className="min-h-screen pt-24 sm:pt-28 pb-20 sm:pb-24 px-3 sm:px-4 md:px-10 max-w-[1100px] w-full min-w-0 mx-auto"
       style={{ background: 'var(--relic-page)' }}
     >
-      <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 mb-10" style={panelStyle}>
+      <div className="rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 mb-10" style={panelStyle}>
         <h1
           className="text-2xl sm:text-3xl lg:text-4xl mb-2"
           style={{ fontFamily: "'Playfair Display', serif", color: 'var(--relic-text)' }}
@@ -178,7 +178,7 @@ export function ProfilePage() {
           Signed in as <strong>{user?.username}</strong>
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="grid grid-cols-1 gap-2 mb-8 min-[420px]:flex min-[420px]:flex-wrap">
           {(['favorites', 'history', 'settings'] as Tab[]).map((t) => (
             <button
               key={t}
@@ -316,7 +316,7 @@ export function ProfilePage() {
           </section>
         ) : (
           <section>
-            <div className="max-w-md">
+            <div className="max-w-md min-w-0">
               <div className="mb-6">
                 <label
                   className="block mb-1.5 text-sm font-medium"
