@@ -20,7 +20,7 @@ function RelicCard({
     <Link
       data-featured-card
       to={`/relics/${encodeURIComponent(relic.id)}`}
-      className="block min-w-0 w-full rounded-[1.35rem] sm:rounded-3xl outline-none ring-offset-4 ring-offset-[var(--relic-page)] focus-visible:ring-2 focus-visible:ring-[var(--relic-accent-bright)]"
+      className="block min-w-0 w-[min(86vw,17.5rem)] shrink-0 snap-start rounded-[1.35rem] sm:rounded-3xl outline-none ring-offset-4 ring-offset-[var(--relic-page)] focus-visible:ring-2 focus-visible:ring-[var(--relic-accent-bright)] md:w-full md:shrink"
     >
       <motion.div
         whileHover={{ y: -8 }}
@@ -221,7 +221,7 @@ export function FeaturedRelics() {
           ) : (
             <div
               data-featured-card-row
-              className="landing-featured-grid grid min-w-0 justify-center gap-4 sm:gap-5 lg:gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,12.5rem),15.25rem))] min-[1600px]:[grid-template-columns:repeat(auto-fit,minmax(13rem,16rem))]"
+              className="landing-featured-grid flex min-w-0 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide sm:gap-5 lg:gap-6 md:grid md:justify-center md:overflow-visible md:pb-0 md:snap-none md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,12.5rem),15.25rem))] min-[1600px]:[grid-template-columns:repeat(auto-fit,minmax(13rem,16rem))]"
             >
               {relics.map((relic) => (
                 <RelicCard key={relic.id} relic={relic} defaultBadge={defaultBadge} untitled={untitled} />

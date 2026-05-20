@@ -470,9 +470,4 @@
     overflow-x: hidden;
   }
 
-  .landing-featured-grid {
-    grid-template-columns: minmax(0, min(100%, 17.5rem)) !important;
-    justify-content: center;
-    overflow-x: hidden;
-  }
 }
