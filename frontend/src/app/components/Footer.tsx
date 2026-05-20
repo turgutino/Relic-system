@@ -10,28 +10,28 @@ export function Footer() {
     {
       title: t("landing.footer.platformTitle"),
       links: [
-        t("landing.footer.linkCollections"),
-        t("landing.footer.linkResearchTools"),
-        t("landing.footer.linkArchiveAccess"),
-        t("landing.footer.linkDocumentation"),
+        { key: "linkCollections", label: t("landing.footer.linkCollections"), to: "/collections" },
+        { key: "linkResearchTools", label: t("landing.footer.linkResearchTools"), to: "/research-tools" },
+        { key: "linkArchiveAccess", label: t("landing.footer.linkArchiveAccess"), to: "/archive" },
+        { key: "linkDocumentation", label: t("landing.footer.linkDocumentation"), to: "/documentation" },
       ],
     },
     {
       title: t("landing.footer.resourcesTitle"),
       links: [
-        t("landing.footer.linkAboutUs"),
-        t("landing.footer.linkResearchPapers"),
-        t("landing.footer.linkPartnerships"),
-        t("landing.footer.linkPressKit"),
+        { key: "linkAboutUs", label: t("landing.footer.linkAboutUs"), to: "/about" },
+        { key: "linkResearchPapers", label: t("landing.footer.linkResearchPapers"), to: "/research-papers" },
+        { key: "linkPartnerships", label: t("landing.footer.linkPartnerships"), to: "/partnerships" },
+        { key: "linkPressKit", label: t("landing.footer.linkPressKit"), to: "/press-kit" },
       ],
     },
     {
       title: t("landing.footer.supportTitle"),
       links: [
-        t("landing.footer.linkHelpCenter"),
-        t("landing.footer.linkContactUs"),
-        t("landing.footer.linkPrivacy"),
-        t("landing.footer.linkTerms"),
+        { key: "linkHelpCenter", label: t("landing.footer.linkHelpCenter"), to: "/help" },
+        { key: "linkContactUs", label: t("landing.footer.linkContactUs"), to: "/contact" },
+        { key: "linkPrivacy", label: t("landing.footer.linkPrivacy"), to: "/privacy" },
+        { key: "linkTerms", label: t("landing.footer.linkTerms"), to: "/terms" },
       ],
     },
   ];
@@ -166,31 +166,33 @@ export function Footer() {
                 </h4>
                 <ul className="space-y-3">
                   {group.links.map((item) => (
-                    <li key={item}>
-                      {item === t("landing.footer.linkCollections") ? (
-                        <motion.a
-                          href="/collections"
-                          whileHover={{ x: 4 }}
+                    <li key={item.key}>
+                      {item.to !== "#" ? (
+                        <Link
+                          to={item.to}
                           className="inline-block transition-colors hover:!text-[var(--relic-text)] text-[var(--relic-text-muted)]"
                           style={{
                             fontFamily: "'Inter', sans-serif",
                             fontSize: "0.9rem",
                           }}
                         >
-                          {item}
-                        </motion.a>
+                          <motion.span whileHover={{ x: 4 }} className="inline-block">
+                            {item.label}
+                          </motion.span>
+                        </Link>
                       ) : (
-                        <motion.a
+                        <a
                           href="#"
-                          whileHover={{ x: 4 }}
                           className="inline-block transition-colors hover:!text-[var(--relic-text)] text-[var(--relic-text-muted)]"
                           style={{
                             fontFamily: "'Inter', sans-serif",
                             fontSize: "0.9rem",
                           }}
                         >
-                          {item}
-                        </motion.a>
+                          <motion.span whileHover={{ x: 4 }} className="inline-block">
+                            {item.label}
+                          </motion.span>
+                        </a>
                       )}
                     </li>
                   ))}

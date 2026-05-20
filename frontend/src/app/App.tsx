@@ -9,6 +9,17 @@ import { LoginPage } from '@/app/pages/LoginPage';
 import { RegisterPage } from '@/app/pages/RegisterPage';
 import { ProfilePage } from '@/app/pages/ProfilePage';
 import CollectionsPage from '@/app/pages/CollectionsPage';
+import ArchiveAccessPage from '@/app/pages/ArchiveAccessPage';
+import DocumentationPage from '@/app/pages/DocumentationPage';
+import ResearchToolsPage from '@/app/pages/ResearchToolsPage';
+import AboutPage from '@/app/pages/AboutPage';
+import ResearchPapersPage from '@/app/pages/ResearchPapersPage';
+import PartnershipsPage from '@/app/pages/PartnershipsPage';
+import PressKitPage from '@/app/pages/PressKitPage';
+import HelpPage from '@/app/pages/HelpPage';
+import ContactPage from '@/app/pages/ContactPage';
+import PrivacyPage from '@/app/pages/PrivacyPage';
+import TermsPage from '@/app/pages/TermsPage';
 import { AdminLayout } from '@/app/pages/admin/AdminLayout';
 import { AdminDashboard } from '@/app/pages/admin/AdminDashboard';
 import { AdminUsers } from '@/app/pages/admin/AdminUsers';
@@ -38,6 +49,18 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/collections" element={<CollectionsPage />} />
+                <Route path="/archive" element={<ArchiveAccessPage />} />
+                <Route path="/documentation" element={<DocumentationPage />} />
+                <Route path="/research-tools" element={<ResearchToolsPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/research-papers" element={<ResearchPapersPage />} />
+                <Route path="/partnerships" element={<PartnershipsPage />} />
+                <Route path="/press-kit" element={<PressKitPage />} />
+                <Route path="/help" element={<HelpPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AppShell>
