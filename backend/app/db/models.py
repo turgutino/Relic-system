@@ -55,3 +55,11 @@ class CommentLike(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     __table_args__ = (UniqueConstraint("user_id", "comment_id", name="uq_user_comment_like"),)
+
+
+class Subscriber(Base):
+    __tablename__ = "subscribers"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+    is_active = Column(Boolean, default=True)

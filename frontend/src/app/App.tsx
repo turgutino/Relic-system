@@ -24,6 +24,7 @@ import { AdminLayout } from '@/app/pages/admin/AdminLayout';
 import { AdminDashboard } from '@/app/pages/admin/AdminDashboard';
 import { AdminUsers } from '@/app/pages/admin/AdminUsers';
 import { AdminComments } from '@/app/pages/admin/AdminComments';
+import { AdminSubscribers } from '@/app/pages/admin/AdminSubscribers';
 import { AuthProvider } from '@/app/context/AuthContext';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="comments" element={<AdminComments />} />
+          <Route path="subscribers" element={<AdminSubscribers />} />
         </Route>
 
         <Route

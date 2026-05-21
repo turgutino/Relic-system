@@ -20,7 +20,10 @@ from typing import Any, Literal
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
@@ -29,12 +32,14 @@ from pydantic import BaseModel, Field
 from app.services import dynasty_parser, material_parser, relics as relics_service
 from app.db.database import Base, engine, get_db
 from app.db.models import Favorite, History, User
+from app.limiter import limiter
 from app.routers import auth as auth_router
 from app.routers.auth import get_current_user
 from app.routers import favorites as favorites_router
 from app.routers import history as history_router
 from app.routers import comments as comments_router
 from app.routers import admin as admin_router
+from app.routers import newsletter as newsletter_router
 
 # Repo root: backend/app/main.py -> parents[2] == Relic-system
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -118,12 +123,25 @@ app = FastAPI(
     description="API for relic metadata: optional Neo4j + sample JSON fallback.",
 )
 
+app.state.limiter = limiter
+
+
+async def _custom_rate_limit_handler(request, exc):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Too many requests. Please try again later."},
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, _custom_rate_limit_handler)
+
 Base.metadata.create_all(bind=engine)
 app.include_router(auth_router.router)
 app.include_router(favorites_router.router)
 app.include_router(history_router.router)
 app.include_router(comments_router.router)
 app.include_router(admin_router.router)
+app.include_router(newsletter_router.router)
 
 app.add_middleware(
     CORSMiddleware,

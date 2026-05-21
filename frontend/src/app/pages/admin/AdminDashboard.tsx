@@ -8,6 +8,7 @@ type AdminStats = {
   total_favorites: number;
   total_history: number;
   total_comments: number;
+  total_subscribers: number;
 };
 
 const cardBg = { background: '#1a1a2e', border: '1px solid #2a2a3d' };
@@ -17,6 +18,7 @@ const cards: { key: keyof AdminStats; label: string; color: string }[] = [
   { key: 'total_favorites', label: 'Total Favorites', color: '#f59e0b' },
   { key: 'total_history', label: 'Total History', color: '#10b981' },
   { key: 'total_comments', label: 'Total Comments', color: '#ec4899' },
+  { key: 'total_subscribers', label: 'Total Subscribers', color: '#06b6d4' },
 ];
 
 export function AdminDashboard() {

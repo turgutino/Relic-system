@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from app.db.database import get_db
-from app.db.models import Comment, CommentLike, Favorite, History, User
+from app.db.models import Comment, CommentLike, Favorite, History, Subscriber, User
 from app.routers.auth import require_admin
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -40,6 +40,17 @@ class StatsOut(BaseModel):
     total_favorites: int
     total_history: int
     total_comments: int
+    total_subscribers: int
+
+
+class SubscriberOut(BaseModel):
+    id: int
+    email: str
+    created_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
 
 
 def _admin_count(db: Session) -> int:
@@ -152,6 +163,28 @@ def delete_comment(
     db.commit()
 
 
+@router.get("/subscribers", response_model=list[SubscriberOut])
+def list_subscribers(
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    return db.query(Subscriber).order_by(Subscriber.created_at.desc()).all()
+
+
+@router.delete("/subscribers/{subscriber_id}")
+def delete_subscriber(
+    subscriber_id: int,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(require_admin),
+):
+    subscriber = db.query(Subscriber).filter(Subscriber.id == subscriber_id).first()
+    if not subscriber:
+        raise HTTPException(status_code=404, detail="Subscriber not found")
+    db.delete(subscriber)
+    db.commit()
+    return {"ok": True}
+
+
 @router.get("/stats", response_model=StatsOut)
 def get_stats(
     db: Session = Depends(get_db),
@@ -162,4 +195,5 @@ def get_stats(
         total_favorites=db.query(Favorite).count(),
         total_history=db.query(History).count(),
         total_comments=db.query(Comment).count(),
+        total_subscribers=db.query(Subscriber).count(),
     )

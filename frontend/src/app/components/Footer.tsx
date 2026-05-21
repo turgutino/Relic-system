@@ -2,9 +2,50 @@ import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 export function Footer() {
   const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = useCallback(async () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    setSubscribing(true);
+    try {
+      const res = await fetch("/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (res.status === 429) {
+        toast.error("Too many attempts. Try again later.");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.detail || "Subscription failed. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      if (data.already) {
+        toast.info("You're already subscribed!");
+      } else {
+        toast.success("You're subscribed!");
+        setSubscribed(true);
+        setEmail("");
+      }
+    } catch {
+      toast.error("Subscription failed. Please try again.");
+    } finally {
+      setSubscribing(false);
+    }
+  }, [email]);
 
   const linkGroups = [
     {
@@ -239,7 +280,15 @@ export function Footer() {
               <input
                 type="email"
                 placeholder={t("landing.footer.emailPlaceholder")}
-                className="min-w-0 flex-1 w-full px-5 py-3.5 sm:px-6 sm:py-4 rounded-full outline-none"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !subscribing && !subscribed) {
+                    handleSubscribe();
+                  }
+                }}
+                disabled={subscribing || subscribed}
+                className="min-w-0 flex-1 w-full px-5 py-3.5 sm:px-6 sm:py-4 rounded-full outline-none disabled:opacity-50"
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontSize: "0.95rem",
@@ -250,9 +299,11 @@ export function Footer() {
               />
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="shrink-0 w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 rounded-full whitespace-nowrap"
+                whileHover={!subscribing && !subscribed ? { scale: 1.05 } : undefined}
+                whileTap={!subscribing && !subscribed ? { scale: 0.95 } : undefined}
+                onClick={handleSubscribe}
+                disabled={subscribing || subscribed}
+                className="shrink-0 w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 rounded-full whitespace-nowrap disabled:opacity-50"
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontSize: "0.95rem",
@@ -261,7 +312,7 @@ export function Footer() {
                   color: "var(--relic-btn-primary-fg)",
                 }}
               >
-                {t("landing.footer.subscribe")}
+                {subscribed ? t("landing.footer.subscribed") || "Subscribed!" : subscribing ? "Subscribing..." : t("landing.footer.subscribe")}
               </motion.button>
             </div>
           </div>

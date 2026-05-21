@@ -1,6 +1,6 @@
 import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/context/AuthContext';
-import { ArrowLeft, LayoutDashboard, Users, MessageSquare, LogOut } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, Users, MessageSquare, LogOut, Mail } from 'lucide-react';
 
 const sidebarLink = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors no-underline ${
@@ -11,6 +11,7 @@ const links = [
   { to: '/admin', end: true, label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/users', end: false, label: 'Users', icon: Users },
   { to: '/admin/comments', end: false, label: 'Comments', icon: MessageSquare },
+  { to: '/admin/subscribers', end: false, label: 'Subscribers', icon: Mail },
 ];
 
 export function AdminLayout() {

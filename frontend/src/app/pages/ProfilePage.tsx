@@ -136,9 +136,35 @@ export function ProfilePage() {
     });
   };
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPwMsg('Coming soon');
+    if (!user) return;
+    setPwMsg(null);
+    try {
+      const res = await fetch('/auth/change-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+          confirm_password: confirmPassword,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setPwMsg(data.detail || 'Failed to change password');
+        return;
+      }
+      setPwMsg('Password changed successfully');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch {
+      setPwMsg('Failed to change password');
+    }
   };
 
   const tabLabel = (t: Tab) => {
