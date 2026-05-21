@@ -823,3 +823,132 @@ def fetch_related_relics_from_neo4j(relic_id: str) -> list[dict[str, Any]]:
 
     ranked.sort(key=lambda x: (-x[0], (x[1].get("name") or "").lower()))
     return [row for _, row in ranked[:5]]
+
+
+_INTERACTED_DYNASTIES_MATERIALS_CYPHER = """
+MATCH (r:Relic)
+WHERE r.id IN $ids
+RETURN r.dynasty AS dynasty, r.material AS material
+"""
+
+_RANDOM_RELICS_CYPHER = (
+    """
+MATCH (r:Relic)
+WHERE NOT r.id IN $viewed_ids
+"""
+    + RELICS_PAGE_RETURN
+    + """
+ORDER BY rand()
+LIMIT $limit
+"""
+)
+
+_RECOMMENDATIONS_CYPHER = (
+    """
+MATCH (r:Relic)
+WHERE (
+  any(d IN $dynasty_keywords WHERE toLower(coalesce(r.dynasty, \"\")) CONTAINS toLower(d))
+  OR any(m IN $material_keywords WHERE toLower(coalesce(r.material, \"\")) CONTAINS toLower(m))
+)
+AND NOT r.id IN $viewed_ids
+"""
+    + RELICS_PAGE_RETURN
+    + """
+LIMIT $limit
+"""
+)
+
+
+def fetch_recommendations_from_neo4j(
+    interacted_ids: list[str],
+    viewed_ids: list[str],
+    limit: int = 8,
+) -> list[dict[str, Any]] | None:
+    if not database.is_neo4j_configured():
+        return None
+    if not database.verify_connection():
+        return None
+
+    try:
+        interacted_records = database.run_read_query(
+            _INTERACTED_DYNASTIES_MATERIALS_CYPHER,
+            {"ids": list(interacted_ids)},
+        )
+    except Exception:
+        return None
+
+    user_dynasties: set[str] = set()
+    user_materials: set[str] = set()
+    for row in interacted_records:
+        d = dynasty_parser.extract_clean_dynasty(str(row.get("dynasty") or "").strip())
+        if d:
+            user_dynasties.add(d)
+        mats = material_parser.extract_core_materials(str(row.get("material") or "").strip())
+        if mats:
+            user_materials.update(mats)
+
+    if not user_dynasties and not user_materials:
+        try:
+            records = database.run_read_query(
+                _RANDOM_RELICS_CYPHER,
+                {"viewed_ids": list(viewed_ids), "limit": int(limit)},
+            )
+        except Exception:
+            return None
+        return _records_to_relics(records)
+
+    candidate_limit = max(int(limit) * 6, 48)
+    try:
+        records = database.run_read_query(
+            _RECOMMENDATIONS_CYPHER,
+            {
+                "dynasty_keywords": list(user_dynasties),
+                "material_keywords": list(user_materials),
+                "viewed_ids": list(viewed_ids),
+                "limit": int(candidate_limit),
+            },
+        )
+    except Exception:
+        return None
+
+    items = _records_to_relics(records)
+
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for item in items:
+        d_match = bool(item.get("dynasty") and item["dynasty"] in user_dynasties)
+        raw_mat = str(item.get("material") or "").strip()
+        mats = material_parser.extract_core_materials(raw_mat)
+
+        score = 0
+        if d_match:
+            score += 2
+        if mats and user_materials:
+            score += sum(1 for m in mats if m in user_materials)
+
+        if score > 0:
+            scored.append((score, item))
+
+    scored.sort(key=lambda x: (-x[0], (x[1].get("name") or "").lower()))
+
+    return [row for _, row in scored[:limit]]
+
+
+def fetch_random_relics_from_neo4j(
+    viewed_ids: list[str] | None = None,
+    limit: int = 8,
+) -> list[dict[str, Any]] | None:
+    if not database.is_neo4j_configured():
+        return None
+    if not database.verify_connection():
+        return None
+
+    vids = list(viewed_ids) if viewed_ids else []
+    try:
+        records = database.run_read_query(
+            _RANDOM_RELICS_CYPHER,
+            {"viewed_ids": vids, "limit": int(limit)},
+        )
+    except Exception:
+        return None
+
+    return _records_to_relics(records)

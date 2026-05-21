@@ -10,13 +10,15 @@ import html
 import io
 import json
 import os
+import random
 import re
 from collections import Counter
 from functools import cmp_to_key
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from openpyxl import Workbook
@@ -25,8 +27,10 @@ from openpyxl.utils import get_column_letter
 from pydantic import BaseModel, Field
 
 from app.services import dynasty_parser, material_parser, relics as relics_service
-from app.db.database import Base, engine
+from app.db.database import Base, engine, get_db
+from app.db.models import Favorite, History, User
 from app.routers import auth as auth_router
+from app.routers.auth import get_current_user
 from app.routers import favorites as favorites_router
 from app.routers import history as history_router
 from app.routers import comments as comments_router
@@ -626,6 +630,104 @@ def stats() -> dict:
     if neo is not None:
         return neo
     return _stats_from_json()
+
+
+@app.get("/recommendations")
+def get_recommendations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[dict]:
+    history_entries = (
+        db.query(History)
+        .filter(History.user_id == current_user.id)
+        .order_by(History.created_at.desc())
+        .limit(20)
+        .all()
+    )
+
+    favorite_entries = (
+        db.query(Favorite)
+        .filter(Favorite.user_id == current_user.id)
+        .all()
+    )
+
+    viewed_ids = {h.relic_id for h in history_entries}
+
+    if not history_entries and not favorite_entries:
+        neo = relics_service.fetch_random_relics_from_neo4j(limit=6)
+        if neo is not None:
+            return neo
+        sample = _load_sample_relics()
+        candidates = [
+            _normalize_relic_payload(r)
+            for r in sample
+            if isinstance(r, dict)
+        ]
+        random.shuffle(candidates)
+        return candidates[:6]
+
+    interacted_ids = viewed_ids | {f.relic_id for f in favorite_entries}
+
+    neo = relics_service.fetch_recommendations_from_neo4j(
+        interacted_ids=list(interacted_ids),
+        viewed_ids=list(viewed_ids),
+        limit=6,
+    )
+    if neo is not None:
+        return neo
+
+    sample = _load_sample_relics()
+
+    user_dynasties: set[str] = set()
+    user_materials: set[str] = set()
+
+    for raw in sample:
+        if not isinstance(raw, dict):
+            continue
+        rid = str(raw.get("id") or "").strip()
+        if rid not in interacted_ids:
+            continue
+        d = dynasty_parser.extract_clean_dynasty(str(raw.get("dynasty") or "").strip())
+        if d:
+            user_dynasties.add(d)
+        mats = material_parser.extract_core_materials(str(raw.get("material") or "").strip())
+        if mats:
+            user_materials.update(mats)
+
+    if not user_dynasties and not user_materials:
+        candidates = [
+            _normalize_relic_payload(r)
+            for r in sample
+            if isinstance(r, dict) and str(r.get("id") or "").strip() not in viewed_ids
+        ]
+        random.shuffle(candidates)
+        return candidates[:6]
+
+    scored: list[tuple[int, dict]] = []
+    for raw in sample:
+        if not isinstance(raw, dict):
+            continue
+        rid = str(raw.get("id") or "").strip()
+        if rid in viewed_ids:
+            continue
+
+        norm = _normalize_relic_payload(raw)
+        d_match = bool(norm.get("dynasty") and norm["dynasty"] in user_dynasties)
+        raw_mat = str(raw.get("material") or "").strip()
+        mats = material_parser.extract_core_materials(raw_mat)
+
+        score = 0
+        if d_match:
+            score += 2
+        if mats and user_materials:
+            score += sum(1 for m in mats if m in user_materials)
+
+        if score > 0:
+            scored.append((score, norm))
+
+    scored.sort(key=lambda x: (-x[0], (x[1].get("name") or "").lower()))
+
+    return [row for _, row in scored[:6]]
 
 
 @app.get("/relics")
